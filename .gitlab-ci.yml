@@ -1,0 +1,71 @@
+image: 'node:10.14'
+
+stages:
+  - setup
+  - test
+  - build
+  - release
+
+# Fallback to support `includes`
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - node_modules/
+    - lib/
+
+.shared:
+  artifacts:
+    paths:
+      - lib/
+      - package.json
+      - CHANGELOG.md
+    expire_in: 30 days
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+      - lib/
+
+build_npm_package:
+  stage: build
+  extends: .shared
+  except:
+    refs:
+      - schedules
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  script:
+    - yarn build
+  cache:
+    policy: pull
+
+release:
+  stage: release
+  extends: .shared
+  cache:
+    policy: pull
+  artifacts: {}
+  only:
+    - master
+  except:
+    refs:
+      - schedules
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  script:
+    - git config --global user.name "gitlab-bot"
+    - git config --global user.email "gitlab-bot@brickblock.io"
+    - git config --global push.followTags true
+    - git config --global push.default current
+    - yarn release
+    - echo '//registry.npmjs.org/:_authToken=${SECRET_NPM_TOKEN}'>.npmrc
+    - git push https://gitlab-bot:"$SECRET_GITLAB_BOT_CI_TOKEN"@git.brickblock.sh/"$CI_PROJECT_PATH" HEAD:master --follow-tags
+    - npm publish --access public
+    - npx @brickblock/slack-changelog-notifier --projectName $CI_PROJECT_NAME
+
+include:
+  - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/setup.yml'
+  - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/lint.yml'
+  - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/test.yml'
