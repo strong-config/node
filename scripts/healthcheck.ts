@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import chalk from 'chalk'
 import ora from 'ora'
-import sh, { ExecCallback } from 'shelljs'
+import shell, { ExecCallback } from 'shelljs'
 
 const run = (command: string, options = { silent: true }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const callback: ExecCallback = (exitCode, stdout, stderr) =>
       exitCode !== 0 ? reject(stderr) : resolve(stdout.trim())
 
-    sh.exec(command, options, callback)
+    shell.exec(command, options, callback)
   })
 }
 

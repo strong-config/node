@@ -3,11 +3,14 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
     "noImplicitAny": true,
-    "outDir": "./build",
+    "outDir": "./lib",
     "paths": {
       "*": ["node_modules/*"]
     },
@@ -16,6 +19,6 @@
     "strict": true,
     "target": "es6"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "exclude": ["src/**/*.test.ts", "node_modules"]
 }
