@@ -66,11 +66,9 @@ const parseConfig = (configFile: string): File => {
 
 export const readConfigFile = (filename: string | undefined): File => {
   if (R.isNil(filename)) {
-    // TODO: Decide on if we aggregate error throwing/messages in utils/errors.ts
     throw new Error('Config file name must not be nil')
   }
 
-  // TODO: Makes this configurable. But it's a good default
   const path = `${process.cwd()}/config`
   const files = findConfigFiles(path, filename)
 
