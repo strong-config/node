@@ -1,17 +1,17 @@
 {
-  "name": "strong-config-ts",
+  "name": "@strong-config/node",
   "version": "0.0.1",
-  "description": "SOPS-based secret management tool for NodeJS",
+  "description": "SOPS-based secret management tool for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
-    "lib"
+    "/lib"
   ],
   "repository": "git@github.com:strong-config/node.git",
-  "author": "mohoff <moritz.hoffmann@brickblock.io>",
+  "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
-    "health": "ts-node scripts/healthcheck.ts",
+    "health": "yarn lint && yarn build && yarn todo",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown",
     "lint:ts": "eslint --ext [.ts] src scripts",
     "lint:ts:fix": "eslint --fix --ext [.ts] src scripts",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@brickblock/eslint-config-base-ts": "^1.0.2",
     "@commitlint/config-conventional": "^8.2.0",
-    "@types/execa": "^2.0.0",
+    "@types/ajv": "^1.0.0",
     "@types/glob": "^7.1.1",
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
@@ -66,7 +66,6 @@
     "execa": "^2.0.4",
     "glob": "^7.1.4",
     "json-schema-to-typescript": "^7.1.0",
-    "pascal-case": "^2.0.1",
     "ramda": "^0.26.1"
   }
 }

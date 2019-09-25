@@ -10,7 +10,7 @@ export const substituteWithEnv = (stringContent: string): string =>
         throw new Error(`process.env is missing key "${key}"`)
       }
 
-      if (!isNaN(Number(original.charAt(0)))) {
+      if (!isNaN(Number(original.charAt(2)))) {
         throw new Error('Environment variable must not start with a digit')
       }
 

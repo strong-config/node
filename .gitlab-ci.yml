@@ -55,13 +55,13 @@ release:
     variables:
       - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
   script:
-    - git config --global user.name "gitlab-bot"
-    - git config --global user.email "gitlab-bot@brickblock.io"
+    - git config --global user.name "${GIT_USER_NAME}"
+    - git config --global user.email "${GIT_USER_EMAIL}"
     - git config --global push.followTags true
     - git config --global push.default current
     - yarn release
     - echo '//registry.npmjs.org/:_authToken=${SECRET_NPM_TOKEN}'>.npmrc
-    - git push https://gitlab-bot:"$SECRET_GITLAB_BOT_CI_TOKEN"@git.brickblock.sh/"$CI_PROJECT_PATH" HEAD:master --follow-tags
+    - git push https://${GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/strong-config/node.git HEAD:master --follow-tags
     - npm publish --access public
     - npx @brickblock/slack-changelog-notifier --projectName $CI_PROJECT_NAME
 
