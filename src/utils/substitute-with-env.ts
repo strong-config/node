@@ -1,6 +1,5 @@
 import R from 'ramda'
 
-// TODO: Capture less strict /\${(.*)}/g so we can throw explicity when captured group violates /[a-zA-Z_]+[a-zA-Z0-9_]*/ (https://stackoverflow.com/a/2821201/3626075)
 const REGEXP_SUBSTITUTION_PATTERN = /\${(\w+)}/g
 
 export const substituteWithEnv = (stringContent: string): string =>
