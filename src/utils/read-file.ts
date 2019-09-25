@@ -1,25 +1,22 @@
+import R from 'ramda'
 import fs from 'fs'
 import glob from 'glob'
 import yaml from 'js-yaml'
-import R from 'ramda'
 
-enum FileExtension {
+export enum FileExtension {
   JSON = 'json',
   YAML = 'yaml',
   YML = 'yml',
 }
 type File = {
   contents: {
-    properties: {
-      runtimeEnvironment: string
-    }
-    required: string[]
-    sops: Record<string, any>
+    sops?: Record<string, any>
+    [key: string]: any
   }
   filePath: string
 }
 
-class NoFileError extends Error {
+export class NoFileError extends Error {
   constructor(message: string) {
     super(message)
     Object.setPrototypeOf(this, NoFileError.prototype)
@@ -40,15 +37,13 @@ const findConfigFiles = (
 
 const getFileExtensionFromPath = R.compose<
   string,
-  string,
   string[],
   string,
   FileExtension
 >(
   ext => FileExtension[ext.toUpperCase() as keyof typeof FileExtension],
   R.last,
-  R.split('.'),
-  R.head
+  R.split('.')
 )
 
 const parseConfig = (configFile: string): File => {
@@ -91,7 +86,7 @@ export const readSchemaFile = (filename = 'schema'): File | undefined => {
   try {
     schema = readConfigFile(filename)
   } catch (error) {
-    // Support no schemas
+    // Defining a schema is optional. strong-config should still work without providing a schema.
     if (error instanceof NoFileError) {
       return undefined
     }

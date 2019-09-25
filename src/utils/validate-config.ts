@@ -1,9 +1,11 @@
 import Ajv from 'ajv'
 
-export const validateConfig = (config: any, schema: any): true => {
-  const ajv = new Ajv({ useDefaults: true })
+const ajv = new Ajv({ useDefaults: true })
 
-  if (!ajv.validate(schema, config)) {
+export const validateConfig = (config: any, schema: any): true => {
+  const validate = ajv.compile(schema)
+
+  if (!validate(config)) {
     throw new Error(ajv.errorsText())
   }
 

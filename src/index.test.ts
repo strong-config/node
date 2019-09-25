@@ -1,9 +1,11 @@
-describe('jest tests work', () => {
-  it('passes', () => {
-    expect(1 + 1).toBe(2)
+import * as strongConfig from './index'
+
+describe('strong-config exports are as expected', () => {
+  it('exports a load function', () => {
+    expect(strongConfig.load).toBeInstanceOf(Function)
   })
 
-  it('passes also', () => {
-    expect('asdf').toBe('asdf')
+  it('exports a validate function', () => {
+    expect(strongConfig.validate).toBeInstanceOf(Function)
   })
 })

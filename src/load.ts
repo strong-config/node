@@ -5,21 +5,23 @@ import { validateConfig } from './utils/validate-config'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import * as sops from './utils/sops'
 
-type MemoizedState = {
-  didLoad: boolean
-  config: any
+type MemoizedConfig = Record<string, any> | undefined
+let memoizedConfig: MemoizedConfig = undefined
+
+export const getMemoizedConfig = (): MemoizedConfig => {
+  return memoizedConfig
 }
 
-const memoizedState: MemoizedState = {
-  didLoad: false,
-  config: null,
+export const clearMemoizedConfig = (): void => {
+  memoizedConfig = undefined
 }
 
 export const load = (
-  state: MemoizedState = memoizedState
+  passedConfig: MemoizedConfig = memoizedConfig
 ): Record<string, any> => {
-  if (state.didLoad) {
-    return state.config
+  if (passedConfig !== undefined) {
+    memoizedConfig = passedConfig
+    return passedConfig
   }
 
   if (R.isNil(process.env.RUNTIME_ENVIRONMENT)) {
@@ -43,8 +45,7 @@ export const load = (
     generateTypeFromSchema('config/schema.json')
   }
 
-  state.didLoad = true
-  state.config = config
+  memoizedConfig = config
 
   return config
 }
