@@ -4,7 +4,7 @@ import { ExecaSyncReturnValue } from 'execa'
 jest.mock('execa')
 jest.mock('js-yaml')
 const mockedFilePath = './config/development.yaml'
-const mockedParsedConfig: Record<string, any> = {
+const mockedParsedConfig: EncryptedConfig = {
   field: 'asdf',
   fieldSecret: 'ENC[some encrypted value]',
   sops: {
@@ -15,7 +15,7 @@ const mockedDecryptedConfigAsString: string = JSON.stringify({
   field: 'asdf',
   fieldSecret: 'PLAIN TEXT',
 })
-const mockedParsedConfigNoSops: Record<string, any> = R.dissoc(
+const mockedParsedConfigNoSops: EncryptedConfig = R.dissoc(
   'sops',
   mockedParsedConfig
 )

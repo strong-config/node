@@ -6,7 +6,7 @@ jest.mock('./utils/read-file')
 jest.mock('./utils/sops')
 
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
-import { hydrateConfig } from './utils/hydrate-config'
+import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
 import { validateConfig } from './utils/validate-config'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import { decryptToObject } from './utils/sops'
@@ -45,17 +45,21 @@ const mockedHydrateConfig = hydrateConfig as jest.MockedFunction<
 mockedReadConfigFile.mockReturnValue(mockedConfigFile)
 mockedReadSchemaFile.mockReturnValue(mockedSchemaFile)
 mockedDecryptToObject.mockReturnValue(mockedDecryptedConfigFile)
-const innerHydrateFunction = jest.fn(() => mockedHydratedConfig)
+const innerHydrateFunction: jest.MockedFunction<InnerHydrateFunction> = jest.fn(
+  () => mockedHydratedConfig
+)
 mockedHydrateConfig.mockReturnValue(innerHydrateFunction)
 
 import { load, clearMemoizedConfig, getMemoizedConfig } from './load'
+
+const RUNTIME_ENVIRONMENT = 'development'
 
 const passedConfig = undefined
 const alreadyLoadedConfig = {
   key: 'value',
   name: 'some name',
+  runtimeEnvironment: RUNTIME_ENVIRONMENT,
 }
-const RUNTIME_ENVIRONMENT = 'development'
 
 describe('load behaves as expected', () => {
   const OLD_ENV = process.env
@@ -71,7 +75,7 @@ describe('load behaves as expected', () => {
     process.env = OLD_ENV
   })
 
-  it('returns the memoized state if didLoad is true', () => {
+  it('returns the memoized state if loaded config is not nil', () => {
     expect(load(alreadyLoadedConfig)).toEqual(alreadyLoadedConfig)
   })
 
@@ -144,18 +148,21 @@ describe('load behaves as expected', () => {
     expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
   })
 
-  it('mutatates the internal state', () => {
+  it('mutates the internal state', () => {
     const inputConfig = { key: 'value' }
 
     load(inputConfig)
 
     expect(getMemoizedConfig()).toBeDefined()
-    expect(getMemoizedConfig()).toBe(inputConfig)
+    expect(getMemoizedConfig()).toStrictEqual({
+      ...inputConfig,
+      runtimeEnvironment: RUNTIME_ENVIRONMENT,
+    })
   })
 
   it('returns the config', () => {
     const loadedConfig = load()
 
-    expect(loadedConfig).toBe(mockedHydratedConfig)
+    expect(loadedConfig).toStrictEqual(mockedHydratedConfig)
   })
 })
