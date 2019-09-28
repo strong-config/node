@@ -9,10 +9,7 @@ export enum FileExtension {
   YML = 'yml',
 }
 type File = {
-  contents: {
-    sops?: Record<string, any>
-    [key: string]: any
-  }
+  contents: EncryptedConfig | Schema
   filePath: string
 }
 

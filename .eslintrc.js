@@ -1,6 +1,7 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
+    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
@@ -14,7 +15,13 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
-    // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+    eqeqeq: ['error', 'always'],
+    'no-import-assign': 'error',
+    'prefer-regex-literals': 'error',
+    'default-param-last': 'error',
+    // Overwrites
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-empty-interface': 'warn'
   },
+  reportUnusedDisableDirectives: true,
 }

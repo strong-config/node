@@ -16,10 +16,10 @@ const runSopsWithOptions = (options: string[]): string => {
 
 export const decryptToObject = (
   filePath: string,
-  parsedConfig: Record<string, any> | undefined = undefined
-): Record<string, any> => {
-  if (parsedConfig === undefined) {
-    throw new Error('Config is undefined and can not be decrytped')
+  parsedConfig: EncryptedConfig
+): DecryptedConfig => {
+  if (R.isNil(parsedConfig)) {
+    throw new Error('Config is nil and can not be decrytped')
   }
 
   // If there's no SOPS metadata, parsedConfig already represents decrypted config
@@ -33,4 +33,4 @@ export const decryptToObject = (
 }
 
 export const decryptInPlace = (filePath: string): void =>
-  (runSopsWithOptions(['--decrypt', '--in-place', filePath]) as any) as void
+  (runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown) as void
