@@ -45,7 +45,7 @@ mockedCompileFromFile.mockResolvedValue(mockedCompiledTypes)
 
 import { pascalCase, generateTypeFromSchema } from './generate-type-from-schema'
 
-describe('pascalCase behaves as expected', () => {
+describe('pascalCase()', () => {
   test.each([
     ['name', 'Name'],
     ['some-name', 'SomeName'],
@@ -57,7 +57,7 @@ describe('pascalCase behaves as expected', () => {
   })
 })
 
-describe('generateTypeFromSchema behaves as expected', () => {
+describe('generateTypeFromSchema()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })

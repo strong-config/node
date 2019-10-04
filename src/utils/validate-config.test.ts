@@ -1,4 +1,4 @@
-describe('validateConfig works as expected', () => {
+describe('validateConfig()', () => {
   test.todo('compiles the schema')
 
   test.todo('validates the config agains the schema')

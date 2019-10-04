@@ -20,7 +20,7 @@ mockedSubstituteWithEnv.mockReturnValue(mockedSubstitutedConfig)
 import { hydrateConfig } from './hydrate-config'
 const hydrateConfigInited = hydrateConfig(mockedRuntimeEnvironment)
 
-describe('hydrateConfig behaves as expected', () => {
+describe('hydrateConfig()', () => {
   it('calls substituteWithEnv', () => {
     hydrateConfigInited(mockedConfig)
 

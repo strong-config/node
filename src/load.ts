@@ -1,53 +1,53 @@
-import R from "ramda";
-import { generateTypeFromSchema } from "./utils/generate-type-from-schema";
-import { hydrateConfig } from "./utils/hydrate-config";
-import { validateConfig } from "./utils/validate-config";
-import { readConfigFile, readSchemaFile } from "./utils/read-file";
-import * as sops from "./utils/sops";
+import R from 'ramda'
+import { generateTypeFromSchema } from './utils/generate-type-from-schema'
+import { hydrateConfig } from './utils/hydrate-config'
+import { validateConfig } from './utils/validate-config'
+import { readConfigFile, readSchemaFile } from './utils/read-file'
+import * as sops from './utils/sops'
 
-let memoizedConfig: MemoizedConfig = undefined;
+let memoizedConfig: MemoizedConfig = undefined
 
 export const getMemoizedConfig = (): MemoizedConfig => {
-  return memoizedConfig;
-};
+  return memoizedConfig
+}
 
 export const clearMemoizedConfig = (): void => {
-  memoizedConfig = undefined;
-};
+  memoizedConfig = undefined
+}
 
 export const load = (
   passedConfig: MemoizedConfig = memoizedConfig
 ): HydratedConfig => {
   if (R.isNil(process.env.RUNTIME_ENVIRONMENT)) {
-    throw new Error("process.env.RUNTIME_ENVIRONMENT must be defined.");
+    throw new Error('process.env.RUNTIME_ENVIRONMENT must be defined.')
   }
 
   if (!R.isNil(passedConfig)) {
     memoizedConfig = {
       ...passedConfig,
-      runtimeEnvironment: process.env.RUNTIME_ENVIRONMENT
-    };
-    return memoizedConfig;
+      runtimeEnvironment: process.env.RUNTIME_ENVIRONMENT,
+    }
+    return memoizedConfig
   }
 
-  const configFile = readConfigFile(process.env.RUNTIME_ENVIRONMENT);
+  const configFile = readConfigFile(`./config`, process.env.RUNTIME_ENVIRONMENT)
 
   const decrypted = sops.decryptToObject(
     configFile.filePath,
     configFile.contents
-  );
+  )
 
-  const config = hydrateConfig(process.env.RUNTIME_ENVIRONMENT)(decrypted);
+  const config = hydrateConfig(process.env.RUNTIME_ENVIRONMENT)(decrypted)
 
-  const schemaFile = readSchemaFile("schema");
+  const schemaFile = readSchemaFile('schema')
 
   if (schemaFile !== undefined) {
-    validateConfig(config, schemaFile.contents);
+    validateConfig(config, schemaFile.contents)
 
-    generateTypeFromSchema("config/schema.json");
+    generateTypeFromSchema('config/schema.json')
   }
 
-  memoizedConfig = config;
+  memoizedConfig = config
 
-  return config;
-};
+  return config
+}

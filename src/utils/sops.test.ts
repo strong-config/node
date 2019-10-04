@@ -31,7 +31,7 @@ mockedYaml.load = jest.fn().mockReturnValue('some: yaml')
 
 import { decryptToObject, decryptInPlace } from './sops'
 
-describe('decryptToObject behaves as expected', () => {
+describe('decryptToObject()', () => {
   it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
     const result = decryptToObject(mockedFilePath, mockedParsedConfigNoSops)
 
@@ -65,7 +65,7 @@ describe('decryptToObject behaves as expected', () => {
   })
 })
 
-describe('decryptInPlace works as expected', () => {
+describe('decryptInPlace()', () => {
   it('calls the SOPS binary with the flag "--in-place"', () => {
     decryptInPlace(mockedFilePath)
 

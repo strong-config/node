@@ -6,7 +6,7 @@ const mockedProcessEnv = {
   '0INVALID': 'INVALID KEY',
 }
 
-describe('substituteWithEnv behaves as expected', () => {
+describe('substituteWithEnv()', () => {
   const OLD_PROCESS_ENV = process.env
 
   beforeAll(() => {
