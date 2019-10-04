@@ -2,6 +2,8 @@ import { compileFromFile } from 'json-schema-to-typescript'
 import fs from 'fs'
 import R from 'ramda'
 
+const INDEX_SIGNATURE = '[k: string]: any'
+
 // json-schema-to-typescript uses a `toSafeString(string)` function https://github.com/bcherny/json-schema-to-typescript/blob/f41945f19b68918e9c13885f345cb708e1d9898a/src/utils.ts#L163) to obtain a normalized string. This pascalCase mimics this functionality and should address most cases.
 export const pascalCase = (input: string): string =>
   input
@@ -9,10 +11,22 @@ export const pascalCase = (input: string): string =>
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('')
 
+export const removeIndexSignatures = R.compose<
+  string,
+  string[],
+  string[],
+  string
+>(
+  R.join('\n'),
+  R.filter(line => !R.includes(INDEX_SIGNATURE, line)),
+  R.split('\n')
+)
+
 export const generateTypeFromSchema = async (
   filePath: string
 ): Promise<void> => {
   const baseTypes = await compileFromFile(filePath)
+  const cleanedTypes = removeIndexSignatures(baseTypes)
 
   const schemaString = fs.readFileSync(filePath).toString()
   const title = R.prop('title', JSON.parse(schemaString))
@@ -33,7 +47,7 @@ export const generateTypeFromSchema = async (
   runtimeEnvironment: string;
 }
 `
-  const exportedTypes = baseTypes.concat(configInterfaceAsString)
+  const exportedTypes = cleanedTypes.concat(configInterfaceAsString)
 
   fs.writeFileSync('strong-config.d.ts', exportedTypes)
 }

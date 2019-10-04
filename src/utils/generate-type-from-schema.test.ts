@@ -27,6 +27,15 @@ const mockedSchemaStringWithInvalidTitle = `
     "description": "This is a description"
   }
 `
+const mockedType = `export interface TheServerSchema {
+  port: ThePort;
+  [k: string]: any;
+}
+`
+const mockedTypeWithoutIndexSignature = `export interface TheServerSchema {
+  port: ThePort;
+}
+`
 
 jest.mock('fs')
 jest.mock('json-schema-to-typescript')
@@ -43,7 +52,11 @@ mockedFs.readFileSync = jest.fn().mockReturnValue(mockedSchemaString)
 mockedFs.writeFileSync = jest.fn().mockReturnValue(undefined)
 mockedCompileFromFile.mockResolvedValue(mockedCompiledTypes)
 
-import { pascalCase, generateTypeFromSchema } from './generate-type-from-schema'
+import {
+  pascalCase,
+  removeIndexSignatures,
+  generateTypeFromSchema,
+} from './generate-type-from-schema'
 
 describe('pascalCase behaves as expected', () => {
   test.each([
@@ -54,6 +67,20 @@ describe('pascalCase behaves as expected', () => {
     ['some name----asdf !@#($@^!)#% camelCase', 'SomeNameAsdfCamelCase'],
   ])('given %s, it correctly pascalCases to %s', (input, expectedOutput) => {
     expect(pascalCase(input)).toBe(expectedOutput)
+  })
+})
+
+describe('removeIndexSignatures behaves as expected', () => {
+  it('returns a string as-is if it does not have an index signature', () => {
+    const result = removeIndexSignatures(mockedTypeWithoutIndexSignature)
+
+    expect(result).toBe(mockedTypeWithoutIndexSignature)
+  })
+
+  it('strips lines that contain a index signature', () => {
+    const result = removeIndexSignatures(mockedType)
+
+    expect(result).toBe(mockedTypeWithoutIndexSignature)
   })
 })
 
