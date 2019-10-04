@@ -61,7 +61,7 @@ const alreadyLoadedConfig = {
   runtimeEnvironment: RUNTIME_ENVIRONMENT,
 }
 
-describe('load behaves as expected', () => {
+describe('load()', () => {
   const OLD_ENV = process.env
 
   beforeEach(() => {
@@ -92,7 +92,10 @@ describe('load behaves as expected', () => {
   it('reads the config based on process.env.RUNTIME_ENVIRONMENT', () => {
     load()
 
-    expect(mockedReadConfigFile).toHaveBeenCalledWith(RUNTIME_ENVIRONMENT)
+    expect(mockedReadConfigFile).toHaveBeenCalledWith(
+      expect.any(String),
+      RUNTIME_ENVIRONMENT
+    )
   })
 
   it('decrypts the config with SOPS', () => {

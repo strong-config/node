@@ -1,43 +1,52 @@
-jest.mock('glob')
-jest.mock('fs')
-jest.mock('js-yaml')
-import glob from 'glob'
-import fs from 'fs'
-import yaml from 'js-yaml'
-const mockedGlob = glob as jest.Mocked<typeof glob>
-const mockedFs = fs as jest.Mocked<typeof fs>
-const mockedYaml = yaml as jest.Mocked<typeof yaml>
+jest.mock('./find-files')
+jest.mock('./get-file-from-path')
+import { File, findConfigFiles, findFiles } from './find-files'
+import { getFileFromPath } from './get-file-from-path'
 
-const mockedFilenames = ['config/development.yml']
-const mockedReadFile = 'result'
-mockedGlob.sync = jest.fn().mockReturnValue(mockedFilenames)
-mockedFs.readFileSync = jest
-  .fn()
-  .mockReturnValue('parsed config in json or yaml format')
-mockedYaml.load = jest.fn().mockReturnValue(mockedReadFile)
+const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
+  typeof findConfigFiles
+>
+const mockedFindFiles = findFiles as jest.MockedFunction<typeof findFiles>
+const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
+  typeof getFileFromPath
+>
 
-import { NoFileError, readConfigFile, readSchemaFile } from './read-file'
+const mockedConfigFilePaths = ['config/development.yml']
+const mockedSchemaFilePaths = ['config/schema.json']
+mockedFindConfigFiles.mockReturnValue(mockedConfigFilePaths)
+mockedFindFiles.mockReturnValue(mockedSchemaFilePaths)
+const mockedFile: File = {
+  contents: {
+    parsed: 'values',
+  },
+  filePath: mockedConfigFilePaths[0],
+}
+mockedGetFileFromPath.mockReturnValue(mockedFile)
 
-describe('readConfigFile behaves as expected', () => {
+import { readConfigFile, readSchemaFile } from './read-file'
+
+describe('readConfigFile()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('throws when filename is nil', () => {
-    expect(() => readConfigFile(undefined)).toThrow(
-      /Config file name must not be nil/
+  it('passes arguments to findConfigFiles', () => {
+    readConfigFile('config', 'smth')
+
+    expect(mockedFindConfigFiles).toHaveBeenCalledWith('config', 'smth')
+  })
+
+  it('throws when files array is empty', () => {
+    mockedFindConfigFiles.mockReturnValueOnce([])
+
+    expect(() => readConfigFile('config', 'smth')).toThrow(
+      /One of these files must exist/
     )
   })
 
-  it('throws NoFileError when files array is empty', () => {
-    mockedGlob.sync.mockReturnValueOnce([])
-
-    expect(() => readConfigFile('config')).toThrow(NoFileError)
-  })
-
   it('throws when files array contains more than one match', () => {
-    mockedGlob.sync.mockReturnValueOnce([
-      ...mockedFilenames,
+    mockedFindConfigFiles.mockReturnValueOnce([
+      ...mockedConfigFilePaths,
       'config/anotherfile.yaml',
     ])
 
@@ -45,58 +54,43 @@ describe('readConfigFile behaves as expected', () => {
   })
 
   it('reads file when exactly one config is found', () => {
-    readConfigFile('config')
+    readConfigFile('dev/config', 'development')
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockedFilenames[0])
+    expect(mockedGetFileFromPath).toHaveBeenCalledWith(mockedConfigFilePaths[0])
   })
 
-  it('parses file as YAML when the file extension is yml|yaml', () => {
-    readConfigFile('config')
-
-    expect(mockedYaml.load).toHaveBeenCalledTimes(1)
-  })
-
-  it('parses file not as YAML when the file extension is not yml|yaml', () => {
-    mockedGlob.sync.mockReturnValueOnce(['config/development.json'])
-    mockedFs.readFileSync.mockReturnValueOnce('{ "some": "value"}')
-
-    readConfigFile('config')
-
-    expect(mockedYaml.load).toHaveBeenCalledTimes(0)
-  })
-
-  it('returns parsed file', () => {
-    expect(readConfigFile('config')).toEqual({
-      contents: mockedReadFile,
-      filePath: mockedFilenames[0],
-    })
+  it('returns result of getFileFromPath', () => {
+    expect(readConfigFile('dev/config', 'development')).toEqual(mockedFile)
   })
 })
 
-describe('readSchemaFile behaves as expected', () => {
+describe('readSchemaFile()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('returns undefined and does not throw NoFileError when files array is empty', () => {
-    mockedGlob.sync.mockReturnValueOnce([])
+  it('returns undefined and does not throw Error when files array is empty', () => {
+    findFiles.mockReturnValueOnce([])
 
     expect(readSchemaFile('schema')).toBeUndefined()
   })
 
   it('throws when files array contains more than one match', () => {
-    mockedGlob.sync.mockReturnValueOnce([
-      ...mockedFilenames,
+    findFiles.mockReturnValueOnce([
+      ...mockedConfigFilePaths,
       'config/anotherschema.json',
     ])
 
     expect(() => readSchemaFile('schema')).toThrow(/Exactly one must exist/)
   })
 
-  it('returns parsed schema', () => {
-    expect(readSchemaFile('schema')).toEqual({
-      contents: mockedReadFile,
-      filePath: mockedFilenames[0],
-    })
+  it('reads file when exactly one schema is found', () => {
+    readSchemaFile('schema')
+
+    expect(mockedGetFileFromPath).toHaveBeenCalledWith(mockedSchemaFilePaths[0])
+  })
+
+  it('returns result of getFileFromPath', () => {
+    expect(readSchemaFile('schema')).toEqual(mockedFile)
   })
 })

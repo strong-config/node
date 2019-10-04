@@ -66,6 +66,7 @@
     "ajv": "^6.10.2",
     "execa": "^2.0.4",
     "glob": "^7.1.4",
+    "js-yaml": "^3.13.1",
     "json-schema-to-typescript": "^7.1.0",
     "ramda": "^0.26.1"
   }
