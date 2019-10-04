@@ -1,4 +1,4 @@
-# `strong-config`
+# 💪 strong-config
 
 Secret management for NodeJS. Based on [SOPS](https://github.com/mozilla/sops).
 
