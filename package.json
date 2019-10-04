@@ -11,7 +11,7 @@
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
-    "health": "yarn lint && yarn build && yarn todo",
+    "health": "ts-node scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown",
     "lint:ts": "eslint --ext [.ts] src scripts",
     "lint:ts:fix": "eslint --fix --ext [.ts] src scripts",
