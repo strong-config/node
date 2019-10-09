@@ -1,11 +1,13 @@
 import { load } from './load'
 import { validate } from './validate'
 
+import { MemoizedConfig } from './types'
+
 interface Configuration {
   // TODO: define Configuration interface
 }
 
-export default class StrongConfig {
+export = class StrongConfig {
   public readonly configuration: Configuration | undefined
 
   constructor(configuration?: Configuration) {

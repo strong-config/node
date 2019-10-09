@@ -1,5 +1,7 @@
 import Ajv from 'ajv'
 
+import { BaseConfig, Schema } from '../types'
+
 const ajv = new Ajv({ useDefaults: true })
 
 export const validateConfig = (config: BaseConfig, schema: Schema): true => {

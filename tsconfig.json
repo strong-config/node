@@ -13,12 +13,13 @@
     "noImplicitAny": true,
     "outDir": "./lib",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*", "src/*"]
     },
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
+    "target": "es6",
+    "lib": ["es6"]
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", "node_modules"]

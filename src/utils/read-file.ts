@@ -4,15 +4,7 @@ import path from 'path'
 import { findConfigFiles, findFiles } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
-export enum FileExtension {
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-}
-export type File = {
-  contents: EncryptedConfig | Schema
-  filePath: string
-}
+import { File, FileExtension } from '../types'
 
 export const getFileExtensionPattern = (): string =>
   `{${Object.values(FileExtension).join(',')}}`
