@@ -5,6 +5,8 @@ import { findConfigFiles } from './utils/find-files'
 import { getFileFromPath } from './utils/get-file-from-path'
 import { validateConfig } from './utils/validate-config'
 
+import { Schema } from './types'
+
 const validateConfigAgainstSchema = (schema: Schema) => (
   configFilePath: string
 ): true => {

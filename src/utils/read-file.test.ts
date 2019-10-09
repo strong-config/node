@@ -1,7 +1,8 @@
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
-import { File, findConfigFiles, findFiles } from './find-files'
+import { findConfigFiles, findFiles } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
+import { File } from '../types'
 
 const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
   typeof findConfigFiles
@@ -50,7 +51,9 @@ describe('readConfigFile()', () => {
       'config/anotherfile.yaml',
     ])
 
-    expect(() => readConfigFile('config')).toThrow(/Exactly one must exist/)
+    expect(() => readConfigFile('config', 'development')).toThrow(
+      /Exactly one must exist/
+    )
   })
 
   it('reads file when exactly one config is found', () => {
@@ -70,13 +73,13 @@ describe('readSchemaFile()', () => {
   })
 
   it('returns undefined and does not throw Error when files array is empty', () => {
-    findFiles.mockReturnValueOnce([])
+    mockedFindFiles.mockReturnValueOnce([])
 
     expect(readSchemaFile('schema')).toBeUndefined()
   })
 
   it('throws when files array contains more than one match', () => {
-    findFiles.mockReturnValueOnce([
+    mockedFindFiles.mockReturnValueOnce([
       ...mockedConfigFilePaths,
       'config/anotherschema.json',
     ])

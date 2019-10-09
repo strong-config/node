@@ -1,6 +1,8 @@
 import R from 'ramda'
 import { substituteWithEnv } from './substitute-with-env'
 
+import { DecryptedConfig, HydratedConfig } from '../types'
+
 export type InnerHydrateFunction = (
   decryptedConfig: DecryptedConfig
 ) => HydratedConfig

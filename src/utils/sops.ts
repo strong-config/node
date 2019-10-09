@@ -2,6 +2,8 @@ import execa from 'execa'
 import yaml from 'js-yaml'
 import R from 'ramda'
 
+import { EncryptedConfig, DecryptedConfig } from '../types'
+
 const hasSopsMetadata = R.has('sops')
 
 const runSopsWithOptions = (options: string[]): string => {

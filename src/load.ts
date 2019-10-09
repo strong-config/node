@@ -5,6 +5,8 @@ import { validateConfig } from './utils/validate-config'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import * as sops from './utils/sops'
 
+import { MemoizedConfig, HydratedConfig } from './types'
+
 let memoizedConfig: MemoizedConfig = undefined
 
 export const getMemoizedConfig = (): MemoizedConfig => {
