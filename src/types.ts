@@ -24,13 +24,3 @@ export type EncryptedConfig = { sops?: SopsMetadata } & BaseConfig
 export type DecryptedConfig = Omit<BaseConfig, 'sops'>
 export type HydratedConfig = { runtimeEnvironment: string } & DecryptedConfig
 export type MemoizedConfig = HydratedConfig | undefined
-
-export enum FileExtension {
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-}
-export type File = {
-  contents: EncryptedConfig | Schema
-  filePath: string
-}

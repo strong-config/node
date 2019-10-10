@@ -15,43 +15,62 @@ mockedValidate.mockReturnValue(mockedValidationResult)
 import StrongConfig from './index'
 
 describe('StrongConfig class', () => {
-  it('StrongConfig is a class that can be instantiated', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('can be instantiated', () => {
     expect(new StrongConfig()).toBeDefined()
   })
 
-  it('StrongConfig accepts and stores a configuration object', () => {
-    const mockConfiguration = {}
-    const strongConfig = new StrongConfig(mockConfiguration)
+  it('accepts and stores a parameter object', () => {
+    const mockedParams = {}
+    const strongConfig = new StrongConfig(mockedParams)
 
-    expect(strongConfig.configuration).toStrictEqual(mockConfiguration)
+    expect(strongConfig.params).toStrictEqual(mockedParams)
   })
 
-  it('strongConfig exposes "load()"', () => {
+  it('strongConfig instance exposes "load()"', () => {
     expect(new StrongConfig().load).toBeInstanceOf(Function)
   })
 
-  it('strongConfig exposes "validate()"', () => {
+  it('strongConfig instance exposes "validate()"', () => {
     expect(new StrongConfig().validate).toBeInstanceOf(Function)
   })
 
-  it('strongConfig.load() calls imported load() and returns its result', () => {
-    const strongConfig = new StrongConfig()
+  describe('strongConfig.load()', () => {
+    it('calls imported load() and returns its result', () => {
+      const strongConfig = new StrongConfig()
 
-    const result = strongConfig.load()
+      const result = strongConfig.load()
 
-    expect(mockedLoad).toHaveBeenCalledTimes(1)
-    expect(result).toStrictEqual(mockedConfig)
+      expect(mockedLoad).toHaveBeenCalledTimes(1)
+      expect(result).toStrictEqual(mockedConfig)
+    })
+
+    it('memoizes previously loaded config', () => {
+      const strongConfig = new StrongConfig()
+
+      const firstLoadResult = strongConfig.load()
+      const secondLoadResult = strongConfig.load()
+
+      expect(mockedLoad).toHaveBeenCalledTimes(1)
+      expect(firstLoadResult).toStrictEqual(mockedConfig)
+      expect(secondLoadResult).toStrictEqual(mockedConfig)
+    })
   })
 
-  it('strongConfig.validate() calls imported validate() and returns its result', () => {
-    const strongConfig = new StrongConfig()
+  describe('strongConfig.validate()', () => {
+    it('calls imported validate() and returns its result', () => {
+      const strongConfig = new StrongConfig()
 
-    const result = strongConfig.validate(
-      'path/to/schema.json',
-      'some/config/path'
-    )
+      const result = strongConfig.validate(
+        'path/to/schema.json',
+        'some/config/path'
+      )
 
-    expect(mockedValidate).toHaveBeenCalledTimes(1)
-    expect(result).toStrictEqual(mockedValidationResult)
+      expect(mockedValidate).toHaveBeenCalledTimes(1)
+      expect(result).toStrictEqual(mockedValidationResult)
+    })
   })
 })
