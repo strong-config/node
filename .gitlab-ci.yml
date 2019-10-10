@@ -6,58 +6,20 @@ stages:
   - build
   - release
 
-# Fallback to support `includes`
-cache:
-  key: $CI_COMMIT_REF_SLUG
-  paths:
-    - node_modules/
-    - lib/
-
-.shared:
-  artifacts:
-    paths:
-      - lib/
-      - package.json
-      - CHANGELOG.md
-    expire_in: 30 days
-  cache:
-    key: $CI_COMMIT_REF_SLUG
-    paths:
-      - node_modules/
-      - lib/
-
-build_npm_package:
-  stage: build
-  extends: .shared
-  except:
-    refs:
-      - schedules
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
-  script:
-    - yarn build
-  cache:
-    policy: pull
-
+# We can't include the release job (https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/release.yml)
+# because it is tailored to our GitLab-hosted infrastructure. This overwrite solves the release with a GitHub project.
 release:
   stage: release
-  extends: .shared
-  cache:
-    policy: pull
-  artifacts: {}
+  extends:
+    - .except-ci-release
+    - .cache-pull-only
   only:
     - master
-  except:
-    refs:
-      - schedules
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  dependencies:
+    - build_npm_package
   script:
     - git config --global user.name "${GIT_USER_NAME}"
     - git config --global user.email "${GIT_USER_EMAIL}"
-    - git config --global push.followTags true
     - git config --global push.default current
     - yarn release
     - echo '//registry.npmjs.org/:_authToken=${SECRET_NPM_TOKEN}'>.npmrc
@@ -66,6 +28,8 @@ release:
     - npx @brickblock/slack-changelog-notifier --projectName $CI_PROJECT_NAME
 
 include:
+  - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/shared.yml'
   - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/setup.yml'
   - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/lint.yml'
   - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/test.yml'
+  - 'https://git.brickblock.sh/devops/project-templates/raw/master/gitlab-ci/build-npm-package.yml'
