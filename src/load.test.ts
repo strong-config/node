@@ -11,6 +11,8 @@ import { validateConfig } from './utils/validate-config'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import { decryptToObject } from './utils/sops'
 
+import { HydratedConfig } from './types'
+
 const mockedConfigFile = {
   filePath: './config/development.yaml',
   contents: {
@@ -25,8 +27,10 @@ const mockedSchemaFile = {
   contents: { key: 'schema' },
   filePath: './config/schema.json',
 }
-const mockedHydratedConfig = {
+const RUNTIME_ENVIRONMENT = 'development'
+const mockedHydratedConfig: HydratedConfig = {
   some: 'config',
+  runtimeEnvironment: RUNTIME_ENVIRONMENT,
 }
 
 const mockedReadConfigFile = readConfigFile as jest.MockedFunction<
@@ -50,16 +54,7 @@ const innerHydrateFunction: jest.MockedFunction<InnerHydrateFunction> = jest.fn(
 )
 mockedHydrateConfig.mockReturnValue(innerHydrateFunction)
 
-import { load, clearMemoizedConfig, getMemoizedConfig } from './load'
-
-const RUNTIME_ENVIRONMENT = 'development'
-
-const passedConfig = undefined
-const alreadyLoadedConfig = {
-  key: 'value',
-  name: 'some name',
-  runtimeEnvironment: RUNTIME_ENVIRONMENT,
-}
+import { load } from './load'
 
 describe('load()', () => {
   const OLD_ENV = process.env
@@ -67,7 +62,6 @@ describe('load()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.resetModules()
-    clearMemoizedConfig()
     process.env = Object.assign(process.env, { RUNTIME_ENVIRONMENT })
   })
 
@@ -75,14 +69,10 @@ describe('load()', () => {
     process.env = OLD_ENV
   })
 
-  it('returns the memoized state if loaded config is not nil', () => {
-    expect(load(alreadyLoadedConfig)).toEqual(alreadyLoadedConfig)
-  })
-
   it('throws if RUNTIME_ENVIRONMENT is not set', () => {
     delete process.env.RUNTIME_ENVIRONMENT
 
-    expect(() => load(passedConfig)).toThrow(
+    expect(() => load()).toThrow(
       /process.env.RUNTIME_ENVIRONMENT must be defined/
     )
 
@@ -130,7 +120,7 @@ describe('load()', () => {
   })
 
   it('generates types based on schema if schema was found', () => {
-    load(passedConfig)
+    load()
 
     expect(generateTypeFromSchema).toHaveBeenCalledWith('config/schema.json')
   })
@@ -149,18 +139,6 @@ describe('load()', () => {
     load()
 
     expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
-  })
-
-  it('mutates the internal state', () => {
-    const inputConfig = { key: 'value' }
-
-    load(inputConfig)
-
-    expect(getMemoizedConfig()).toBeDefined()
-    expect(getMemoizedConfig()).toStrictEqual({
-      ...inputConfig,
-      runtimeEnvironment: RUNTIME_ENVIRONMENT,
-    })
   })
 
   it('returns the config', () => {

@@ -2,7 +2,8 @@ import R from 'ramda'
 import fs from 'fs'
 import yaml from 'js-yaml'
 
-import { File, JSONObject } from '../types'
+import { JSONObject } from '../types'
+import { File } from './read-file'
 
 export const readFileToString = (filePath: string): string =>
   fs.readFileSync(filePath).toString()

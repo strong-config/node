@@ -3,20 +3,27 @@ import { validate } from './validate'
 
 import { MemoizedConfig } from './types'
 
-interface Configuration {
-  // TODO: define Configuration interface
+interface Parameters {
+  // TODO: define Parameters interface
 }
 
 export = class StrongConfig {
-  public readonly configuration: Configuration | undefined
+  public readonly params: Parameters | undefined
+  private config: MemoizedConfig
 
-  constructor(configuration?: Configuration) {
-    // TODO: validate configuration
-    this.configuration = configuration
+  constructor(params?: Parameters) {
+    // TODO: validate params
+    this.params = params
   }
 
-  public load(passedConfig?: MemoizedConfig): ReturnType<typeof load> {
-    return load(passedConfig)
+  public load(): ReturnType<typeof load> {
+    if (this.config) {
+      return this.config
+    }
+
+    this.config = load()
+
+    return this.config
   }
 
   public validate(

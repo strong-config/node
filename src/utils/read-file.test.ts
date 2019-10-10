@@ -1,8 +1,7 @@
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
-import { findConfigFiles, findFiles } from './find-files'
+import { findConfigFiles, findFiles, File } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
-import { File } from '../types'
 
 const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
   typeof findConfigFiles
