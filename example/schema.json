@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Example Config",
+  "required": ["name", "someField"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "someField": {
+      "title": "Some Field",
+      "type": "object",
+      "required": ["requiredField"],
+      "additionalProperties": false,
+      "properties": {
+        "requiredField": {
+          "title": "A required field",
+          "type": "string",
+          "examples": ["crucial string", "much needed string"]
+        },
+        "optionalField": {
+          "title": "An optional field",
+          "type": "integer",
+          "examples": [123, 234, 345]
+        }
+      }
+    },
+    "someArray": {
+      "title": "Some Array",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

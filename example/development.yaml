@@ -1,0 +1,7 @@
+name: example-project
+someField:
+  optionalField: 123
+  requiredField: 'crucial string'
+someArray:
+  - 'joe'
+  - 'freeman'

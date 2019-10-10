@@ -16,12 +16,12 @@ export = class StrongConfig {
     this.params = params
   }
 
-  public load(): ReturnType<typeof load> {
+  public load(configDir?: string): ReturnType<typeof load> {
     if (this.config) {
       return this.config
     }
 
-    this.config = load()
+    this.config = load(configDir)
 
     return this.config
   }
