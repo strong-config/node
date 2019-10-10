@@ -7,12 +7,12 @@ import * as sops from './utils/sops'
 
 import { HydratedConfig } from './types'
 
-export const load = (): HydratedConfig => {
+export const load = (configDir = './config'): HydratedConfig => {
   if (R.isNil(process.env.RUNTIME_ENVIRONMENT)) {
     throw new Error('process.env.RUNTIME_ENVIRONMENT must be defined.')
   }
 
-  const configFile = readConfigFile(`./config`, process.env.RUNTIME_ENVIRONMENT)
+  const configFile = readConfigFile(configDir, process.env.RUNTIME_ENVIRONMENT)
 
   const decrypted = sops.decryptToObject(
     configFile.filePath,
@@ -26,7 +26,7 @@ export const load = (): HydratedConfig => {
   if (schemaFile !== undefined) {
     validateConfig(config, schemaFile.contents)
 
-    generateTypeFromSchema('config/schema.json')
+    generateTypeFromSchema(`${configDir}/schema.json`)
   }
 
   return config

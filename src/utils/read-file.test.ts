@@ -1,6 +1,6 @@
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
-import { findConfigFiles, findFiles, File } from './find-files'
+import { findConfigFiles, findFiles } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
 const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
@@ -23,7 +23,7 @@ const mockedFile: File = {
 }
 mockedGetFileFromPath.mockReturnValue(mockedFile)
 
-import { readConfigFile, readSchemaFile } from './read-file'
+import { readConfigFile, readSchemaFile, File } from './read-file'
 
 describe('readConfigFile()', () => {
   beforeEach(() => {

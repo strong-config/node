@@ -122,7 +122,7 @@ describe('load()', () => {
   it('generates types based on schema if schema was found', () => {
     load()
 
-    expect(generateTypeFromSchema).toHaveBeenCalledWith('config/schema.json')
+    expect(generateTypeFromSchema).toHaveBeenCalledWith('./config/schema.json')
   })
 
   it('skips validating config if schema was not found', () => {
