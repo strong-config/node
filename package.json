@@ -23,10 +23,11 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
-    "dev:load:commonjs": "export RUNTIME_ENVIRONMENT=development; yarn build && echo 'Loaded Config:\n' && time node -p -e 'const StrongConfig = require(\".\"); JSON.stringify((new StrongConfig()).load(\"./example\"))' | jq .",
-    "dev:load:es6": "export RUNTIME_ENVIRONMENT=development; echo 'Loaded Config:\n' && time ts-node -T -p -e 'import StrongConfig from \".\"; JSON.stringify((new StrongConfig()).load(\"example\"))' | jq .",
+    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time node -p -e 'const StrongConfig = require(\".\"); JSON.stringify((new StrongConfig()).load(\"./example\"))' | jq .",
+    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \".\"; JSON.stringify((new StrongConfig()).load(\"example\"))' | jq .",
+    "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
-    "dev:validate": "export RUNTIME_ENVIRONMENT=development; echo 'Validation Result:\n' && time ts-node -T -p -e 'import StrongConfig from \".\"; (new StrongConfig()).validate(\"example/schema.json\", \"example\")'",
+    "dev:validate": "echo 'Validation Result:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \".\"; (new StrongConfig()).validate(\"example/schema.json\", \"example\")'",
     "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^2.3.1",
     "@typescript-eslint/parser": "^2.3.1",
     "commitlint": "^8.2.0",
+    "cross-env": "^6.0.3",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-import": "^2.18.2",
