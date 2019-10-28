@@ -1,7 +1,7 @@
 import R from 'ramda'
 import path from 'path'
 
-import { findConfigFiles, findFiles } from './find-files'
+import { findConfigFiles, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
 import { EncryptedConfig, Schema } from '../types'
@@ -38,24 +38,10 @@ export const readConfigFile = (basePath: string, fileName: string): File => {
 export const readConfigFileAtPath = (filePath: string): File =>
   readConfigFile(path.dirname(filePath), path.basename(filePath))
 
-export const readSchemaFile = (
-  basePath: string,
-  fileName = 'schema.json'
-): File | undefined => {
-  const filePaths = findFiles(basePath, fileName)
-
-  if (R.isEmpty(filePaths)) {
+export const readSchemaFile = (schemaPath: string): File | undefined => {
+  if (R.isNil(schemaPath) || !isJson(schemaPath)) {
     return undefined
   }
 
-  if (filePaths.length > 1) {
-    throw new Error(
-      `More than one of ${fileName}.${getFileExtensionPattern()} found. Exactly one must exist.`
-    )
-  }
-
-  return getFileFromPath(filePaths[0])
+  return getFileFromPath(schemaPath)
 }
-
-export const readSchemaFileAtPath = (filePath: string): File | undefined =>
-  readSchemaFile(path.dirname(filePath), path.basename(filePath))

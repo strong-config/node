@@ -1,35 +1,41 @@
+import R from 'ramda'
+
 import { load } from './load'
 import { validate } from './validate'
+import { validate as validateParameters } from './params/validate'
 
 import { MemoizedConfig } from './types'
-
-interface Parameters {
-  // TODO: define Parameters interface
-}
+import { defaultParameters, Parameters } from './params'
 
 export = class StrongConfig {
-  public readonly params: Parameters | undefined
+  public readonly parameters: Parameters
   private config: MemoizedConfig
 
-  constructor(params?: Parameters) {
-    // TODO: validate params
-    this.params = params
+  constructor(parameters?: Partial<Parameters>) {
+    this.parameters = validateParameters(
+      parameters
+        ? {
+            ...defaultParameters,
+            ...parameters,
+          }
+        : defaultParameters
+    )
   }
 
-  public load(configDir?: string): ReturnType<typeof load> {
+  public load(): ReturnType<typeof load> {
     if (this.config) {
       return this.config
     }
 
-    this.config = load(configDir)
+    this.config = load(this.parameters)
 
     return this.config
   }
 
-  public validate(
-    schemaPath: string,
-    ...configPaths: string[]
-  ): ReturnType<typeof validate> {
-    return validate(schemaPath, ...configPaths)
+  public validate(...configPaths: string[]): ReturnType<typeof validate> {
+    return validate(
+      R.isEmpty(configPaths) ? [this.parameters.configPath] : configPaths,
+      this.parameters
+    )
   }
 }

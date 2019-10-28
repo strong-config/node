@@ -11,6 +11,8 @@ export const isSchema = (filePath: string): boolean =>
     R.split('/')
   )(filePath)
 
+export const isJson = (filePath: string): boolean => filePath.endsWith('.json')
+
 export const findFiles = (
   basePath: string,
   globFileName = '**/*',

@@ -23,11 +23,11 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
-    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time node -p -e 'const StrongConfig = require(\".\"); JSON.stringify((new StrongConfig()).load(\"./example\"))' | jq .",
-    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \".\"; JSON.stringify((new StrongConfig()).load(\"example\"))' | jq .",
+    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time node -p -e 'const StrongConfig = require(\"./lib\"); JSON.stringify((new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).load())' | jq .",
+    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \"./src\"; JSON.stringify((new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).load())' | jq .",
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
-    "dev:validate": "echo 'Validation Result:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \".\"; (new StrongConfig()).validate(\"example/schema.json\", \"example\")'",
+    "dev:validate": "echo 'Validation Result:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \"./src\"; (new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).validate()'",
     "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
   "devDependencies": {
