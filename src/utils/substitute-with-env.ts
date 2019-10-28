@@ -1,10 +1,10 @@
 import R from 'ramda'
 
-const REGEXP_SUBSTITUTION_PATTERN = /\${(\w+)}/g
-
-export const substituteWithEnv = (stringContent: string): string =>
+export const substituteWithEnv = (substitutionPattern: string) => (
+  stringContent: string
+): string =>
   stringContent.replace(
-    REGEXP_SUBSTITUTION_PATTERN,
+    new RegExp(substitutionPattern, 'g'),
     (original, key: string) => {
       if (!R.has(key, process.env) || R.isNil(process.env[key])) {
         throw new Error(`process.env is missing key "${key}"`)

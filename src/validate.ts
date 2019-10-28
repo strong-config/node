@@ -3,28 +3,24 @@ import fs from 'fs'
 import path from 'path'
 import { findConfigFiles } from './utils/find-files'
 import { getFileFromPath } from './utils/get-file-from-path'
-import { validateConfig } from './utils/validate-config'
+import { validateJson } from './utils/validate-json'
 
 import { Schema } from './types'
+import { Parameters } from './params'
 
 const validateConfigAgainstSchema = (schema: Schema) => (
   configFilePath: string
 ): true => {
   const configFile = getFileFromPath(configFilePath)
 
-  return validateConfig(configFile.contents, schema)
+  return validateJson(configFile.contents, schema)
 }
 
 export const validate = (
-  schemaPath: string,
-  ...configPaths: string[]
+  configPaths: string[],
+  { schemaPath }: Parameters
 ): true => {
   const normalizedSchemaPath = path.normalize(schemaPath)
-
-  if (R.isNil(configPaths) || R.isEmpty(configPaths)) {
-    throw new Error('Config path(s) must be passed so they can be validated')
-  }
-
   const normalizedConfigPaths = configPaths.map(path.normalize)
 
   const schemaFile = getFileFromPath(normalizedSchemaPath)

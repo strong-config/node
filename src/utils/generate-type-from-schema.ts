@@ -2,6 +2,8 @@ import { compileFromFile } from 'json-schema-to-typescript'
 import fs from 'fs'
 import R from 'ramda'
 
+import { Parameters } from '../params'
+
 // json-schema-to-typescript uses a `toSafeString(string)` function https://github.com/bcherny/json-schema-to-typescript/blob/f41945f19b68918e9c13885f345cb708e1d9898a/src/utils.ts#L163) to obtain a normalized string. This pascalCase mimics this functionality and should address most cases.
 export const pascalCase = (input: string): string =>
   input
@@ -9,12 +11,18 @@ export const pascalCase = (input: string): string =>
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('')
 
-export const generateTypeFromSchema = async (
-  filePath: string
-): Promise<void> => {
-  const baseTypes = await compileFromFile(filePath)
+export const generateTypeFromSchema = async ({
+  runtimeEnvName,
+  schemaPath,
+  types,
+}: Parameters): Promise<void> => {
+  if (types === false) {
+    return
+  }
 
-  const schemaString = fs.readFileSync(filePath).toString()
+  const baseTypes = await compileFromFile(schemaPath)
+
+  const schemaString = fs.readFileSync(schemaPath).toString()
   const title = R.prop('title', JSON.parse(schemaString))
 
   if (title === undefined) {
@@ -27,13 +35,13 @@ export const generateTypeFromSchema = async (
     )
   }
 
-  const configInterfaceAsString = `export interface Config extends ${pascalCase(
-    title
-  )} {
-  runtimeEnvironment: string;
+  const configInterfaceAsString = `export interface ${
+    types.rootTypeName
+  } extends ${pascalCase(title)} {
+  ${runtimeEnvName}: string;
 }
 `
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
-  fs.writeFileSync('strong-config.d.ts', exportedTypes)
+  fs.writeFileSync(types.filePath, exportedTypes)
 }

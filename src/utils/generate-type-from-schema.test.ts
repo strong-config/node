@@ -1,13 +1,14 @@
-const mockFilePath = './config/schema.json'
-const mockGeneratedTypesPath = 'strong-config.d.ts'
+import { defaultParameters, TypesParameters } from '../params'
+
+const mockedParameters = defaultParameters
 const mockedCompiledTypes = `
   export interface TheTopLevelInterface {
     name: string;
     otherField: number;
   }
 `
-const mockedRootType = `export interface Config extends TheTopLevelInterface {
-  runtimeEnvironment: string;
+const expectedRootType = `export interface Config extends TheTopLevelInterface {
+  ${mockedParameters.runtimeEnvName}: string;
 }
 `
 const mockedSchemaString = `
@@ -62,25 +63,39 @@ describe('generateTypeFromSchema()', () => {
     jest.clearAllMocks()
   })
 
-  it('calls compileFromFile with a file path', async () => {
-    await generateTypeFromSchema(mockFilePath)
+  it('immediately returns when types=false', async () => {
+    await generateTypeFromSchema({
+      ...mockedParameters,
+      types: false,
+    })
 
-    expect(mockedCompileFromFile).toHaveBeenCalledWith(mockFilePath)
+    expect(mockedCompileFromFile).toHaveBeenCalledTimes(0)
+  })
+
+  it('calls compileFromFile with a file path', async () => {
+    await generateTypeFromSchema(mockedParameters)
+
+    expect(mockedCompileFromFile).toHaveBeenCalledWith(
+      mockedParameters.schemaPath
+    )
   })
 
   it('reads the file at filePath', async () => {
-    await generateTypeFromSchema(mockFilePath)
+    await generateTypeFromSchema(mockedParameters)
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockFilePath)
+    expect(mockedFs.readFileSync).toHaveBeenCalledWith(
+      mockedParameters.schemaPath
+    )
   })
 
   it('generates correct types', async () => {
-    const expectedTypes = `${mockedCompiledTypes}${mockedRootType}`
+    const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
+    const typeParams = mockedParameters.types as TypesParameters
 
-    await generateTypeFromSchema(mockFilePath)
+    await generateTypeFromSchema(mockedParameters)
 
     expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-      mockGeneratedTypesPath,
+      typeParams.filePath,
       expectedTypes
     )
   })
@@ -88,7 +103,7 @@ describe('generateTypeFromSchema()', () => {
   it('throws when top-level schema definition does not have a title field', async () => {
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
-    await expect(generateTypeFromSchema(mockFilePath)).rejects.toThrowError(
+    await expect(generateTypeFromSchema(mockedParameters)).rejects.toThrowError(
       Error
     )
   })
@@ -98,6 +113,8 @@ describe('generateTypeFromSchema()', () => {
       mockedSchemaStringWithInvalidTitle
     )
 
-    await expect(generateTypeFromSchema(mockFilePath)).rejects.toThrow(Error)
+    await expect(generateTypeFromSchema(mockedParameters)).rejects.toThrow(
+      Error
+    )
   })
 })

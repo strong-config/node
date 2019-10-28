@@ -1,12 +1,12 @@
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
-import { findConfigFiles, findFiles } from './find-files'
+import { findConfigFiles, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
 const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
   typeof findConfigFiles
 >
-const mockedFindFiles = findFiles as jest.MockedFunction<typeof findFiles>
+const mockedIsJson = isJson as jest.MockedFunction<typeof isJson>
 const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
   typeof getFileFromPath
 >
@@ -14,7 +14,6 @@ const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
 const mockedConfigFilePaths = ['config/development.yml']
 const mockedSchemaFilePaths = ['config/schema.json']
 mockedFindConfigFiles.mockReturnValue(mockedConfigFilePaths)
-mockedFindFiles.mockReturnValue(mockedSchemaFilePaths)
 const mockedFile: File = {
   contents: {
     parsed: 'values',
@@ -22,6 +21,7 @@ const mockedFile: File = {
   filePath: mockedConfigFilePaths[0],
 }
 mockedGetFileFromPath.mockReturnValue(mockedFile)
+mockedIsJson.mockReturnValue(true)
 
 import { readConfigFile, readSchemaFile, File } from './read-file'
 
@@ -71,28 +71,19 @@ describe('readSchemaFile()', () => {
     jest.clearAllMocks()
   })
 
-  it('returns undefined and does not throw Error when files array is empty', () => {
-    mockedFindFiles.mockReturnValueOnce([])
+  it('returns undefined when input is not a JSON file', () => {
+    mockedIsJson.mockReturnValueOnce(false)
 
-    expect(readSchemaFile('schema')).toBeUndefined()
+    expect(readSchemaFile('not-a-json-file.yaml')).toBeUndefined()
   })
 
-  it('throws when files array contains more than one match', () => {
-    mockedFindFiles.mockReturnValueOnce([
-      ...mockedConfigFilePaths,
-      'config/anotherschema.json',
-    ])
-
-    expect(() => readSchemaFile('schema')).toThrow(/Exactly one must exist/)
-  })
-
-  it('reads file when exactly one schema is found', () => {
-    readSchemaFile('schema')
+  it('reads file by calling getFileFromPath', () => {
+    readSchemaFile(mockedSchemaFilePaths[0])
 
     expect(mockedGetFileFromPath).toHaveBeenCalledWith(mockedSchemaFilePaths[0])
   })
 
   it('returns result of getFileFromPath', () => {
-    expect(readSchemaFile('schema')).toEqual(mockedFile)
+    expect(readSchemaFile(mockedSchemaFilePaths[0])).toEqual(mockedFile)
   })
 })
