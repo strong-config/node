@@ -11,7 +11,7 @@
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
-    "health": "ts-node scripts/healthcheck.ts",
+    "health": "ts-node -T scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown",
     "lint:ts": "eslint --ext [.ts] src scripts",
     "lint:ts:fix": "eslint --fix --ext [.ts] src scripts",
@@ -23,11 +23,11 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
-    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time node -p -e 'const StrongConfig = require(\"./lib\"); JSON.stringify((new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).load())' | jq .",
-    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \"./src\"; JSON.stringify((new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).load())' | jq .",
+    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time node scripts/dev/load-commonjs.js | jq .",
+    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T scripts/dev/load-es6.ts | jq .",
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
-    "dev:validate": "echo 'Validation Result:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T -p -e 'import StrongConfig from \"./src\"; (new StrongConfig({ configPath: \"example/\", schemaPath:\"example/schema.json\" })).validate()'",
+    "dev:validate": "echo 'Validation Result:\n'; cross-env RUNTIME_ENVIRONMENT=development time ts-node -T scripts/dev/validate.ts",
     "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
   "devDependencies": {
