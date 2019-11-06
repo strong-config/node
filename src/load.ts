@@ -8,12 +8,12 @@ import { readConfigFile, readSchemaFile } from './utils/read-file'
 import * as sops from './utils/sops'
 
 import { HydratedConfig } from './types'
-import { Parameters } from './params'
+import { Options } from './options'
 
-export const load = (parameters: Parameters): HydratedConfig => {
-  const normalizedConfigPath = path.normalize(parameters.configPath)
-  const normalizedSchemaPath = path.normalize(parameters.schemaPath)
-  const runtimeEnv = process.env[parameters.runtimeEnvName]
+export const load = (options: Options): HydratedConfig => {
+  const normalizedConfigPath = path.normalize(options.configPath)
+  const normalizedSchemaPath = path.normalize(options.schemaPath)
+  const runtimeEnv = process.env[options.runtimeEnvName]
 
   if (R.isNil(runtimeEnv)) {
     throw new Error('runtimeEnv must be defined.')
@@ -26,15 +26,15 @@ export const load = (parameters: Parameters): HydratedConfig => {
     configFile.contents
   )
 
-  const config = hydrateConfig(runtimeEnv, parameters)(decrypted)
+  const config = hydrateConfig(runtimeEnv, options)(decrypted)
 
   const schemaFile = readSchemaFile(normalizedSchemaPath)
 
   if (schemaFile !== null) {
     validateJson(config, schemaFile.contents)
 
-    if (parameters.types !== false) {
-      generateTypeFromSchema(parameters)
+    if (options.types !== false) {
+      generateTypeFromSchema(options)
     }
   }
 

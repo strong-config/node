@@ -6,7 +6,7 @@ import { getFileFromPath } from './utils/get-file-from-path'
 import { validateJson } from './utils/validate-json'
 
 import { Schema } from './types'
-import { Parameters } from './params'
+import { Options } from './options'
 
 const validateConfigAgainstSchema = (schema: Schema) => (
   configFilePath: string
@@ -18,7 +18,7 @@ const validateConfigAgainstSchema = (schema: Schema) => (
 
 export const validate = (
   configPaths: string[],
-  { schemaPath }: Parameters
+  { schemaPath }: Options
 ): true => {
   const normalizedSchemaPath = path.normalize(schemaPath)
   const normalizedConfigPaths = configPaths.map(path.normalize)

@@ -1,6 +1,6 @@
-import { defaultParameters, TypesParameters } from '../params'
+import { defaultOptions, TypeOptions } from '../options'
 
-const mockedParameters = defaultParameters
+const mockedOptions = defaultOptions
 const mockedCompiledTypes = `
   export interface TheTopLevelInterface {
     name: string;
@@ -64,29 +64,25 @@ describe('generateTypeFromSchema()', () => {
   })
 
   it('calls compileFromFile with a file path', async () => {
-    await generateTypeFromSchema(mockedParameters)
+    await generateTypeFromSchema(mockedOptions)
 
-    expect(mockedCompileFromFile).toHaveBeenCalledWith(
-      mockedParameters.schemaPath
-    )
+    expect(mockedCompileFromFile).toHaveBeenCalledWith(mockedOptions.schemaPath)
   })
 
   it('reads the file at filePath', async () => {
-    await generateTypeFromSchema(mockedParameters)
+    await generateTypeFromSchema(mockedOptions)
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(
-      mockedParameters.schemaPath
-    )
+    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockedOptions.schemaPath)
   })
 
   it('generates correct types', async () => {
     const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
-    const typeParams = mockedParameters.types as TypesParameters
+    const typeOptions = mockedOptions.types as TypeOptions
 
-    await generateTypeFromSchema(mockedParameters)
+    await generateTypeFromSchema(mockedOptions)
 
     expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-      typeParams.filePath,
+      typeOptions.filePath,
       expectedTypes
     )
   })
@@ -94,7 +90,7 @@ describe('generateTypeFromSchema()', () => {
   it('throws when top-level schema definition does not have a title field', async () => {
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
-    await expect(generateTypeFromSchema(mockedParameters)).rejects.toThrowError(
+    await expect(generateTypeFromSchema(mockedOptions)).rejects.toThrowError(
       Error
     )
   })
@@ -104,8 +100,6 @@ describe('generateTypeFromSchema()', () => {
       mockedSchemaStringWithInvalidTitle
     )
 
-    await expect(generateTypeFromSchema(mockedParameters)).rejects.toThrow(
-      Error
-    )
+    await expect(generateTypeFromSchema(mockedOptions)).rejects.toThrow(Error)
   })
 })

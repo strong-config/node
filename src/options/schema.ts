@@ -1,6 +1,6 @@
-export const parametersSchema = {
+export const optionsSchema = {
   type: 'object',
-  title: 'Schema for strong-config parameters',
+  title: 'Schema for strong-config options',
   required: [
     'runtimeEnvName',
     'types',
@@ -19,9 +19,9 @@ export const parametersSchema = {
       pattern: '^[a-zA-Z]\\w*$',
     },
     types: {
-      title: 'Type-related parameters',
+      title: 'Type-related options',
       description:
-        'Type-related parameters controlling the generation of Typescript types for the config',
+        'Type-related options controlling the generation of Typescript types for the config',
       type: ['object'],
       additionalProperties: false,
       properties: {
@@ -34,7 +34,7 @@ export const parametersSchema = {
         },
         filePath: {
           title: 'Path to types file',
-          description: 'The file that the generated types should be stored to',
+          description: 'The file that the generated types should be stored in',
           examples: ['strong-config.d.ts', './types/config.ts'],
           type: 'string',
         },
