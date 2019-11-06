@@ -14,7 +14,7 @@ export const parametersSchema = {
       title: 'Runtime environment variable name',
       description:
         'The value of this variable determines which config is loaded',
-      examples: ['RUNTIME_ENVIRONMENT', 'RUNTIME_ENV'],
+      examples: ['NODE_ENV', 'RUNTIME_ENVIRONMENT'],
       type: 'string',
       pattern: '^[a-zA-Z]\\w*$',
     },

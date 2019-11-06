@@ -22,5 +22,5 @@ type SopsMetadata = {
 
 export type EncryptedConfig = { sops?: SopsMetadata } & BaseConfig
 export type DecryptedConfig = Omit<BaseConfig, 'sops'>
-export type HydratedConfig = { runtimeEnvironment: string } & DecryptedConfig
+export type HydratedConfig = { runtimeEnv: string } & DecryptedConfig
 export type MemoizedConfig = HydratedConfig | undefined

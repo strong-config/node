@@ -13,7 +13,8 @@ const mockedValidateParams = validateParams as jest.MockedFunction<
   typeof validateParams
 >
 
-const mockedConfig = { some: 'config', runtimeEnvironment: 'development' }
+const runtimeEnv = process.env.NODE_ENV || 'test'
+const mockedConfig = { some: 'config', runtimeEnv }
 const mockedParameters = defaultParameters
 const mockedConfigPath = 'some/config/path'
 const mockedValidationResult = true

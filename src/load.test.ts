@@ -15,10 +15,9 @@ import { decryptToObject } from './utils/sops'
 import { HydratedConfig } from './types'
 
 const mockedParameters = defaultParameters
-// Note: This variable must be named according to defaultParameters.runtimeEnvName
-const RUNTIME_ENVIRONMENT = 'development'
+const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfigFile = {
-  filePath: './config/development.yaml',
+  filePath: './config/test.yaml',
   contents: {
     key: 'config',
     sops: { some: 'sopsdetails' },
@@ -33,7 +32,7 @@ const mockedSchemaFile = {
 }
 const mockedHydratedConfig: HydratedConfig = {
   some: 'config',
-  runtimeEnvironment: RUNTIME_ENVIRONMENT,
+  runtimeEnv,
 }
 
 const mockedReadConfigFile = readConfigFile as jest.MockedFunction<
@@ -66,7 +65,7 @@ describe('load()', () => {
     jest.clearAllMocks()
     jest.resetModules()
     process.env = Object.assign(process.env, {
-      [defaultParameters.runtimeEnvName]: RUNTIME_ENVIRONMENT,
+      [defaultParameters.runtimeEnvName]: runtimeEnv,
     })
   })
 
@@ -74,22 +73,22 @@ describe('load()', () => {
     process.env = OLD_ENV
   })
 
-  it('throws if RUNTIME_ENVIRONMENT is not set', () => {
+  it('throws if NODE_ENV is not set', () => {
     delete process.env[defaultParameters.runtimeEnvName]
 
     expect(() => load(mockedParameters)).toThrow('runtimeEnv must be defined')
 
     process.env = Object.assign(process.env, {
-      [defaultParameters.runtimeEnvName]: RUNTIME_ENVIRONMENT,
+      [defaultParameters.runtimeEnvName]: runtimeEnv,
     })
   })
 
-  it('reads the config based on process.env.RUNTIME_ENVIRONMENT', () => {
+  it('reads the config based on process.env.NODE_ENV', () => {
     load(mockedParameters)
 
     expect(mockedReadConfigFile).toHaveBeenCalledWith(
       expect.any(String),
-      RUNTIME_ENVIRONMENT
+      runtimeEnv
     )
   })
 
@@ -106,7 +105,7 @@ describe('load()', () => {
     load(mockedParameters)
 
     expect(mockedHydrateConfig).toHaveBeenCalledWith(
-      RUNTIME_ENVIRONMENT,
+      runtimeEnv,
       mockedParameters
     )
     expect(innerHydrateFunction).toHaveBeenCalledWith(mockedDecryptedConfigFile)
