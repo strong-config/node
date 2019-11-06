@@ -71,10 +71,10 @@ describe('readSchemaFile()', () => {
     jest.clearAllMocks()
   })
 
-  it('returns undefined when input is not a JSON file', () => {
+  it('returns null when input is not a JSON file', () => {
     mockedIsJson.mockReturnValueOnce(false)
 
-    expect(readSchemaFile('not-a-json-file.yaml')).toBeUndefined()
+    expect(readSchemaFile('not-a-json-file.yaml')).toBeNull()
   })
 
   it('reads file by calling getFileFromPath', () => {
