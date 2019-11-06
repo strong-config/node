@@ -136,7 +136,7 @@ describe('load()', () => {
   })
 
   it('skips validating config if schema was not found', () => {
-    mockedReadSchemaFile.mockReturnValueOnce(undefined)
+    mockedReadSchemaFile.mockReturnValueOnce(null)
 
     load(mockedParameters)
 
@@ -144,7 +144,7 @@ describe('load()', () => {
   })
 
   it('skips generating types if schema was not found', () => {
-    mockedReadSchemaFile.mockReturnValueOnce(undefined)
+    mockedReadSchemaFile.mockReturnValueOnce(null)
 
     load(mockedParameters)
 

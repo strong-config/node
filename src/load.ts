@@ -30,7 +30,7 @@ export const load = (parameters: Parameters): HydratedConfig => {
 
   const schemaFile = readSchemaFile(normalizedSchemaPath)
 
-  if (schemaFile !== undefined) {
+  if (schemaFile !== null) {
     validateJson(config, schemaFile.contents)
 
     generateTypeFromSchema(parameters)

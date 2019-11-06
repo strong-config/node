@@ -38,9 +38,9 @@ export const readConfigFile = (basePath: string, fileName: string): File => {
 export const readConfigFileAtPath = (filePath: string): File =>
   readConfigFile(path.dirname(filePath), path.basename(filePath))
 
-export const readSchemaFile = (schemaPath: string): File | undefined => {
+export const readSchemaFile = (schemaPath: string): File | null => {
   if (R.isNil(schemaPath) || !isJson(schemaPath)) {
-    return undefined
+    return null
   }
 
   return getFileFromPath(schemaPath)
