@@ -49,6 +49,20 @@ async function runBuild(): Promise<void> {
   }
 }
 
+async function runDevScripts(): Promise<void> {
+  const spinner = ora('Running dev scripts...').start()
+
+  try {
+    await run('yarn dev:load:es6')
+    await run('yarn dev:load:commonjs')
+    await run('yarn dev:validate')
+    spinner.succeed(chalk.bold('Dev scripts: 👍'))
+  } catch (error) {
+    spinner.fail(chalk.bold('Dev scripts: 👎'))
+    throw new Error(error)
+  }
+}
+
 async function printTodos(): Promise<void> {
   const spinner = ora('️Searching for open TODOs and FIXMEs...').start()
 
@@ -69,6 +83,7 @@ async function main(): Promise<void> {
   await runLinters()
   await runTests()
   await runBuild()
+  await runDevScripts()
   await printTodos()
 }
 
