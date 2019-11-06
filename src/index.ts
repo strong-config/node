@@ -2,23 +2,23 @@ import R from 'ramda'
 
 import { load } from './load'
 import { validate } from './validate'
-import { validate as validateParameters } from './params/validate'
+import { validate as validateOptions } from './options/validate'
 
 import { MemoizedConfig } from './types'
-import { defaultParameters, Parameters } from './params'
+import { defaultOptions, Options } from './options'
 
 export = class StrongConfig {
-  public readonly parameters: Parameters
+  public readonly options: Options
   private config: MemoizedConfig
 
-  constructor(parameters?: Partial<Parameters>) {
-    this.parameters = validateParameters(
-      parameters
+  constructor(options?: Partial<Options>) {
+    this.options = validateOptions(
+      options
         ? {
-            ...defaultParameters,
-            ...parameters,
+            ...defaultOptions,
+            ...options,
           }
-        : defaultParameters
+        : defaultOptions
     )
   }
 
@@ -27,15 +27,15 @@ export = class StrongConfig {
       return this.config
     }
 
-    this.config = load(this.parameters)
+    this.config = load(this.options)
 
     return this.config
   }
 
   public validate(...configPaths: string[]): ReturnType<typeof validate> {
     return validate(
-      R.isEmpty(configPaths) ? [this.parameters.configPath] : configPaths,
-      this.parameters
+      R.isEmpty(configPaths) ? [this.options.configPath] : configPaths,
+      this.options
     )
   }
 }

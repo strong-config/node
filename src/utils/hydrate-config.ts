@@ -2,7 +2,7 @@ import R from 'ramda'
 import { substituteWithEnv } from './substitute-with-env'
 
 import { DecryptedConfig, HydratedConfig } from '../types'
-import { Parameters } from '../params'
+import { Options } from '../options'
 
 export type InnerHydrateFunction = (
   decryptedConfig: DecryptedConfig
@@ -10,7 +10,7 @@ export type InnerHydrateFunction = (
 
 export const hydrateConfig = (
   runtimeEnv: string,
-  { runtimeEnvName, substitutionPattern }: Parameters
+  { runtimeEnvName, substitutionPattern }: Options
 ): InnerHydrateFunction =>
   R.compose(
     R.assoc(runtimeEnvName, runtimeEnv),

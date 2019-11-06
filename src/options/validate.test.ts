@@ -1,13 +1,13 @@
 jest.mock('../utils/validate-json')
 
 import { validateJson } from '../utils/validate-json'
-import { defaultParameters } from '.'
+import { defaultOptions } from '.'
 
 const mockedValidateJson = validateJson as jest.MockedFunction<
   typeof validateJson
 >
 
-const mockedParameters = { ...defaultParameters }
+const mockedOptions = { ...defaultOptions }
 
 mockedValidateJson.mockReturnValue(true)
 
@@ -19,27 +19,25 @@ describe('validate()', () => {
   })
 
   it('validates json', () => {
-    validate(mockedParameters)
+    validate(mockedOptions)
 
     expect(mockedValidateJson).toHaveBeenCalledWith(
-      mockedParameters,
+      mockedOptions,
       expect.any(Object)
     )
   })
 
-  it('returns the params when they are valid', () => {
-    const validationResult = validate(mockedParameters)
+  it('returns the options when they are valid', () => {
+    const validationResult = validate(mockedOptions)
 
-    expect(validationResult).toStrictEqual(mockedParameters)
+    expect(validationResult).toStrictEqual(mockedOptions)
   })
 
-  it('throws when parameter validation fails', () => {
+  it('throws when option validation fails', () => {
     mockedValidateJson.mockImplementation(() => {
       throw new Error('some validation error')
     })
 
-    expect(() => validate(mockedParameters)).toThrowError(
-      'some validation error'
-    )
+    expect(() => validate(mockedOptions)).toThrowError('some validation error')
   })
 })

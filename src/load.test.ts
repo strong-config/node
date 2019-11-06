@@ -5,7 +5,7 @@ jest.mock('./utils/validate-json')
 jest.mock('./utils/read-file')
 jest.mock('./utils/sops')
 
-import { defaultParameters } from './params'
+import { defaultOptions } from './options'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
 import { validateJson } from './utils/validate-json'
@@ -14,7 +14,7 @@ import { decryptToObject } from './utils/sops'
 
 import { HydratedConfig } from './types'
 
-const mockedParameters = defaultParameters
+const mockedOptions = defaultOptions
 const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfigFile = {
   filePath: './config/test.yaml',
@@ -65,7 +65,7 @@ describe('load()', () => {
     jest.clearAllMocks()
     jest.resetModules()
     process.env = Object.assign(process.env, {
-      [defaultParameters.runtimeEnvName]: runtimeEnv,
+      [defaultOptions.runtimeEnvName]: runtimeEnv,
     })
   })
 
@@ -74,17 +74,17 @@ describe('load()', () => {
   })
 
   it('throws if NODE_ENV is not set', () => {
-    delete process.env[defaultParameters.runtimeEnvName]
+    delete process.env[defaultOptions.runtimeEnvName]
 
-    expect(() => load(mockedParameters)).toThrow('runtimeEnv must be defined')
+    expect(() => load(mockedOptions)).toThrow('runtimeEnv must be defined')
 
     process.env = Object.assign(process.env, {
-      [defaultParameters.runtimeEnvName]: runtimeEnv,
+      [defaultOptions.runtimeEnvName]: runtimeEnv,
     })
   })
 
   it('reads the config based on process.env.NODE_ENV', () => {
-    load(mockedParameters)
+    load(mockedOptions)
 
     expect(mockedReadConfigFile).toHaveBeenCalledWith(
       expect.any(String),
@@ -93,7 +93,7 @@ describe('load()', () => {
   })
 
   it('decrypts the config with SOPS', () => {
-    load(mockedParameters)
+    load(mockedOptions)
 
     expect(mockedDecryptToObject).toHaveBeenCalledWith(
       mockedConfigFile.filePath,
@@ -102,25 +102,20 @@ describe('load()', () => {
   })
 
   it('hydrates the config', () => {
-    load(mockedParameters)
+    load(mockedOptions)
 
-    expect(mockedHydrateConfig).toHaveBeenCalledWith(
-      runtimeEnv,
-      mockedParameters
-    )
+    expect(mockedHydrateConfig).toHaveBeenCalledWith(runtimeEnv, mockedOptions)
     expect(innerHydrateFunction).toHaveBeenCalledWith(mockedDecryptedConfigFile)
   })
 
   it('reads the schema file', () => {
-    load(mockedParameters)
+    load(mockedOptions)
 
-    expect(mockedReadSchemaFile).toHaveBeenCalledWith(
-      defaultParameters.schemaPath
-    )
+    expect(mockedReadSchemaFile).toHaveBeenCalledWith(defaultOptions.schemaPath)
   })
 
   it('validates config against schema if schema was found', () => {
-    load(mockedParameters)
+    load(mockedOptions)
 
     expect(validateJson).toHaveBeenCalledWith(
       mockedHydratedConfig,
@@ -128,15 +123,15 @@ describe('load()', () => {
     )
   })
 
-  it('generates types if parameters.types is not false', () => {
-    load(mockedParameters)
+  it('generates types if options.types is not false', () => {
+    load(mockedOptions)
 
-    expect(generateTypeFromSchema).toHaveBeenCalledWith(mockedParameters)
+    expect(generateTypeFromSchema).toHaveBeenCalledWith(mockedOptions)
   })
 
-  it('skips generating types if parameters.types is false', () => {
+  it('skips generating types if options.types is false', () => {
     load({
-      ...mockedParameters,
+      ...mockedOptions,
       types: false,
     })
 
@@ -146,7 +141,7 @@ describe('load()', () => {
   it('skips validating config if schema was not found', () => {
     mockedReadSchemaFile.mockReturnValueOnce(null)
 
-    load(mockedParameters)
+    load(mockedOptions)
 
     expect(validateJson).toHaveBeenCalledTimes(0)
   })
@@ -154,13 +149,13 @@ describe('load()', () => {
   it('skips generating types if schema was not found', () => {
     mockedReadSchemaFile.mockReturnValueOnce(null)
 
-    load(mockedParameters)
+    load(mockedOptions)
 
     expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
   })
 
   it('returns the config', () => {
-    const loadedConfig = load(mockedParameters)
+    const loadedConfig = load(mockedOptions)
 
     expect(loadedConfig).toStrictEqual(mockedHydratedConfig)
   })

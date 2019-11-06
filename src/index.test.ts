@@ -1,26 +1,26 @@
 jest.mock('./load')
 jest.mock('./validate')
-jest.mock('./params/validate')
+jest.mock('./options/validate')
 
 import { load } from './load'
 import { validate } from './validate'
-import { validate as validateParams } from './params/validate'
-import { defaultParameters } from './params'
+import { validate as validateOptions } from './options/validate'
+import { defaultOptions } from './options'
 
 const mockedLoad = load as jest.MockedFunction<typeof load>
 const mockedValidate = validate as jest.MockedFunction<typeof validate>
-const mockedValidateParams = validateParams as jest.MockedFunction<
-  typeof validateParams
+const mockedValidateOptions = validateOptions as jest.MockedFunction<
+  typeof validateOptions
 >
 
 const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfig = { some: 'config', runtimeEnv }
-const mockedParameters = defaultParameters
+const mockedOptions = defaultOptions
 const mockedConfigPath = 'some/config/path'
 const mockedValidationResult = true
 mockedLoad.mockReturnValue(mockedConfig)
 mockedValidate.mockReturnValue(mockedValidationResult)
-mockedValidateParams.mockReturnValue(mockedParameters)
+mockedValidateOptions.mockReturnValue(mockedOptions)
 
 import StrongConfig from '.'
 
@@ -34,20 +34,20 @@ describe('StrongConfig class', () => {
       expect(new StrongConfig()).toBeDefined()
     })
 
-    it('can be instantiated with a parameters object', () => {
-      expect(new StrongConfig(mockedParameters)).toBeDefined()
+    it('can be instantiated with a options object', () => {
+      expect(new StrongConfig(mockedOptions)).toBeDefined()
     })
 
-    it('validates the parameters object', () => {
-      new StrongConfig(mockedParameters)
+    it('validates the options object', () => {
+      new StrongConfig(mockedOptions)
 
-      expect(mockedValidateParams).toHaveBeenCalledWith(mockedParameters)
+      expect(mockedValidateOptions).toHaveBeenCalledWith(mockedOptions)
     })
 
-    it('stores the validated parameters object', () => {
-      const strongConfig = new StrongConfig(mockedParameters)
+    it('stores the validated options object', () => {
+      const strongConfig = new StrongConfig(mockedOptions)
 
-      expect(strongConfig.parameters).toStrictEqual(mockedParameters)
+      expect(strongConfig.options).toStrictEqual(mockedOptions)
     })
   })
 
@@ -69,12 +69,12 @@ describe('StrongConfig class', () => {
       expect(result).toStrictEqual(mockedConfig)
     })
 
-    it('calls imported load() with initialized parameters', () => {
-      const strongConfig = new StrongConfig(mockedParameters)
+    it('calls imported load() with initialized options', () => {
+      const strongConfig = new StrongConfig(mockedOptions)
 
       strongConfig.load()
 
-      expect(mockedLoad).toHaveBeenCalledWith(mockedParameters)
+      expect(mockedLoad).toHaveBeenCalledWith(mockedOptions)
     })
 
     it('memoizes previously loaded config', () => {
@@ -100,25 +100,25 @@ describe('StrongConfig class', () => {
     })
 
     it('validates config paths that are passed', () => {
-      const strongConfig = new StrongConfig(mockedParameters)
+      const strongConfig = new StrongConfig(mockedOptions)
 
       strongConfig.validate(mockedConfigPath, mockedConfigPath)
 
       expect(mockedValidate).toHaveBeenCalledWith(
         [mockedConfigPath, mockedConfigPath],
-        mockedParameters
+        mockedOptions
       )
     })
 
-    it('validates parameters.configPath by default', () => {
-      const strongConfig = new StrongConfig(mockedParameters)
+    it('validates options.configPath by default', () => {
+      const strongConfig = new StrongConfig(mockedOptions)
 
       // Do not pass any configPaths to trigger default validation
       strongConfig.validate()
 
       expect(mockedValidate).toHaveBeenCalledWith(
-        [defaultParameters.configPath],
-        mockedParameters
+        [defaultOptions.configPath],
+        mockedOptions
       )
     })
   })

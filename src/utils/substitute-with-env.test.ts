@@ -1,12 +1,12 @@
-import { defaultParameters } from '../params'
+import { defaultOptions } from '../options'
 
 const mockedProcessEnv = {
   replace: 'REPLACED',
   ABC: 'SOME_ENV_VAR_VALUE',
   '0INVALID': 'INVALID KEY',
 }
-const mockedParameters = defaultParameters
-const mockedSubstitutionPattern = mockedParameters.substitutionPattern
+const mockedOptions = defaultOptions
+const mockedSubstitutionPattern = mockedOptions.substitutionPattern
 
 import { substituteWithEnv } from './substitute-with-env'
 const substituteWithEnvInitialized = substituteWithEnv(

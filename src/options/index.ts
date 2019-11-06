@@ -1,17 +1,17 @@
-export interface TypesParameters {
+export interface TypeOptions {
   rootTypeName: string
   filePath: string
 }
 
-export interface Parameters {
+export interface Options {
   runtimeEnvName: string
-  types: TypesParameters | false
+  types: TypeOptions | false
   substitutionPattern: string
   configPath: string
   schemaPath: string
 }
 
-export const defaultParameters: Parameters = {
+export const defaultOptions: Options = {
   runtimeEnvName: 'NODE_ENV',
   types: {
     rootTypeName: 'Config',
