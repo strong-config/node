@@ -63,15 +63,6 @@ describe('generateTypeFromSchema()', () => {
     jest.clearAllMocks()
   })
 
-  it('immediately returns when types=false', async () => {
-    await generateTypeFromSchema({
-      ...mockedParameters,
-      types: false,
-    })
-
-    expect(mockedCompileFromFile).toHaveBeenCalledTimes(0)
-  })
-
   it('calls compileFromFile with a file path', async () => {
     await generateTypeFromSchema(mockedParameters)
 

@@ -33,7 +33,9 @@ export const load = (parameters: Parameters): HydratedConfig => {
   if (schemaFile !== null) {
     validateJson(config, schemaFile.contents)
 
-    generateTypeFromSchema(parameters)
+    if (parameters.types !== false) {
+      generateTypeFromSchema(parameters)
+    }
   }
 
   return config

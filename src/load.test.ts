@@ -129,10 +129,19 @@ describe('load()', () => {
     )
   })
 
-  it('generates types based on schema if schema was found', () => {
+  it('generates types if parameters.types is not false', () => {
     load(mockedParameters)
 
     expect(generateTypeFromSchema).toHaveBeenCalledWith(mockedParameters)
+  })
+
+  it('skips generating types if parameters.types is false', () => {
+    load({
+      ...mockedParameters,
+      types: false,
+    })
+
+    expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
   })
 
   it('skips validating config if schema was not found', () => {
