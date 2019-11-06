@@ -11,7 +11,7 @@ export const parametersSchema = {
   additionalProperties: false,
   properties: {
     runtimeEnvName: {
-      title: 'The name of the runtime environment variable',
+      title: 'Runtime environment variable name',
       description:
         'The value of this variable determines which config is loaded',
       examples: ['RUNTIME_ENVIRONMENT', 'RUNTIME_ENV'],
@@ -19,21 +19,21 @@ export const parametersSchema = {
       pattern: '^[a-zA-Z]\\w*$',
     },
     types: {
-      title: 'Parameters related to types',
+      title: 'Type-related parameters',
       description:
         'Type-related parameters controlling the generation of Typescript types for the config',
       type: ['object'],
       additionalProperties: false,
       properties: {
         rootTypeName: {
-          title: 'The name of the generated root type',
+          title: 'Root type name',
           description: 'The name of the generated root type',
           examples: ['Config', 'AppConfig'],
           type: 'string',
           pattern: '^[A-Z]\\w*$',
         },
         filePath: {
-          title: 'The path of the generate type file',
+          title: 'Path to types file',
           description: 'The file that the generated types should be stored to',
           examples: ['strong-config.d.ts', './types/config.ts'],
           type: 'string',
@@ -41,7 +41,7 @@ export const parametersSchema = {
       },
     },
     substitutionPattern: {
-      title: 'The substitution pattern used for replacing template strings',
+      title: 'Substitution pattern',
       description:
         'The escaped regexp that is used to match against template strings to be replaced with their corresponding environment variable values',
       examples: ['\\$\\{(\\w+)\\}', '\\$(\\w+)'],
@@ -49,13 +49,13 @@ export const parametersSchema = {
       format: 'regex',
     },
     configPath: {
-      title: 'The path to the config directory',
+      title: 'Config path',
       description: 'A path to a directory that contains all config files',
       examples: ['config', '../config', '/app/config/'],
       type: 'string',
     },
     schemaPath: {
-      title: 'The path to the schema file',
+      title: 'Schema path',
       description:
         'A path to a file that contains schema definitions for the configs',
       examples: [
