@@ -12,7 +12,7 @@ export interface Parameters {
 }
 
 export const defaultParameters: Parameters = {
-  runtimeEnvName: 'RUNTIME_ENVIRONMENT',
+  runtimeEnvName: 'NODE_ENV',
   types: {
     rootTypeName: 'Config',
     filePath: 'strong-config.d.ts',

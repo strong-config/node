@@ -8,7 +8,7 @@ const mockedCompiledTypes = `
   }
 `
 const expectedRootType = `export interface Config extends TheTopLevelInterface {
-  ${mockedParameters.runtimeEnvName}: string;
+  runtimeEnv: string;
 }
 `
 const mockedSchemaString = `

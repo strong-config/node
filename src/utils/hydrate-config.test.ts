@@ -6,7 +6,7 @@ const mockedSubstituteWithEnv = substituteWithEnv as jest.MockedFunction<
   typeof substituteWithEnv
 >
 const mockedParameters = defaultParameters
-const mockedRuntimeEnvironment = 'development'
+const runtimeEnv = 'test'
 const mockedConfig = {
   field: 'value',
   replaceMe: '${asdf}',
@@ -15,15 +15,12 @@ const mockedSubstitutedConfig = '{"field":"value","replaceMe":"PASTE"}'
 const mockedHydratedConfig = {
   ...mockedConfig,
   replaceMe: 'PASTE',
-  [mockedParameters.runtimeEnvName]: mockedRuntimeEnvironment,
+  [mockedParameters.runtimeEnvName]: runtimeEnv,
 }
 mockedSubstituteWithEnv.mockReturnValue(() => mockedSubstitutedConfig)
 
 import { hydrateConfig } from './hydrate-config'
-const hydrateConfigInited = hydrateConfig(
-  mockedRuntimeEnvironment,
-  mockedParameters
-)
+const hydrateConfigInited = hydrateConfig(runtimeEnv, mockedParameters)
 
 describe('hydrateConfig()', () => {
   it('calls substituteWithEnv with substitutionPattern', () => {
@@ -34,10 +31,10 @@ describe('hydrateConfig()', () => {
     )
   })
 
-  it('adds runtimeEnvironment as top-level field', () => {
+  it('adds runtimeEnv as top-level field', () => {
     expect(hydrateConfigInited(mockedConfig)).toEqual(
       expect.objectContaining({
-        [mockedParameters.runtimeEnvName]: mockedRuntimeEnvironment,
+        [mockedParameters.runtimeEnvName]: runtimeEnv,
       })
     )
   })

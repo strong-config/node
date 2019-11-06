@@ -12,7 +12,6 @@ export const pascalCase = (input: string): string =>
     .join('')
 
 export const generateTypeFromSchema = async ({
-  runtimeEnvName,
   schemaPath,
   types,
 }: Parameters): Promise<void> => {
@@ -37,7 +36,7 @@ export const generateTypeFromSchema = async ({
   const configInterfaceAsString = `export interface ${
     types.rootTypeName
   } extends ${pascalCase(title)} {
-  ${runtimeEnvName}: string;
+  runtimeEnv: string;
 }
 `
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
