@@ -2,7 +2,7 @@ import { compileFromFile } from 'json-schema-to-typescript'
 import fs from 'fs'
 import R from 'ramda'
 
-import { Parameters } from '../params'
+import { Parameters, TypesParameters } from '../params'
 
 // json-schema-to-typescript uses a `toSafeString(string)` function https://github.com/bcherny/json-schema-to-typescript/blob/f41945f19b68918e9c13885f345cb708e1d9898a/src/utils.ts#L163) to obtain a normalized string. This pascalCase mimics this functionality and should address most cases.
 export const pascalCase = (input: string): string =>
@@ -16,9 +16,8 @@ export const generateTypeFromSchema = async ({
   schemaPath,
   types,
 }: Parameters): Promise<void> => {
-  if (types === false) {
-    return
-  }
+  // When this function is called, we are sure that types !== false
+  types = types as TypesParameters
 
   const baseTypes = await compileFromFile(schemaPath)
 
