@@ -1,3 +1,4 @@
+import { inspect } from 'util'
 import StrongConfig from '../../src'
 
 const strongConfig = new StrongConfig({
@@ -7,4 +8,6 @@ const strongConfig = new StrongConfig({
 
 const config = strongConfig.load()
 
-console.log(JSON.stringify(config))
+console.log('\nLoaded Config:\n')
+console.log(inspect(config, { colors: true, compact: false }))
+console.log('\n')

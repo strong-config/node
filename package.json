@@ -23,11 +23,11 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
-    "dev:load:commonjs": "yarn build; echo 'Loaded Config:\n'; cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js | jq .",
-    "dev:load:es6": "echo 'Loaded Config:\n'; cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts | jq .",
+    "dev:load:commonjs": "yarn build; cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js",
+    "dev:load:es6": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts",
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
-    "dev:validate": "echo 'Validation Result:\n'; cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
+    "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
     "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
   "devDependencies": {
