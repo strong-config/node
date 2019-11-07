@@ -10,10 +10,10 @@ export type InnerHydrateFunction = (
 
 export const hydrateConfig = (
   runtimeEnv: string,
-  { runtimeEnvName, substitutionPattern }: Options
+  { substitutionPattern }: Options
 ): InnerHydrateFunction =>
   R.compose(
-    R.assoc(runtimeEnvName, runtimeEnv),
+    R.assoc('runtimeEnv', runtimeEnv),
     R.unary(JSON.parse),
     substituteWithEnv(substitutionPattern),
     R.unary(JSON.stringify)

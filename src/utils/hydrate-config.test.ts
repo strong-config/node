@@ -15,7 +15,7 @@ const mockedSubstitutedConfig = '{"field":"value","replaceMe":"PASTE"}'
 const mockedHydratedConfig = {
   ...mockedConfig,
   replaceMe: 'PASTE',
-  [mockedOptions.runtimeEnvName]: runtimeEnv,
+  runtimeEnv,
 }
 mockedSubstituteWithEnv.mockReturnValue(() => mockedSubstitutedConfig)
 
@@ -34,7 +34,7 @@ describe('hydrateConfig()', () => {
   it('adds runtimeEnv as top-level field', () => {
     expect(hydrateConfigInited(mockedConfig)).toEqual(
       expect.objectContaining({
-        [mockedOptions.runtimeEnvName]: runtimeEnv,
+        runtimeEnv,
       })
     )
   })

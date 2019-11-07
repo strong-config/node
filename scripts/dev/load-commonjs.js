@@ -1,4 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { inspect } = require('util')
 const StrongConfig = require('../../lib')
 
 const strongConfig = new StrongConfig({
@@ -8,4 +9,6 @@ const strongConfig = new StrongConfig({
 
 const config = strongConfig.load()
 
-console.log(JSON.stringify(config))
+console.log('\nLoaded Config:\n')
+console.log(inspect(config, { colors: true, compact: false }))
+console.log('\n')

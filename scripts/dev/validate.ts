@@ -7,4 +7,6 @@ const strongConfig = new StrongConfig({
 
 const validationResult = strongConfig.validate()
 
+console.log('\nValidation result:\n')
 console.log(validationResult)
+console.log('\n')
