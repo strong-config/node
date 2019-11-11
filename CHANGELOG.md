@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/strong-config/node/compare/v0.1.2...v0.1.3) (2019-11-11)
+
+
+### Bug Fixes
+
+* set runtimeEnv and dev script terminal output ([9727284](https://github.com/strong-config/node/commit/9727284))
+
+
+### Features
+
+* store and validate parameters object that configures strong-config internally ([094de8f](https://github.com/strong-config/node/commit/094de8f))
+
 ### [0.1.2](https://github.com/strong-config/node/compare/v0.1.1...v0.1.2) (2019-10-15)
 
 ### [0.1.1](https://github.com/strong-config/node/compare/v0.1.0...v0.1.1) (2019-10-14)
