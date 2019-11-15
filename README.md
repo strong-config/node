@@ -59,14 +59,18 @@ leave you with a corrupted config.
 
 ## How-to
 
-Please backup your existing configs and secrets\_
+Please backup your existing configs and secrets.
 
-1. Install `@strong-config/node` in your project
+1. Install `@strong-config/node` and the SOPS binary.
 
    ```sh
    npm install @strong-config/node
+   # or
    yarn add @strong-config/node
    ```
+
+   SOPS is [available for all major systems](https://github.com/mozilla/sops/releases).
+   If you are on Mac, you can install SOPS by running `brew install sops`.
 
 1. Define runtime environment and create first config file
 
@@ -90,7 +94,7 @@ Please backup your existing configs and secrets\_
    // ES6-style import. Commonjs is supported too
    import StrongConfig from '@strong-config/node'
 
-   // uses default parameters
+   // Decrypts and loads config
    const config = new StrongConfig().load()
 
    console.log(config)
@@ -150,8 +154,6 @@ Let's have a closer look.
 
 ## Schema Validation
 
-TODO: intro and incentives to write a schema for configs
-
 Besides writing config files, you can define a schema file which can be used
 to validate your configs. The schema file must be written in JSON according to the
 [`json-schema`](https://json-schema.org/) standard. To get started, you can have
@@ -163,29 +165,6 @@ note that this file must be named `schema.json` if you decide to place it in
 the same directory as your config files (which is the default).
 
 However, `strong-config` will work fine if you decide to not use schemas at all.
-
-## Encryption and Decryption
-
-TODO:
-
-- intro, incentive to encrypt configs
-- supported key stores, explain why these
-- explain key suffix
-- link or explain cloud provider setup, e.g. KMS
-
-## Even stronger configs with Git Hooks
-
-TODO:
-
-- intro, incentive to use strong-config with git hooks
-- provide simple setup with husky
-
-## Use in CI
-
-TODO:
-
-- intro, incentive to use strong-config validation in CI
-- provide simple setup with Gitlab CI job written in YAML
 
 ## FAQ
 
