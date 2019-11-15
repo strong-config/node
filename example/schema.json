@@ -33,6 +33,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "someSecret": {
+      "title": "Some Secret",
+      "type": "string",
+      "examples": ["cantSeeMe", "myLittleSecret"]
     }
   }
 }
