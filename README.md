@@ -17,15 +17,17 @@ to the git remote?
 
 If any of this has happened to you, **`strong-config` is here to help!**
 
+`strong-config` allows you to:
+
 - Structure configs hierarchically by writing JSON or YAML.
 - Manage different configs for different environments.
 - Protect your secrets by applying strong cryptography. Encrypt secrets at rest
   and automatically decrypt them at runtime by integrating a key management
   service (KMS), e.g. [AWS KMS](https://aws.amazon.com/kms/) or
   [Google Cloud KMS](https://cloud.google.com/kms/).
-- Enforce arbitrary permission models provided by your KMS. Decide who can encrypt
+- Enforce permission models provided by your KMS. Decide who can encrypt
   and decrypt configs for which environments.
-- Optionally validate them against a custom schema using
+- Optionally validate configuration against a custom schema defined using
   [`json-schema`](https://json-schema.org/). Also in CI.
 - Safeguard your configs by using git hooks. Make sure the configs are both
   valid and encrypted before committing and pushing them.
@@ -72,19 +74,13 @@ Please backup your existing configs and secrets.
    SOPS is [available for all major systems](https://github.com/mozilla/sops/releases).
    If you are on Mac, you can install SOPS by running `brew install sops`.
 
-1. Define runtime environment and create first config file
+1. Create a first config file
 
    ```sh
-   export NODE_ENV=development # or similar, depending on your shell
-
    # inside your project
    mkdir config
    echo "someField: '💪'" > config/development.yaml
    ```
-
-   `strong-config` uses an environment variable to determine which config file
-   to load. By default, this is `NODE_ENV`. Setting `NODE_ENV=development` will
-   eventually load `development.yaml` from the config directory.
 
 1. Import and use `strong-config` in code
 
@@ -104,6 +100,24 @@ Please backup your existing configs and secrets.
    The first invocation of `load()` dynamically generates types for Typescript and
    saves them to `./strong-config.d.ts`. If you do not use Typescript, feel
    free to delete it and disable type generation completely (see [Customization](#customization)).
+
+1. Run your app
+
+   `strong-config` uses an environment variable to determine which config file
+   to load. By default, this is `NODE_ENV`. Setting `NODE_ENV=development` will
+   eventually load `development.yaml` from the config directory, which we created
+   in step 2.
+
+   ```sh
+   # Set the environment variable
+   export NODE_ENV=development
+
+   # Start your app
+   yarn start
+   ```
+
+   If you used our example code from the previous step, the config should now be
+   printed to the terminal 💪.
 
 ## Customization
 
@@ -138,8 +152,8 @@ Let's have a closer look.
 - **`types`**: Block containing options to customize the type generation. If you
   don't want to generate types, overwrite this block with `types: false`.
       - **`rootTypeName`**: The interface name you can import in your code. This
-        interface type describes the entire structure of your config based on the
-        schema file you provide.
+  interface type describes the entire structure of your config based on the
+  schema file you provide.
       - **`filePath`**: The desired path of the output type file.
 - **`substitutionPattern`**: Substitutions allow you to include variables of
   your execution environment in the config. For example, assignments like
@@ -181,7 +195,10 @@ However, `strong-config` will work fine if you decide to not use schemas at all.
 
    No, single page applications (SPAs) are not suitable for containing secrets.
    This is because SPA code is delivered to the client and is therefore always public.
-   TODO: explain what you can do when your configs don't have secrets.
+
+   Currently, `@strong-config/node` isn't suitable for browser use. However, we plan
+   to provide `@strong-config/browser` in the future, which will address config
+   management without secrets for SPAs.
 
 1. **Can I use `@strong-config/node` for Server-Side-Rendered (SSR) apps, too?**
 
@@ -203,6 +220,4 @@ for development purposes:
 - `yarn dev:load`/`yarn dev:load:es6`, and `yarn dev:load:commonjs`
 - `yarn dev:validate`
 
-These use an exemplary config setup in `/example`.
-
-Our contribution guidelines are posted in `CONTRIBUTING.md`
+These commands use an exemplary config setup in `/example`.
