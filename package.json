@@ -23,6 +23,8 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
+    "dev:encrypt": "gpg --import --quiet example/pgp/example-keypair.pgp && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
+    "dev:decrypt": "sops --decrypt --in-place example/development.yaml && cat example/development.yaml",
     "dev:load:commonjs": "yarn build; cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js",
     "dev:load:es6": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts",
     "dev:load": "yarn dev:load:es6",
