@@ -1,10 +1,10 @@
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
-import { findConfigFiles, isJson } from './find-files'
+import { findConfigFilesAtPath, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
-const mockedFindConfigFiles = findConfigFiles as jest.MockedFunction<
-  typeof findConfigFiles
+const mockedfindConfigFilesAtPath = findConfigFilesAtPath as jest.MockedFunction<
+  typeof findConfigFilesAtPath
 >
 const mockedIsJson = isJson as jest.MockedFunction<typeof isJson>
 const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
@@ -13,7 +13,7 @@ const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
 
 const mockedConfigFilePaths = ['config/development.yml']
 const mockedSchemaFilePaths = ['config/schema.json']
-mockedFindConfigFiles.mockReturnValue(mockedConfigFilePaths)
+mockedfindConfigFilesAtPath.mockReturnValue(mockedConfigFilePaths)
 const mockedFile: File = {
   contents: {
     parsed: 'values',
@@ -30,14 +30,14 @@ describe('readConfigFile()', () => {
     jest.clearAllMocks()
   })
 
-  it('passes arguments to findConfigFiles', () => {
+  it('passes arguments to findConfigFilesAtPath', () => {
     readConfigFile('config', 'smth')
 
-    expect(mockedFindConfigFiles).toHaveBeenCalledWith('config', 'smth')
+    expect(mockedfindConfigFilesAtPath).toHaveBeenCalledWith('config', 'smth')
   })
 
   it('throws when files array is empty', () => {
-    mockedFindConfigFiles.mockReturnValueOnce([])
+    mockedfindConfigFilesAtPath.mockReturnValueOnce([])
 
     expect(() => readConfigFile('config', 'smth')).toThrow(
       /One of these files must exist/
@@ -45,7 +45,7 @@ describe('readConfigFile()', () => {
   })
 
   it('throws when files array contains more than one match', () => {
-    mockedFindConfigFiles.mockReturnValueOnce([
+    mockedfindConfigFilesAtPath.mockReturnValueOnce([
       ...mockedConfigFilePaths,
       'config/anotherfile.yaml',
     ])

@@ -1,4 +1,6 @@
 lib
+oclif.manifest.json
+
 # Default output for generated types when strongConfig.load() is called
 strong-config.d.ts
 

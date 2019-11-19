@@ -16,7 +16,7 @@ mockedGlob.sync = jest.fn().mockReturnValue(mockedFileNames)
 mockedPath.resolve = jest.fn().mockReturnValue(mockedResolvedPath)
 mockedGetFileExtensionPattern.mockReturnValue('json')
 
-import { findConfigFiles, findFiles, isSchema } from './find-files'
+import { findConfigFilesAtPath, findFiles, isSchema } from './find-files'
 
 describe('findFiles()', () => {
   beforeEach(() => {
@@ -68,23 +68,23 @@ describe('isSchema()', () => {
   })
 })
 
-describe('findConfigFiles()', () => {
+describe('findConfigFilesAtPath()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   it('invokes glob.sync', () => {
-    findConfigFiles('some/path')
+    findConfigFilesAtPath('some/path')
 
     expect(mockedGlob.sync).toHaveBeenCalledTimes(1)
   })
 
   it('returns result of glob.sync but filters out files named schema', () => {
-    expect(findConfigFiles('some/path')).toEqual([mockedFileNames[0]])
+    expect(findConfigFilesAtPath('some/path')).toEqual([mockedFileNames[0]])
   })
 
   it('invokes glob.sync with correct default glob', () => {
-    findConfigFiles('some/path')
+    findConfigFilesAtPath('some/path')
 
     expect(mockedGlob.sync).toHaveBeenCalledWith(
       '**/*.json',
@@ -93,7 +93,7 @@ describe('findConfigFiles()', () => {
   })
 
   it('builds glob correctly when fileName is passed', () => {
-    findConfigFiles('some/path', 'schema')
+    findConfigFilesAtPath('some/path', 'schema')
 
     expect(mockedGlob.sync).toHaveBeenCalledWith(
       'schema.json',
