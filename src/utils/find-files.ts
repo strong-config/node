@@ -1,4 +1,5 @@
 import R from 'ramda'
+import fs from 'fs'
 import path from 'path'
 import glob from 'glob'
 
@@ -23,8 +24,18 @@ export const findFiles = (
   return glob.sync(globPattern, { cwd: path.resolve(basePath), absolute: true })
 }
 
-export const findConfigFiles = (
+export const findConfigFilesAtPath = (
   basePath: string,
   fileName?: string
 ): string[] =>
   R.reject(isSchema, findFiles(basePath, fileName, getFileExtensionPattern()))
+
+export const findConfigFilesAtPaths = (normalizedPaths: string[]): string[] =>
+  R.compose<string[], any[], string[]>(
+    R.flatten,
+    R.map(configPath =>
+      fs.lstatSync(configPath).isDirectory()
+        ? findConfigFilesAtPath(configPath)
+        : path.resolve(configPath)
+    )
+  )(normalizedPaths)

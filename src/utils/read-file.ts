@@ -1,7 +1,7 @@
 import R from 'ramda'
 import path from 'path'
 
-import { findConfigFiles, isJson } from './find-files'
+import { findConfigFilesAtPath, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
 import { EncryptedConfig, Schema } from '../types'
@@ -20,7 +20,7 @@ export const getFileExtensionPattern = (): string =>
   `{${Object.values(FileExtension).join(',')}}`
 
 export const readConfigFile = (basePath: string, fileName: string): File => {
-  const filePaths = findConfigFiles(basePath, fileName)
+  const filePaths = findConfigFilesAtPath(basePath, fileName)
 
   if (R.isEmpty(filePaths)) {
     throw new Error(
