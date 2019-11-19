@@ -1,6 +1,6 @@
 {
   "name": "@strong-config/node",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "SOPS-based secret management tool for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
