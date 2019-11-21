@@ -1,11 +1,6 @@
-// TODO: These types be improved once recursive type references are released (https://github.com/microsoft/TypeScript/pull/33050)
+type JSON = string | number | boolean | null | JSON[] | { [key: string]: JSON }
+export type JSONObject = { [key: string]: JSON }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface JSONArray extends Array<JSONValue> {}
-type JSONValue = string | number | boolean | JSONObject | JSONArray
-export interface JSONObject {
-  [x: string]: JSONValue
-}
 export type BaseConfig = JSONObject
 export type Schema = JSONObject
 
