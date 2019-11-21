@@ -31,9 +31,7 @@ export const validate = (
   }
 
   // Resolve absolute paths of all given `normalizedConfigPaths`, which can be passed as directories and/or files
-  // TODO: Figure out correct type here. Error: R.compose<string[], (string | string[])[], string[]>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const flatConfigPaths = R.compose<string[], any[], string[]>(
+  const flatConfigPaths = R.compose<string[], (string | string[])[], string[]>(
     R.flatten,
     R.map(configPath =>
       fs.lstatSync(configPath).isDirectory()

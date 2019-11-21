@@ -1,4 +1,4 @@
-type JSON = string | number | boolean | null | JSON[] | { [key: string]: JSON }
+type JSON = string | number | boolean | null | JSON[] | JSONObject
 export type JSONObject = { [key: string]: JSON }
 
 export type BaseConfig = JSONObject

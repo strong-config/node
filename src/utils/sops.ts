@@ -9,7 +9,7 @@ const hasSopsMetadata = R.has('sops')
 const runSopsWithOptions = (options: string[]): string => {
   const { stdout, stderr } = execa.sync('sops', options)
 
-  if (stderr && stderr.toString().length) {
+  if (stderr?.toString().length) {
     throw new Error(stderr.toString())
   }
 
@@ -25,7 +25,7 @@ export const decryptToObject = (
   }
 
   // If there's no SOPS metadata, parsedConfig already represents decrypted config
-  if (parsedConfig && !hasSopsMetadata(parsedConfig)) {
+  if (!hasSopsMetadata(parsedConfig)) {
     return parsedConfig
   }
 
