@@ -8,6 +8,7 @@
     "/lib"
   ],
   "repository": "git@github.com:strong-config/node.git",
+  "bugs": "https://github.com/strong-config/node/issues",
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
@@ -23,10 +24,11 @@
     "watch": "tsc --watch",
     "clean": "rimraf build/",
     "build": "tsc",
-    "dev:encrypt": "gpg --import --quiet example/pgp/example-keypair.pgp && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
+    "dev:importkey": "gpg --import --quiet example/pgp/example-keypair.pgp",
+    "dev:encrypt": "yarn dev:importkey && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
     "dev:decrypt": "sops --decrypt --in-place example/development.yaml && cat example/development.yaml",
-    "dev:load:commonjs": "yarn build; cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js",
-    "dev:load:es6": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts",
+    "dev:load:commonjs": "yarn build; yarn dev:importkey && cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js",
+    "dev:load:es6": "yarn dev:importkey && cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts",
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
     "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
