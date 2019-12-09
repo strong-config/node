@@ -31,11 +31,12 @@
   "license": "MIT",
   "scripts": {
     "health": "ts-node --transpile-only scripts/healthcheck.ts",
-    "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown",
+    "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown && yarn lint:yaml",
     "lint:ts": "eslint --ext [.ts] src scripts",
     "lint:ts:fix": "eslint --fix --ext [.ts] src scripts",
     "lint:json": "jsonlint-cli package.json src/**/*.json",
     "lint:markdown": "markdownlint **/*.md --ignore node_modules --ignore CHANGELOG.md --ignore .gitlab",
+    "lint:yaml": "yamllint **/*.yaml **/*.yml --ignore=node_modules/**/*.yaml --ignore=node_modules/**/*.yml",
     "release": "standard-version --message \"chore(release): %s [ci-release]\"",
     "test": "yarn dev:importkey && jest --runInBand --verbose",
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
