@@ -180,6 +180,25 @@ the same directory as your config files (which is the default).
 
 However, `strong-config` will work fine if you decide to not use schemas at all.
 
+## CLI
+
+`@strong-config/node` includes a CLI tool which is available in the terminal by
+running `yarn strong-config` or `strong-config` (if you installed
+`@strong-config/node` globally).
+
+A primary use-case of the CLI tool is encrypting and validating configs. For example,
+when you finished developing a feature that required config changes, you would
+either encrypt the changed config through a git-hook or manually via
+`strong-config encrypt <args>`.
+
+The strong-config CLI supports three commands:
+
+- **`encrypt <config> ...`**: Encrypt a config file with the passed arguments.
+- **`decrypt <config> ...`**: Decrypt a config file with the passed arguments.
+- **`validate <config> <schema>`**: Validate a config file against a schema file.
+
+The available arguments and flags per command are shown with `--help`/`-h`.
+
 ## FAQ
 
 1. **Can I write my configs as JSON files?**
