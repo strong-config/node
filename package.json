@@ -38,7 +38,7 @@
     "lint:markdown": "markdownlint **/*.md --ignore node_modules --ignore CHANGELOG.md --ignore .gitlab",
     "lint:yaml": "yamllint **/*.yaml **/*.yml --ignore=node_modules/**/*.yaml --ignore=node_modules/**/*.yml",
     "release": "standard-version --message \"chore(release): %s [ci-release]\"",
-    "test": "yarn dev:importkey && jest --runInBand --verbose",
+    "test": "jest --verbose --color",
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "watch": "tsc --watch",
     "clean": "rimraf build/",

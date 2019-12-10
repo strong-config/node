@@ -1,28 +1,49 @@
 jest.mock('./validate')
+jest.mock('../spinner')
+jest.mock('../../utils/sops')
 
 import stdMocks from 'std-mocks'
-import fs from 'fs'
 
 import { validate } from './validate'
+import {
+  startSpinner,
+  failSpinner,
+  succeedSpinner,
+  getVerbosityLevel,
+  VerbosityLevel,
+} from '../spinner'
+import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
+
+const mockedRunSopsWithOptions = runSopsWithOptions as jest.MockedFunction<
+  typeof runSopsWithOptions
+>
+const mockedGetSopsOptions = getSopsOptions as jest.MockedFunction<
+  typeof getSopsOptions
+>
+
 const mockedValidate = validate as jest.MockedFunction<typeof validate>
 
-// Expected output (decrypted config) without whitespace to allow for simple comparisons
-const expectedDecryptedConfig = `
-    name: example-project
-    someField:
-      optionalField: 123
-      requiredField: crucial string
-    someArray:
-    - joe
-    - freeman
-    someSecret: cantSeeMe
-`.replace(/\s/g, '')
+const mockedStartSpinner = startSpinner as jest.MockedFunction<
+  typeof startSpinner
+>
+const mockedFailSpinner = failSpinner as jest.MockedFunction<typeof failSpinner>
+const mockedSuceedSpinner = succeedSpinner as jest.MockedFunction<
+  typeof succeedSpinner
+>
+const mockedGetVerbosityLevel = getVerbosityLevel as jest.MockedFunction<
+  typeof getVerbosityLevel
+>
+
+mockedGetVerbosityLevel.mockReturnValue(VerbosityLevel.Verbose)
+
+const mockedSopsOptions = ['--some', '--flags']
+mockedGetSopsOptions.mockReturnValue(mockedSopsOptions)
+const sopsError = new Error('some sops error')
 
 import Decrypt from './decrypt'
 
 const configPath = 'example/development.yaml'
 const outputPath = 'example/development.decrypted.yaml'
-const backupPath = 'example/development.backup.yaml'
 const schemaPath = 'example/schema.json'
 
 const mockedExit = jest.spyOn(process, 'exit').mockImplementation()
@@ -69,40 +90,8 @@ describe('strong-config decrypt', () => {
   })
 
   describe('handles decryption', () => {
-    beforeAll(() => {
-      // Copy encrypted config file so we can restore it later
-      fs.copyFileSync(configPath, backupPath)
-
-      stdMocks.use()
-    })
-
     beforeEach(() => {
       jest.clearAllMocks()
-      stdMocks.flush()
-    })
-
-    afterEach(() => {
-      // Delete temporary output file (decrypted config)
-      try {
-        console.log('Unlinking')
-        fs.unlinkSync(outputPath)
-      } catch (err) {
-        console.log('No temporary output file found to delete')
-      }
-
-      // Restore backup config
-      fs.copyFileSync(backupPath, configPath)
-    })
-
-    afterAll(() => {
-      // Delete backup config
-      try {
-        fs.unlinkSync(backupPath)
-      } catch (err) {
-        console.log('Could not find backup config file to delete')
-      }
-
-      stdMocks.restore()
     })
 
     it('exits with code 0 when successful', async () => {
@@ -111,36 +100,33 @@ describe('strong-config decrypt', () => {
       expect(mockedExit).toHaveBeenCalledWith(0)
     })
 
-    it('decrypts in-place when no output path is passed', async () => {
+    it('exits with code 1 when decryption fails', async () => {
+      mockedRunSopsWithOptions.mockImplementationOnce(() => {
+        throw sopsError
+      })
+
       await Decrypt.run([configPath])
 
-      const decryptedConfigAsString = fs.readFileSync(configPath).toString()
-
-      expect(decryptedConfigAsString.replace(/\s/g, '')).toBe(
-        expectedDecryptedConfig
-      )
-    })
-
-    it('decrypts to unencrypted file when output path is passed', async () => {
-      await Decrypt.run([configPath, outputPath])
-
-      const decryptedConfigAsString = fs.readFileSync(outputPath).toString()
-
-      expect(decryptedConfigAsString.replace(/\s/g, '')).toBe(
-        expectedDecryptedConfig
-      )
-    })
-
-    it('fails when config file does not exist', async () => {
-      await Decrypt.run(['non/existing/config.yaml'])
-
       expect(mockedExit).toHaveBeenCalledWith(1)
+    })
+
+    it('decrypts by using sops', async () => {
+      await Decrypt.run([configPath])
+
+      expect(mockedRunSopsWithOptions).toHaveBeenCalledWith([
+        '--decrypt',
+        ...mockedSopsOptions,
+      ])
     })
 
     it('decrypts and validates when schema path is passed', async () => {
       await Decrypt.run([configPath, '--schema-path', schemaPath])
 
-      expect(mockedValidate).toHaveBeenCalledTimes(1)
+      expect(mockedValidate).toHaveBeenCalledWith(
+        configPath,
+        schemaPath,
+        VerbosityLevel.Verbose
+      )
     })
 
     it('fails when no arguments are passed', async () => {
@@ -148,34 +134,37 @@ describe('strong-config decrypt', () => {
         /Missing 1 required arg/
       )
     })
+  })
 
-    it('fails when passed schema file does not exist', async () => {
-      // Note: This will still decrypt the config. Only after decryption, validation fails.
-      await Decrypt.run([
-        configPath,
-        '--schema-path',
-        'non/existing/schema.json',
-      ])
-
-      // TODO: Why doesn't it return exit code 1 here?
-      expect(mockedExit).toHaveBeenCalledWith(0)
+  describe('informs the user', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
     })
 
-    it('shows the decryption status', async () => {
-      await Decrypt.run([configPath, outputPath])
+    it('informs user about the decryption process', async () => {
+      await Decrypt.run([configPath])
 
-      expect(stdMocks.flush().stderr.join('')).toMatch('💪  Decrypted!')
+      expect(mockedStartSpinner).toHaveBeenCalledWith('Decrypting...')
     })
 
-    it('shows an error when decryption fails ', async () => {
-      await Decrypt.run(['non/existing/config.yaml'])
+    it('informs user about the decryption result', async () => {
+      await Decrypt.run([configPath])
 
-      expect(stdMocks.flush().stderr.join('')).toMatch(
-        /Failed to decrypt config file/
+      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Decrypted!')
+    })
+
+    it('informs user about decryption errors', async () => {
+      mockedRunSopsWithOptions.mockImplementationOnce(() => {
+        throw sopsError
+      })
+
+      await Decrypt.run([configPath])
+
+      expect(mockedFailSpinner).toHaveBeenCalledWith(
+        'Failed to decrypt config file',
+        expect.any(Error),
+        VerbosityLevel.Verbose
       )
     })
-
-    // TODO: Investigate why 'Validated!' is not available in mocked stderr
-    test.todo('shows the validation status when schema path is passed')
   })
 })

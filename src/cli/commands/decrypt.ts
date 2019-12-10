@@ -2,7 +2,12 @@
 
 import { Command, flags } from '@oclif/command'
 
-import { startSpinner, failSpinner, succeedSpinner } from '../spinner'
+import {
+  startSpinner,
+  failSpinner,
+  succeedSpinner,
+  getVerbosityLevel,
+} from '../spinner'
 import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
 import { validate } from './validate'
 
@@ -59,7 +64,11 @@ export default class Decrypt extends Command {
 
     // Validate unencrypted config after decryption
     if (flags['schema-path']) {
-      validate(args['config_path'], flags['schema-path'], flags['verbose'])
+      validate(
+        args['config_path'],
+        flags['schema-path'],
+        getVerbosityLevel(flags.verbose)
+      )
     }
 
     process.exit(0)
@@ -77,7 +86,11 @@ const decrypt = (
   try {
     runSopsWithOptions(sopsOptions)
   } catch (error) {
-    failSpinner('Failed to decrypt config file', error, flags['isVerbose'])
+    failSpinner(
+      'Failed to decrypt config file',
+      error,
+      getVerbosityLevel(flags.verbose)
+    )
 
     process.exit(1)
   }

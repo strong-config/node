@@ -1,15 +1,25 @@
 import R from 'ramda'
 import { ExecaSyncReturnValue } from 'execa'
 
+import { EncryptedConfig } from '../types'
+
 jest.mock('execa')
 jest.mock('js-yaml')
 const mockedFilePath = './config/development.yaml'
 const mockedParsedConfig: EncryptedConfig = {
   field: 'asdf',
   fieldSecret: 'ENC[some encrypted value]',
+  /* eslint-disable @typescript-eslint/camelcase */
   sops: {
-    key: 'value',
+    kms: 'data',
+    gcp_kms: 'data',
+    azure_kv: 'data',
+    pgp: 'data',
+    lastmodified: 'timestamp',
+    mac: 'data',
+    version: 'version',
   },
+  /* eslint-enable @typescript-eslint/camelcase */
 }
 const mockedDecryptedConfigAsString: string = JSON.stringify({
   field: 'asdf',
@@ -23,6 +33,7 @@ import execa from 'execa'
 const mockedExeca = execa as jest.Mocked<typeof execa>
 mockedExeca.sync = jest.fn().mockReturnValue({
   stdout: mockedDecryptedConfigAsString,
+  exitCode: 0,
   stderr: '',
 })
 import yaml from 'js-yaml'
@@ -49,6 +60,7 @@ describe('decryptToObject()', () => {
 
   it('throws when SOPS binary encounters an error while decrypting the config', () => {
     mockedExeca.sync.mockReturnValueOnce({
+      exitCode: 1,
       stdout: Buffer.from('some stdout'),
       stderr: Buffer.from('non-empty stderr'),
     } as ExecaSyncReturnValue<Buffer>)

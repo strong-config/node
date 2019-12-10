@@ -2,7 +2,12 @@
 
 import { Command, flags } from '@oclif/command'
 
-import { startSpinner, failSpinner, succeedSpinner } from '../spinner'
+import {
+  startSpinner,
+  failSpinner,
+  succeedSpinner,
+  getVerbosityLevel,
+} from '../spinner'
 import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
 import { validate } from './validate'
 
@@ -23,6 +28,7 @@ export default class Encrypt extends Command {
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
+      parse: input => (input ? VerbosityLevel.Verbose : VerbosityLevel.Default),
     }),
     'key-provider': flags.string({
       char: 'p',
@@ -86,7 +92,11 @@ export default class Encrypt extends Command {
 
     // Validate unencrypted config prior to encryption
     if (flags['schema-path']) {
-      validate(args['config_path'], flags['schema-path'], flags['verbose'])
+      validate(
+        args['config_path'],
+        flags['schema-path'],
+        getVerbosityLevel(flags.verbose)
+      )
     }
 
     encrypt(args, flags)
@@ -106,7 +116,11 @@ const encrypt = (
   try {
     runSopsWithOptions(sopsOptions)
   } catch (error) {
-    failSpinner('Failed to encrypt config file', error, flags['isVerbose'])
+    failSpinner(
+      'Failed to encrypt config file',
+      error,
+      getVerbosityLevel(flags.verbose)
+    )
 
     process.exit(1)
   }

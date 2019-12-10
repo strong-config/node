@@ -4,7 +4,13 @@ import { Command, flags } from '@oclif/command'
 
 import { Options } from '../../options'
 import { validate as validateConfig } from '../../validate'
-import { startSpinner, failSpinner, succeedSpinner } from '../spinner'
+import {
+  startSpinner,
+  failSpinner,
+  succeedSpinner,
+  getVerbosityLevel,
+  VerbosityLevel,
+} from '../spinner'
 
 export default class Validate extends Command {
   static description = 'validate config files against a schema'
@@ -46,7 +52,11 @@ export default class Validate extends Command {
   async run() {
     const { args, flags } = this.parse(Validate)
 
-    validate(args['config_path'], args['schema_path'], flags['verbose'])
+    validate(
+      args['config_path'],
+      args['schema_path'],
+      getVerbosityLevel(flags.verbose)
+    )
 
     process.exit(0)
   }
@@ -55,14 +65,18 @@ export default class Validate extends Command {
 export const validate = (
   configPath: string,
   schemaPath: string,
-  isVerbose: boolean
+  verbosityLevel: VerbosityLevel
 ): void => {
   startSpinner('Validating...')
 
   try {
     validateConfig([configPath], { schemaPath } as Options)
   } catch (error) {
-    failSpinner('Config validation against schema failed', error, isVerbose)
+    failSpinner(
+      'Config validation against schema failed',
+      error,
+      verbosityLevel
+    )
 
     process.exit(1)
   }

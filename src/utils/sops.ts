@@ -7,13 +7,13 @@ import { EncryptedConfig, DecryptedConfig } from '../types'
 const hasSopsMetadata = R.has('sops')
 
 export const runSopsWithOptions = (options: string[]): string => {
-  const { stdout, stderr } = execa.sync('sops', options)
+  const execaReturn = execa.sync('sops', options)
 
-  if (stderr?.toString().length) {
-    throw new Error(stderr.toString())
+  if (execaReturn.exitCode !== 0) {
+    throw new Error(execaReturn.toString())
   }
 
-  return stdout.toString()
+  return execaReturn.stdout.toString()
 }
 
 export const decryptToObject = (
@@ -76,6 +76,10 @@ export const getSopsOptions = (
     options.push('--unencrypted-suffix', flags['unencrypted-key-suffix'])
   } else if (flags['encrypted-key-suffix'] !== undefined) {
     options.push('--encrypted-suffix', flags['encrypted-key-suffix'])
+  }
+
+  if (flags.verbose) {
+    options.push('--verbose')
   }
 
   options.push(args['config_path'])
