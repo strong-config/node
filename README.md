@@ -199,6 +199,51 @@ The strong-config CLI supports three commands:
 
 The available arguments and flags per command are shown with `--help`/`-h`.
 
+## Integration with Cloud-based Key Management Services (KMS)
+
+_Note: The following sections require familiarity with the provider-specific_
+_IAMs and security models. Please make sure your keys are secured._
+
+### [AWS KMS](https://aws.amazon.com/kms/)
+
+You can use the [AWS console](https://console.aws.amazon.com/kms/) or the
+[AWS CLI tool](https://docs.aws.amazon.com/cli) to create and manage keys. For
+this walk-through, we will use the AWS console.
+
+#### Create an AWS KMS Key
+
+1. Sign-in to [https://console.aws.amazon.com/kms/](https://console.aws.amazon.com/kms/)
+2. Navigate to _Customer managed keys_ (CMK)
+3. Click _Create key_ (or select an existing key you wish to use for encryption)
+4. Select _Symmetric_ as key type
+5. Enter an alias and a description along with optional tags
+6. Select key administrators
+7. Select users and/or roles that can use the key for encryption and decryption
+8. Review the key policy and click _Finish_
+
+Now you should see the key under _Customer managed keys_.
+
+#### Use an AWS KMS Key to encrypt your config
+
+1. Click the key in the console to view the key details and copy the
+   [Amazon Resource Name (ARN)](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
+   starting with `arn:aws:kms:...`.
+2. Make sure that the current AWS credentials match the user/role you selected
+   in step 7. You can use `aws configure` to set _Access Key ID_ and
+   _Secret Access Key_ which are written to `~/.aws/credentials`.
+3. Encrypt your config by running `strong-config encrypt <config> -p aws -k<arn>`
+   , where `<arn>` refers to the ARN of your key.
+
+Your config is now encrypted with the AWS KMS key 💪.
+
+#### Use an AWS KMS Key to decrypt your config
+
+The SOPS metadata contained in encrypted config includes details of the key ARN.
+Thus, we only need to make sure that the current AWS credentials represent a
+user/role that is permitted to use the key for decryption.
+
+Decrypt your config by running `strong-config decrypt <config>`.
+
 ## FAQ
 
 1. **Can I write my configs as JSON files?**
