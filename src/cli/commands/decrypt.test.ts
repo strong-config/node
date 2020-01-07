@@ -150,7 +150,9 @@ describe('strong-config decrypt', () => {
     it('informs user about the decryption result', async () => {
       await Decrypt.run([configPath])
 
-      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Decrypted!')
+      expect(mockedSuceedSpinner).toHaveBeenCalledWith(
+        `Successfully decrypted ${configPath}!`
+      )
     })
 
     it('informs user about decryption errors', async () => {

@@ -32,12 +32,14 @@ export default class Validate extends Command {
   static args = [
     {
       name: 'config_path',
-      description: 'path to an unencrypted config file',
+      description:
+        'path to an unencrypted config file, for example `strong-config validate config/production.yml config/schema.json`',
       required: true,
     },
     {
       name: 'schema_path',
-      description: 'path to a schema file',
+      description:
+        'path to a schema file, for example `strong-config validate config/production.yml config/schema.json`',
       required: true,
     },
   ]
@@ -81,5 +83,5 @@ export const validate = (
     process.exit(1)
   }
 
-  succeedSpinner('Validated!')
+  succeedSpinner('Config is valid!')
 }
