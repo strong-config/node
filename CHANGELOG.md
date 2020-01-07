@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.8](https://github.com/strong-config/node/compare/v0.1.6...v0.1.8) (2020-01-07)
+
+
+### Features
+
+* add CLI with encrypt and decrypt commands ([53559d6](https://github.com/strong-config/node/commit/53559d633133633ed88d1b9ca36fbe572e3d0090))
+
+
+### Bug Fixes
+
+* --verbose flag properly working for decrypt/encrypt CLI commands ([7049f5b](https://github.com/strong-config/node/commit/7049f5b6b578359cecc38f7fa40993beb3f1c41b))
+* **encrypt:** remove parsing of verbosity level and handle as normal boolean ([b03f96c](https://github.com/strong-config/node/commit/b03f96cbfe0dd07e6ef06eee47aee118161c45f3))
+
 ### [0.1.7](https://github.com/strong-config/node/compare/v0.1.6...v0.1.7) (2019-11-27)
 
 ### [0.1.6](https://github.com/strong-config/node/compare/v0.1.5...v0.1.6) (2019-11-20)
