@@ -37,7 +37,8 @@ export default class Decrypt extends Command {
   static args = [
     {
       name: 'config_path',
-      description: 'path to an encrypted config file',
+      description:
+        'path to a decrypted config file, for example: `strong-config encrypt ./config/production.yml`',
       required: true,
     },
     {
@@ -92,8 +93,12 @@ const decrypt = (
       getVerbosityLevel(flags.verbose)
     )
 
+    if (error.exitCode === 1) {
+      console.log(`🤔 It looks like ${args.config_path} is already decrypted`)
+    }
+
     process.exit(1)
   }
 
-  succeedSpinner('Decrypted!')
+  succeedSpinner(`Successfully decrypted ${args.config_path}!`)
 }

@@ -67,7 +67,8 @@ export default class Encrypt extends Command {
   static args = [
     {
       name: 'config_path',
-      description: 'path to an unencrypted config file',
+      description:
+        'path to an unencrypted config file, for example: `strong-config encrypt ./config/production.yml`',
       required: true,
     },
     {
@@ -122,8 +123,12 @@ const encrypt = (
       getVerbosityLevel(flags.verbose)
     )
 
+    if (error.exitCode === 203) {
+      console.log(`🤔 It looks like ${args.config_path} is already encrypted`)
+    }
+
     process.exit(1)
   }
 
-  succeedSpinner('Encrypted!')
+  succeedSpinner(`Successfully encrypted ${args.config_path}!`)
 }

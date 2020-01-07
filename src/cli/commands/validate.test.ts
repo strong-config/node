@@ -120,7 +120,7 @@ describe('strong-config validate', () => {
     it('informs user about the validation result', async () => {
       await Validate.run([configPath, schemaPath])
 
-      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Validated!')
+      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Config is valid!')
     })
 
     it('informs user about validation errors', async () => {

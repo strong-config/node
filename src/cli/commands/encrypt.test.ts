@@ -177,7 +177,9 @@ describe('strong-config encrypt', () => {
     it('informs user about the encryption result', async () => {
       await Encrypt.run([configPath, ...requiredKeyFlags])
 
-      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Encrypted!')
+      expect(mockedSuceedSpinner).toHaveBeenCalledWith(
+        `Successfully encrypted ${configPath}!`
+      )
     })
 
     it('informs user about encryption errors', async () => {
