@@ -28,7 +28,6 @@ export default class Encrypt extends Command {
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
-      parse: input => (input ? VerbosityLevel.Verbose : VerbosityLevel.Default),
     }),
     'key-provider': flags.string({
       char: 'p',
