@@ -39,7 +39,7 @@ export const readConfigFileAtPath = (filePath: string): File =>
   readConfigFile(path.dirname(filePath), path.basename(filePath))
 
 export const readSchemaFile = (schemaPath: string): File | null => {
-  if (R.isNil(schemaPath) || !isJson(schemaPath)) {
+  if (!isJson(schemaPath)) {
     return null
   }
 

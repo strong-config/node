@@ -8,7 +8,7 @@ export interface Options {
   types: TypeOptions | false
   substitutionPattern: string
   configPath: string
-  schemaPath: string
+  schemaPath: string | null
 }
 
 export const defaultOptions: Options = {
@@ -19,5 +19,5 @@ export const defaultOptions: Options = {
   },
   substitutionPattern: '\\$\\{(\\w+)\\}',
   configPath: 'config/',
-  schemaPath: 'config/schema.json',
+  schemaPath: null,
 }

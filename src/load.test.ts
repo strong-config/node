@@ -14,7 +14,11 @@ import { decryptToObject } from './utils/sops'
 
 import { HydratedConfig } from './types'
 
-const mockedOptions = defaultOptions
+const mockedSchemaPath = 'some/path/to/schema.json'
+const mockedOptions = {
+  ...defaultOptions,
+  schemaPath: mockedSchemaPath,
+}
 const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfigFile = {
   filePath: './config/test.yaml',
@@ -111,7 +115,7 @@ describe('load()', () => {
   it('reads the schema file', () => {
     load(mockedOptions)
 
-    expect(mockedReadSchemaFile).toHaveBeenCalledWith(defaultOptions.schemaPath)
+    expect(mockedReadSchemaFile).toHaveBeenCalledWith(mockedSchemaPath)
   })
 
   it('validates config against schema if schema was found', () => {
@@ -126,7 +130,10 @@ describe('load()', () => {
   it('generates types if options.types is not false', () => {
     load(mockedOptions)
 
-    expect(generateTypeFromSchema).toHaveBeenCalledWith(mockedOptions)
+    expect(generateTypeFromSchema).toHaveBeenCalledWith(
+      mockedOptions.schemaPath,
+      mockedOptions.types
+    )
   })
 
   it('skips generating types if options.types is false', () => {
@@ -138,20 +145,12 @@ describe('load()', () => {
     expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
   })
 
-  it('skips validating config if schema was not found', () => {
+  it('throws when schemaPath is passed but no valid schema file can be read', () => {
     mockedReadSchemaFile.mockReturnValueOnce(null)
 
-    load(mockedOptions)
-
-    expect(validateJson).toHaveBeenCalledTimes(0)
-  })
-
-  it('skips generating types if schema was not found', () => {
-    mockedReadSchemaFile.mockReturnValueOnce(null)
-
-    load(mockedOptions)
-
-    expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
+    expect(() => load(mockedOptions)).toThrowError(
+      /Specified schema at \'\S*\' is not valid JSON or cannot be read/
+    )
   })
 
   it('returns the config', () => {
