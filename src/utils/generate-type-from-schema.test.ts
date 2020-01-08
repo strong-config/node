@@ -1,6 +1,9 @@
 import { defaultOptions, TypeOptions } from '../options'
 
-const mockedOptions = defaultOptions
+// define string here and not import from defaultOptions as defaultOptions.schemaPath can be null
+const mockedSchemaPath = 'some/path/to/schema.json'
+const mockedTypes = defaultOptions.types as TypeOptions
+
 const mockedCompiledTypes = `
   export interface TheTopLevelInterface {
     name: string;
@@ -64,22 +67,22 @@ describe('generateTypeFromSchema()', () => {
   })
 
   it('calls compileFromFile with a file path', async () => {
-    await generateTypeFromSchema(mockedOptions)
+    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
 
-    expect(mockedCompileFromFile).toHaveBeenCalledWith(mockedOptions.schemaPath)
+    expect(mockedCompileFromFile).toHaveBeenCalledWith(mockedSchemaPath)
   })
 
   it('reads the file at filePath', async () => {
-    await generateTypeFromSchema(mockedOptions)
+    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockedOptions.schemaPath)
+    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockedSchemaPath)
   })
 
   it('generates correct types', async () => {
     const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
-    const typeOptions = mockedOptions.types as TypeOptions
+    const typeOptions = mockedTypes as TypeOptions
 
-    await generateTypeFromSchema(mockedOptions)
+    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
 
     expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
       typeOptions.filePath,
@@ -90,9 +93,9 @@ describe('generateTypeFromSchema()', () => {
   it('throws when top-level schema definition does not have a title field', async () => {
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
-    await expect(generateTypeFromSchema(mockedOptions)).rejects.toThrowError(
-      Error
-    )
+    await expect(
+      generateTypeFromSchema(mockedSchemaPath, mockedTypes)
+    ).rejects.toThrowError(Error)
   })
 
   it('throws when top-level schema definition has invalid title field', async () => {
@@ -100,6 +103,8 @@ describe('generateTypeFromSchema()', () => {
       mockedSchemaStringWithInvalidTitle
     )
 
-    await expect(generateTypeFromSchema(mockedOptions)).rejects.toThrow(Error)
+    await expect(
+      generateTypeFromSchema(mockedSchemaPath, mockedTypes)
+    ).rejects.toThrow(Error)
   })
 })

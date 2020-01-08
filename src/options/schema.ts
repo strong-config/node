@@ -62,8 +62,9 @@ export const optionsSchema = {
         'config/schema.json',
         '../schema.json',
         '/app/config/schema.json',
+        null,
       ],
-      type: 'string',
+      type: ['string', 'null'],
     },
   },
 }

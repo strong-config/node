@@ -19,6 +19,10 @@ export const validate = (
   configPaths: string[],
   { schemaPath }: Options
 ): true => {
+  if (schemaPath === null) {
+    throw new Error('No schema was provided with options.schemaPath')
+  }
+
   const normalizedSchemaPath = path.normalize(schemaPath)
   const normalizedConfigPaths = configPaths.map(path.normalize)
 
@@ -26,7 +30,7 @@ export const validate = (
   const validateConfig = validateConfigAgainstSchema(schemaFile.contents)
 
   if (R.isNil(schemaFile)) {
-    throw new Error('Could not find a schema for validation')
+    throw new Error(`Could not find a schema at path ${schemaPath}`)
   }
 
   findConfigFilesAtPaths(normalizedConfigPaths).forEach(validateConfig)
