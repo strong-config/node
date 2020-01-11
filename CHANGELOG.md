@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.9](https://github.com/strong-config/node/compare/v0.1.8...v0.1.9) (2020-01-11)
+
+
+### Bug Fixes
+
+* **validation:** make schema validation disabled per default and explicit opt-in ([d7d3b19](https://github.com/strong-config/node/commit/d7d3b19750579a336f8c34d73add8e6c53cdf71a))
+
 ### [0.1.8](https://github.com/strong-config/node/compare/v0.1.6...v0.1.8) (2020-01-07)
 
 
