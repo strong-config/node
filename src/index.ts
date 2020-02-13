@@ -1,14 +1,14 @@
 import R from 'ramda'
-
 import { load } from './load'
 import { validate } from './validate'
-import { validate as validateOptions } from './options/validate'
+import validateOptions from './options/validate-options'
 
 import { MemoizedConfig } from './types'
 import { defaultOptions, Options } from './options'
 
 export = class StrongConfig {
   public readonly options: Options
+  private readonly runtimeEnv: string | undefined
   private config: MemoizedConfig
 
   constructor(options?: Partial<Options>) {
@@ -20,22 +20,29 @@ export = class StrongConfig {
           }
         : defaultOptions
     )
+
+    this.runtimeEnv = process.env[this.options.runtimeEnvName]
   }
 
   public load(): ReturnType<typeof load> {
+    if (R.isNil(this.runtimeEnv)) {
+      throw new Error('runtimeEnv must be defined.')
+    }
+
     if (this.config) {
       return this.config
     }
 
-    this.config = load(this.options)
+    this.config = load(this.runtimeEnv, this.options)
 
     return this.config
   }
 
-  public validate(...configPaths: string[]): ReturnType<typeof validate> {
-    return validate(
-      R.isEmpty(configPaths) ? [this.options.configPath] : configPaths,
-      this.options
-    )
+  public validate(): ReturnType<typeof validate> {
+    if (R.isNil(this.runtimeEnv)) {
+      throw new Error('runtimeEnv must be defined.')
+    }
+
+    return validate(this.runtimeEnv, this.options.configRoot)
   }
 }

@@ -1,10 +1,10 @@
 jest.mock('./load')
 jest.mock('./validate')
-jest.mock('./options/validate')
+jest.mock('./options/validate-options')
 
 import { load } from './load'
 import { validate } from './validate'
-import { validate as validateOptions } from './options/validate'
+import validateOptions from './options/validate-options'
 import { defaultOptions } from './options'
 
 const mockedLoad = load as jest.MockedFunction<typeof load>
@@ -16,7 +16,6 @@ const mockedValidateOptions = validateOptions as jest.MockedFunction<
 const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfig = { some: 'config', runtimeEnv }
 const mockedOptions = defaultOptions
-const mockedConfigPath = 'some/config/path'
 const mockedValidationResult = true
 mockedLoad.mockReturnValue(mockedConfig)
 mockedValidate.mockReturnValue(mockedValidationResult)
@@ -74,7 +73,7 @@ describe('StrongConfig class', () => {
 
       strongConfig.load()
 
-      expect(mockedLoad).toHaveBeenCalledWith(mockedOptions)
+      expect(mockedLoad).toHaveBeenCalledWith(runtimeEnv, mockedOptions)
     })
 
     it('memoizes previously loaded config', () => {
@@ -87,39 +86,30 @@ describe('StrongConfig class', () => {
       expect(firstLoadResult).toStrictEqual(mockedConfig)
       expect(secondLoadResult).toStrictEqual(mockedConfig)
     })
+
+    it('throws if runtimeEnv is not set', () => {
+      delete process.env[defaultOptions.runtimeEnvName]
+      const strongConfig = new StrongConfig({
+        ...defaultOptions,
+        runtimeEnvName: undefined,
+      })
+      expect(() => strongConfig.load()).toThrow('runtimeEnv must be defined')
+      process.env[defaultOptions.runtimeEnvName] = runtimeEnv
+    })
   })
 
   describe('strongConfig.validate()', () => {
     it('calls imported validate() and returns its result', () => {
       const strongConfig = new StrongConfig()
 
-      const result = strongConfig.validate(mockedConfigPath)
+      const result = strongConfig.validate()
 
       expect(mockedValidate).toHaveBeenCalledTimes(1)
+      expect(mockedValidate).toHaveBeenCalledWith(
+        runtimeEnv,
+        mockedOptions.configRoot
+      )
       expect(result).toStrictEqual(mockedValidationResult)
-    })
-
-    it('validates config paths that are passed', () => {
-      const strongConfig = new StrongConfig(mockedOptions)
-
-      strongConfig.validate(mockedConfigPath, mockedConfigPath)
-
-      expect(mockedValidate).toHaveBeenCalledWith(
-        [mockedConfigPath, mockedConfigPath],
-        mockedOptions
-      )
-    })
-
-    it('validates options.configPath by default', () => {
-      const strongConfig = new StrongConfig(mockedOptions)
-
-      // Do not pass any configPaths to trigger default validation
-      strongConfig.validate()
-
-      expect(mockedValidate).toHaveBeenCalledWith(
-        [defaultOptions.configPath],
-        mockedOptions
-      )
     })
   })
 })

@@ -1,39 +1,35 @@
 import R from 'ramda'
 import path from 'path'
-import { findConfigFilesAtPaths } from './utils/find-files'
+
+import { defaultOptions, ConfigFileExtensions } from './options'
+
+// Utils
+import { findConfigFilesAtPath } from './utils/find-files'
+import { readSchemaFile } from './utils/read-file'
 import { getFileFromPath } from './utils/get-file-from-path'
-import { validateJson } from './utils/validate-json'
-
-import { Schema } from './types'
-import { Options } from './options'
-
-const validateConfigAgainstSchema = (schema: Schema) => (
-  configFilePath: string
-): true => {
-  const configFile = getFileFromPath(configFilePath)
-
-  return validateJson(configFile.contents, schema)
-}
+import validateJsonAgainstSchema from './utils/validate-json-against-schema'
 
 export const validate = (
-  configPaths: string[],
-  { schemaPath }: Options
+  fileName: string,
+  configRoot: string = defaultOptions.configRoot
 ): true => {
-  if (schemaPath === null) {
-    throw new Error('No schema was provided with options.schemaPath')
-  }
+  const normalizedConfigRoot = path.normalize(configRoot)
+  const normalizedFileName = Object.values(ConfigFileExtensions).find(ext =>
+    fileName.endsWith(ext)
+  )
+    ? fileName
+    : findConfigFilesAtPath(normalizedConfigRoot, fileName)[0]
 
-  const normalizedSchemaPath = path.normalize(schemaPath)
-  const normalizedConfigPaths = configPaths.map(path.normalize)
-
-  const schemaFile = getFileFromPath(normalizedSchemaPath)
-  const validateConfig = validateConfigAgainstSchema(schemaFile.contents)
+  const configFile = getFileFromPath(normalizedFileName)
+  const schemaFile = readSchemaFile(normalizedConfigRoot)
 
   if (R.isNil(schemaFile)) {
-    throw new Error(`Could not find a schema at path ${schemaPath}`)
+    throw new Error(
+      '[💪 strong-config] ❌ No schema file found. Cannot validate without a schema.'
+    )
   }
 
-  findConfigFilesAtPaths(normalizedConfigPaths).forEach(validateConfig)
-
-  return true
+  return validateJsonAgainstSchema(configFile.contents, schemaFile.contents)
 }
+
+export default validate

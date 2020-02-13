@@ -38,8 +38,10 @@ export const decryptInPlace = (filePath: string): void =>
   (runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown) as void
 
 export const getSopsOptions = (
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   args: Record<string, any>,
   flags: Record<string, any>
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 ): string[] => {
   const options = []
 
@@ -82,7 +84,7 @@ export const getSopsOptions = (
     options.push('--verbose')
   }
 
-  options.push(args['config_path'])
+  options.push(args['config_file'])
 
   return options
 }

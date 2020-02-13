@@ -1,17 +1,17 @@
-jest.mock('../utils/validate-json')
+jest.mock('../utils/validate-json-against-schema')
 
-import { validateJson } from '../utils/validate-json'
+import validateJsonAgainstSchema from '../utils/validate-json-against-schema'
 import { defaultOptions } from '.'
 
-const mockedValidateJson = validateJson as jest.MockedFunction<
-  typeof validateJson
+const mockedValidateJson = validateJsonAgainstSchema as jest.MockedFunction<
+  typeof validateJsonAgainstSchema
 >
 
 const mockedOptions = { ...defaultOptions }
 
 mockedValidateJson.mockReturnValue(true)
 
-import { validate } from './validate'
+import validateOptions from './validate-options'
 
 describe('validate()', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('validate()', () => {
   })
 
   it('validates json', () => {
-    validate(mockedOptions)
+    validateOptions(mockedOptions)
 
     expect(mockedValidateJson).toHaveBeenCalledWith(
       mockedOptions,
@@ -28,7 +28,7 @@ describe('validate()', () => {
   })
 
   it('returns the options when they are valid', () => {
-    const validationResult = validate(mockedOptions)
+    const validationResult = validateOptions(mockedOptions)
 
     expect(validationResult).toStrictEqual(mockedOptions)
   })
@@ -38,6 +38,8 @@ describe('validate()', () => {
       throw new Error('some validation error')
     })
 
-    expect(() => validate(mockedOptions)).toThrowError('some validation error')
+    expect(() => validateOptions(mockedOptions)).toThrowError(
+      'some validation error'
+    )
   })
 })

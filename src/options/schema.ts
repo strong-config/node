@@ -1,13 +1,7 @@
 export const optionsSchema = {
   type: 'object',
   title: 'Schema for strong-config options',
-  required: [
-    'runtimeEnvName',
-    'types',
-    'substitutionPattern',
-    'configPath',
-    'schemaPath',
-  ],
+  required: ['runtimeEnvName', 'types', 'substitutionPattern', 'configRoot'],
   additionalProperties: false,
   properties: {
     runtimeEnvName: {
@@ -48,23 +42,11 @@ export const optionsSchema = {
       type: 'string',
       format: 'regex',
     },
-    configPath: {
-      title: 'Config path',
+    configRoot: {
+      title: 'Config root path',
       description: 'A path to a directory that contains all config files',
       examples: ['config', '../config', '/app/config/'],
       type: 'string',
-    },
-    schemaPath: {
-      title: 'Schema path',
-      description:
-        'A path to a file that contains schema definitions for the configs',
-      examples: [
-        'config/schema.json',
-        '../schema.json',
-        '/app/config/schema.json',
-        null,
-      ],
-      type: ['string', 'null'],
     },
   },
 }

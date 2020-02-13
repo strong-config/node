@@ -1,12 +1,23 @@
 import StrongConfig from '../../src'
 
 const strongConfig = new StrongConfig({
-  configPath: 'example/',
-  schemaPath: 'example/schema.json',
+  configRoot: 'example/',
 })
 
-const validationResult = strongConfig.validate()
+let validationResult, validationError
 
-console.log('\nValidation result:\n')
-console.log(validationResult)
-console.log('\n')
+try {
+  validationResult = strongConfig.validate()
+} catch (error) {
+  validationResult = false
+  validationError = error.message
+}
+
+console.log('\nValidation result: ')
+if (validationResult) {
+  console.log('✅ ', validationResult)
+} else {
+  console.log('❌ ', validationResult)
+  console.log(validationError)
+}
+console.log('')

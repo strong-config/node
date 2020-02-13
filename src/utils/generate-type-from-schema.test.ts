@@ -1,7 +1,6 @@
 import { defaultOptions, TypeOptions } from '../options'
 
-// define string here and not import from defaultOptions as defaultOptions.schemaPath can be null
-const mockedSchemaPath = 'some/path/to/schema.json'
+const configRoot = 'config'
 const mockedTypes = defaultOptions.types as TypeOptions
 
 const mockedCompiledTypes = `
@@ -66,35 +65,25 @@ describe('generateTypeFromSchema()', () => {
     jest.clearAllMocks()
   })
 
-  it('calls compileFromFile with a file path', async () => {
-    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
+  describe('given a configRoot with a valid schema.json file', () => {
+    it('generates a TypeScript file with corresponding type definitionas', async () => {
+      const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
+      const typeOptions = mockedTypes as TypeOptions
 
-    expect(mockedCompileFromFile).toHaveBeenCalledWith(mockedSchemaPath)
-  })
+      await generateTypeFromSchema(configRoot, mockedTypes)
 
-  it('reads the file at filePath', async () => {
-    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
-
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(mockedSchemaPath)
-  })
-
-  it('generates correct types', async () => {
-    const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
-    const typeOptions = mockedTypes as TypeOptions
-
-    await generateTypeFromSchema(mockedSchemaPath, mockedTypes)
-
-    expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-      typeOptions.filePath,
-      expectedTypes
-    )
+      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
+        typeOptions.filePath,
+        expectedTypes
+      )
+    })
   })
 
   it('throws when top-level schema definition does not have a title field', async () => {
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
     await expect(
-      generateTypeFromSchema(mockedSchemaPath, mockedTypes)
+      generateTypeFromSchema(configRoot, mockedTypes)
     ).rejects.toThrowError(Error)
   })
 
@@ -104,7 +93,7 @@ describe('generateTypeFromSchema()', () => {
     )
 
     await expect(
-      generateTypeFromSchema(mockedSchemaPath, mockedTypes)
+      generateTypeFromSchema(configRoot, mockedTypes)
     ).rejects.toThrow(Error)
   })
 })

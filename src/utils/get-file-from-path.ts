@@ -25,3 +25,5 @@ export const getFileFromPath = (filePath: string): File =>
     parseToJson(filePath),
     readFileToString
   )(filePath)
+
+export default getFileFromPath

@@ -7,8 +7,13 @@ export interface Options {
   runtimeEnvName: string
   types: TypeOptions | false
   substitutionPattern: string
-  configPath: string
-  schemaPath: string | null
+  configRoot: string
+}
+
+export enum ConfigFileExtensions {
+  JSON = 'json',
+  YAML = 'yaml',
+  YML = 'yml',
 }
 
 export const defaultOptions: Options = {
@@ -18,6 +23,7 @@ export const defaultOptions: Options = {
     filePath: 'strong-config.d.ts',
   },
   substitutionPattern: '\\$\\{(\\w+)\\}',
-  configPath: 'config/',
-  schemaPath: null,
+  configRoot: 'config',
 }
+
+export default defaultOptions

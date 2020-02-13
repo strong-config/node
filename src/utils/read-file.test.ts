@@ -1,8 +1,15 @@
+jest.mock('fs')
 jest.mock('./find-files')
 jest.mock('./get-file-from-path')
+import fs from 'fs'
 import { findConfigFilesAtPath, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
+import { readConfigFile, readSchemaFile, File } from './read-file'
 
+// Mocks
+const mockedFsExistsSync = fs.existsSync as jest.MockedFunction<
+  typeof fs.existsSync
+>
 const mockedfindConfigFilesAtPath = findConfigFilesAtPath as jest.MockedFunction<
   typeof findConfigFilesAtPath
 >
@@ -12,7 +19,6 @@ const mockedGetFileFromPath = getFileFromPath as jest.MockedFunction<
 >
 
 const mockedConfigFilePaths = ['config/development.yml']
-const mockedSchemaFilePaths = ['config/schema.json']
 mockedfindConfigFilesAtPath.mockReturnValue(mockedConfigFilePaths)
 const mockedFile: File = {
   contents: {
@@ -22,8 +28,6 @@ const mockedFile: File = {
 }
 mockedGetFileFromPath.mockReturnValue(mockedFile)
 mockedIsJson.mockReturnValue(true)
-
-import { readConfigFile, readSchemaFile, File } from './read-file'
 
 describe('readConfigFile()', () => {
   beforeEach(() => {
@@ -71,19 +75,18 @@ describe('readSchemaFile()', () => {
     jest.clearAllMocks()
   })
 
-  it('returns null when input is not a JSON file', () => {
-    mockedIsJson.mockReturnValueOnce(false)
+  describe('given a config root without an existing schema.json', () => {
+    it('returns null when input is not a JSON file', () => {
+      mockedIsJson.mockReturnValueOnce(false)
 
-    expect(readSchemaFile('not-a-json-file.yaml')).toBeNull()
+      expect(readSchemaFile('not-a-json-file.yaml')).toBeNull()
+    })
   })
 
-  it('reads file by calling getFileFromPath', () => {
-    readSchemaFile(mockedSchemaFilePaths[0])
-
-    expect(mockedGetFileFromPath).toHaveBeenCalledWith(mockedSchemaFilePaths[0])
-  })
-
-  it('returns result of getFileFromPath', () => {
-    expect(readSchemaFile(mockedSchemaFilePaths[0])).toEqual(mockedFile)
+  describe('given a config root with an existing schema.json', () => {
+    it('returns the parsed schema file', () => {
+      mockedFsExistsSync.mockReturnValue(true)
+      expect(readSchemaFile('config')).toEqual(mockedFile)
+    })
   })
 })

@@ -1,16 +1,35 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-use-before-define */
-
 import { Command, flags } from '@oclif/command'
 
-import { Options } from '../../options'
-import { validate as validateConfig } from '../../validate'
+import validate from '../../validate'
 import {
   startSpinner,
   failSpinner,
   succeedSpinner,
-  getVerbosityLevel,
   VerbosityLevel,
 } from '../spinner'
+import { defaultOptions } from './../../options/index'
+
+export const validateCliWrapper = (
+  configFile: string,
+  configRoot: string,
+  verbosityLevel: VerbosityLevel = 1
+): void => {
+  startSpinner('Validating...')
+
+  try {
+    validate(configFile, configRoot)
+  } catch (error) {
+    failSpinner(
+      'Config validation against schema failed',
+      error,
+      verbosityLevel
+    )
+
+    process.exit(1)
+  }
+
+  succeedSpinner('Config is valid!')
+}
 
 export default class Validate extends Command {
   static description = 'validate config files against a schema'
@@ -18,6 +37,12 @@ export default class Validate extends Command {
   static strict = true
 
   static flags = {
+    'config-root': flags.string({
+      char: 'c',
+      description:
+        'your config folder containing your config files and optional schema.json',
+      default: defaultOptions.configRoot,
+    }),
     help: flags.help({
       char: 'h',
       description: 'show help',
@@ -31,57 +56,28 @@ export default class Validate extends Command {
 
   static args = [
     {
-      name: 'config_path',
+      name: 'config_file',
       description:
-        'path to an unencrypted config file, for example `strong-config validate config/production.yml config/schema.json`',
-      required: true,
-    },
-    {
-      name: 'schema_path',
-      description:
-        'path to a schema file, for example `strong-config validate config/production.yml config/schema.json`',
+        'path to an unencrypted config file, for example `strong-config validate config/production.yml`',
       required: true,
     },
   ]
 
-  static usage = 'validate CONFIG_PATH SCHEMA_PATH [--help]'
+  static usage = 'validate CONFIG_FILE [--help]'
 
-  static examples = [
-    '$ validate config/development.yaml config/schema.json',
-    '$ validate --help',
-  ]
+  static examples = ['$ validate config/development.yaml', '$ validate --help']
 
+  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
   async run() {
     const { args, flags } = this.parse(Validate)
+    const verbosityLevel = flags.verbose ? 2 : 1
 
-    validate(
-      args['config_path'],
-      args['schema_path'],
-      getVerbosityLevel(flags.verbose)
+    validateCliWrapper(
+      args['config_file'],
+      flags['config-root'],
+      verbosityLevel
     )
 
     process.exit(0)
   }
-}
-
-export const validate = (
-  configPath: string,
-  schemaPath: string,
-  verbosityLevel: VerbosityLevel
-): void => {
-  startSpinner('Validating...')
-
-  try {
-    validateConfig([configPath], { schemaPath } as Options)
-  } catch (error) {
-    failSpinner(
-      'Config validation against schema failed',
-      error,
-      verbosityLevel
-    )
-
-    process.exit(1)
-  }
-
-  succeedSpinner('Config is valid!')
 }

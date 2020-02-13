@@ -1,5 +1,5 @@
+import { ConfigFileExtensions } from './../options'
 import R from 'ramda'
-import fs from 'fs'
 import path from 'path'
 import glob from 'glob'
 
@@ -19,7 +19,14 @@ export const findFiles = (
   globFileName = '**/*',
   globFileExtension = '*'
 ): string[] => {
-  const globPattern = `${globFileName}.${globFileExtension}`
+  let globPattern
+  if (
+    Object.values(ConfigFileExtensions).find(ext => globFileName.endsWith(ext))
+  ) {
+    globPattern = globFileName
+  } else {
+    globPattern = `${globFileName}.${globFileExtension}`
+  }
 
   return glob.sync(globPattern, { cwd: path.resolve(basePath), absolute: true })
 }
@@ -29,13 +36,3 @@ export const findConfigFilesAtPath = (
   fileName?: string
 ): string[] =>
   R.reject(isSchema, findFiles(basePath, fileName, getFileExtensionPattern()))
-
-export const findConfigFilesAtPaths = (normalizedPaths: string[]): string[] =>
-  R.compose<string[], any[], string[]>(
-    R.flatten,
-    R.map(configPath =>
-      fs.lstatSync(configPath).isDirectory()
-        ? findConfigFilesAtPath(configPath)
-        : path.resolve(configPath)
-    )
-  )(normalizedPaths)

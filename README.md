@@ -139,8 +139,7 @@ The available options and their defaults are:
     filePath: 'strong-config.d.ts',
   },
   substitutionPattern: '\\$\\{(\\w+)\\}',
-  configPath: 'config/',
-  schemaPath: 'config/schema.json',
+  configRoot: 'config',
 }
 ```
 
@@ -151,32 +150,27 @@ Let's have a closer look.
   `<configDir>/dev.{yaml|yml|json}`.
 - **`types`**: Block containing options to customize the type generation. If you
   don't want to generate types, overwrite this block with `types: false`.
-      - **`rootTypeName`**: The interface name you can import in your code. This
+  - **`rootTypeName`**: The interface name you can import in your code. This
   interface type describes the entire structure of your config based on the
   schema file you provide.
-      - **`filePath`**: The desired path of the output type file.
+  - **`filePath`**: The desired path of the output type file.
 - **`substitutionPattern`**: Substitutions allow you to include variables of
   your execution environment in the config. For example, assignments like
   `key: ${MY_VALUE}` in your config file can be substituted at runtime, resulting
   in `key: process.env['MY_VALUE']`. The `substitutionPattern` is an escaped
   regexp string that determines the format of substituted values in your config.
   In the given example and by default, this is of form `${<my-var>}`.
-- **`configPath`**: The path to the directory that contains one or multiple
+- **`configRoot`**: The path to the directory that contains one or multiple
   config files.
-- **`schemaPath`**: The path the schema file that contains valid
-  [`json-schema`](https://json-schema.org/).
 
 ## Schema Validation
 
-Besides writing config files, you can define a schema file which can be used
+Besides writing config files, you can define a `schema.json` file which can be used
 to validate your configs. The schema file must be written in JSON according to the
-[`json-schema`](https://json-schema.org/) standard. To get started, you can have
-a look at the [official learning resources](https://json-schema.org/learn/) or
+[`json-schema`](https://json-schema.org/) standard and be placed in the same directory
+as your config files. To get started, you can have a look at the
+[official learning resources](https://json-schema.org/learn/) or
 checkout the examples in the `/example` directory of this project.
-
-You can provide the path to your schema file via `options.schemaPath`. Please
-note that this file must be named `schema.json` if you decide to place it in
-the same directory as your config files (which is the default).
 
 However, `strong-config` will work fine if you decide to not use schemas at all.
 

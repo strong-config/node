@@ -12,9 +12,10 @@ export const pascalCase = (input: string): string =>
     .join('')
 
 export const generateTypeFromSchema = async (
-  schemaPath: string,
+  configRoot: string,
   types: TypeOptions
 ): Promise<void> => {
+  const schemaPath = `${configRoot}/schema.json`
   const baseTypes = await compileFromFile(schemaPath)
 
   const schemaString = fs.readFileSync(schemaPath).toString()

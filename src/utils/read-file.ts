@@ -1,23 +1,19 @@
 import R from 'ramda'
-import path from 'path'
+import fs from 'fs'
 
-import { findConfigFilesAtPath, isJson } from './find-files'
+import { findConfigFilesAtPath } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
+import defaultOptions, { ConfigFileExtensions } from '../options'
 import { EncryptedConfig, Schema } from '../types'
 
-export enum FileExtension {
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-}
 export type File = {
   contents: EncryptedConfig | Schema
   filePath: string
 }
 
 export const getFileExtensionPattern = (): string =>
-  `{${Object.values(FileExtension).join(',')}}`
+  `{${Object.values(ConfigFileExtensions).join(',')}}`
 
 export const readConfigFile = (basePath: string, fileName: string): File => {
   const filePaths = findConfigFilesAtPath(basePath, fileName)
@@ -35,13 +31,9 @@ export const readConfigFile = (basePath: string, fileName: string): File => {
   return getFileFromPath(filePaths[0])
 }
 
-export const readConfigFileAtPath = (filePath: string): File =>
-  readConfigFile(path.dirname(filePath), path.basename(filePath))
-
-export const readSchemaFile = (schemaPath: string): File | null => {
-  if (!isJson(schemaPath)) {
-    return null
-  }
-
-  return getFileFromPath(schemaPath)
+export const readSchemaFile = (
+  configRoot: string = defaultOptions.configRoot
+): File | null => {
+  const schemaPath = `${configRoot}/schema.json`
+  return fs.existsSync(schemaPath) ? getFileFromPath(schemaPath) : null
 }

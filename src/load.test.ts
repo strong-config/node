@@ -1,25 +1,21 @@
-jest.mock('./utils/generate-type-from-schema')
 jest.mock('./utils/hydrate-config')
 jest.mock('./utils/generate-type-from-schema')
-jest.mock('./utils/validate-json')
-jest.mock('./utils/read-file')
+jest.mock('./utils/validate-json-against-schema')
 jest.mock('./utils/sops')
 
+import { load } from './load'
 import { defaultOptions } from './options'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
-import { validateJson } from './utils/validate-json'
-import { readConfigFile, readSchemaFile } from './utils/read-file'
+import validateJsonAgainstSchema from './utils/validate-json-against-schema'
+import * as readFile from './utils/read-file'
 import { decryptToObject } from './utils/sops'
 
 import { HydratedConfig } from './types'
 
-const mockedSchemaPath = 'some/path/to/schema.json'
-const mockedOptions = {
-  ...defaultOptions,
-  schemaPath: mockedSchemaPath,
-}
-const runtimeEnv = process.env.NODE_ENV || 'test'
+const runtimeEnv = process.env[defaultOptions.runtimeEnvName] || 'test'
+
+// Mocks
 const mockedConfigFile = {
   filePath: './config/test.yaml',
   contents: {
@@ -39,12 +35,6 @@ const mockedHydratedConfig: HydratedConfig = {
   runtimeEnv,
 }
 
-const mockedReadConfigFile = readConfigFile as jest.MockedFunction<
-  typeof readConfigFile
->
-const mockedReadSchemaFile = readSchemaFile as jest.MockedFunction<
-  typeof readSchemaFile
->
 const mockedDecryptToObject = decryptToObject as jest.MockedFunction<
   typeof decryptToObject
 >
@@ -52,18 +42,19 @@ const mockedHydrateConfig = hydrateConfig as jest.MockedFunction<
   typeof hydrateConfig & jest.Mock
 >
 
-mockedReadConfigFile.mockReturnValue(mockedConfigFile)
-mockedReadSchemaFile.mockReturnValue(mockedSchemaFile)
 mockedDecryptToObject.mockReturnValue(mockedDecryptedConfigFile)
 const innerHydrateFunction = jest
   .fn()
   .mockReturnValue(mockedHydratedConfig) as jest.Mock<InnerHydrateFunction>
 mockedHydrateConfig.mockReturnValue(innerHydrateFunction)
 
-import { load } from './load'
-
 describe('load()', () => {
   const OLD_ENV = process.env
+  let readConfigFileSpy: jest.SpyInstance, consoleDebugSpy: jest.SpyInstance
+
+  beforeAll(() => {
+    consoleDebugSpy = jest.spyOn(console, 'debug').mockReturnValue()
+  })
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -71,33 +62,27 @@ describe('load()', () => {
     process.env = Object.assign(process.env, {
       [defaultOptions.runtimeEnvName]: runtimeEnv,
     })
+
+    readConfigFileSpy = jest.spyOn(readFile, 'readConfigFile')
+    readConfigFileSpy.mockReturnValue(mockedConfigFile)
   })
 
   afterAll(() => {
     process.env = OLD_ENV
+    consoleDebugSpy.mockRestore()
   })
 
-  it('throws if NODE_ENV is not set', () => {
-    delete process.env[defaultOptions.runtimeEnvName]
+  it('reads the config based on process.env[runtimeEnv]', () => {
+    load(runtimeEnv, defaultOptions)
 
-    expect(() => load(mockedOptions)).toThrow('runtimeEnv must be defined')
-
-    process.env = Object.assign(process.env, {
-      [defaultOptions.runtimeEnvName]: runtimeEnv,
-    })
-  })
-
-  it('reads the config based on process.env.NODE_ENV', () => {
-    load(mockedOptions)
-
-    expect(mockedReadConfigFile).toHaveBeenCalledWith(
-      expect.any(String),
+    expect(readConfigFileSpy).toHaveBeenCalledWith(
+      defaultOptions.configRoot,
       runtimeEnv
     )
   })
 
   it('decrypts the config with SOPS', () => {
-    load(mockedOptions)
+    load(runtimeEnv, defaultOptions)
 
     expect(mockedDecryptToObject).toHaveBeenCalledWith(
       mockedConfigFile.filePath,
@@ -105,56 +90,51 @@ describe('load()', () => {
     )
   })
 
-  it('hydrates the config', () => {
-    load(mockedOptions)
+  it('hydrates the config object', () => {
+    load(runtimeEnv, defaultOptions)
 
-    expect(mockedHydrateConfig).toHaveBeenCalledWith(runtimeEnv, mockedOptions)
+    expect(mockedHydrateConfig).toHaveBeenCalledWith(runtimeEnv, defaultOptions)
     expect(innerHydrateFunction).toHaveBeenCalledWith(mockedDecryptedConfigFile)
   })
 
-  it('reads the schema file', () => {
-    load(mockedOptions)
+  describe('given a configRoot folder with an existing schema.json file', () => {
+    let readSchemaFileSpy
 
-    expect(mockedReadSchemaFile).toHaveBeenCalledWith(mockedSchemaPath)
-  })
-
-  it('validates config against schema if schema was found', () => {
-    load(mockedOptions)
-
-    expect(validateJson).toHaveBeenCalledWith(
-      mockedHydratedConfig,
-      mockedSchemaFile.contents
-    )
-  })
-
-  it('generates types if options.types is not false', () => {
-    load(mockedOptions)
-
-    expect(generateTypeFromSchema).toHaveBeenCalledWith(
-      mockedOptions.schemaPath,
-      mockedOptions.types
-    )
-  })
-
-  it('skips generating types if options.types is false', () => {
-    load({
-      ...mockedOptions,
-      types: false,
+    beforeEach(() => {
+      readSchemaFileSpy = jest.spyOn(readFile, 'readSchemaFile')
+      readSchemaFileSpy.mockReturnValue(mockedSchemaFile)
     })
 
-    expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
+    it('validates config against schema if schema was found', () => {
+      load(runtimeEnv, defaultOptions)
+
+      expect(validateJsonAgainstSchema).toHaveBeenCalledWith(
+        mockedHydratedConfig,
+        mockedSchemaFile.contents
+      )
+    })
+
+    it('generates types if options.types is not false', () => {
+      load(runtimeEnv, defaultOptions)
+
+      expect(generateTypeFromSchema).toHaveBeenCalledWith(
+        defaultOptions.configRoot,
+        defaultOptions.types
+      )
+    })
+
+    it('skips generating types if options.types is false', () => {
+      load(runtimeEnv, {
+        ...defaultOptions,
+        types: false,
+      })
+
+      expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
+    })
   })
 
-  it('throws when schemaPath is passed but no valid schema file can be read', () => {
-    mockedReadSchemaFile.mockReturnValueOnce(null)
-
-    expect(() => load(mockedOptions)).toThrowError(
-      /Specified schema at \'\S*\' is not valid JSON or cannot be read/
-    )
-  })
-
-  it('returns the config', () => {
-    const loadedConfig = load(mockedOptions)
+  it('returns a config object', () => {
+    const loadedConfig = load(runtimeEnv, defaultOptions)
 
     expect(loadedConfig).toStrictEqual(mockedHydratedConfig)
   })
