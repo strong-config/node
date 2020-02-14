@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/strong-config/node/compare/v0.1.9...v0.2.0) (2020-02-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* **schema:** schema-path is now hardcoded to ${options.configRoot}/schema.json and can no longer be customized
+Before this commit we allowed passing a custom schema path via options.schemaPath that allowed placing the schema in arbitrary locations. While this did provide a little more flexibility, it also required extra code and added complexity. In the name of KISS we are now always defaulting the schema path to ${options.configRoot}/schema.json, which we feel is a sane default and should satisfy the vast majority (if not all) use cases.
+
+### Features
+
+* **schema:** simplify schema handling ([b04dad9](https://github.com/strong-config/node/commit/b04dad9c3fbbb41ad3433d96478fe669c9b4f324))
+
 ### [0.1.9](https://github.com/strong-config/node/compare/v0.1.8...v0.1.9) (2020-01-11)
 
 
