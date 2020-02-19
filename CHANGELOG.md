@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/strong-config/node/compare/v0.2.0...v0.2.1) (2020-02-19)
+
+
+### Features
+
+* **DX:** improved error message when process.env.NODE_ENV is undefined ([ca27d16](https://github.com/strong-config/node/commit/ca27d16a158f9f4e9645f7a9f4d2f282a66997de))
+* **options:** renamed options.types.filePath to options.types.fileName to clarify that you should not pass a full path here (because the path always defaults to options.configRoot to keep the options simple) ([ba21ca7](https://github.com/strong-config/node/commit/ba21ca7ed46246d16bc353dcfa8e9658ea4c54e3))
+* **schema validation:** support json-schema option ‘additionalProperties: false’ to allow stricter schema validations ([f79b798](https://github.com/strong-config/node/commit/f79b798e1c2c3284204571aa21821b47d1d11619))
+
+
+### Bug Fixes
+
+* **test:** fixed broken test resulting from deleting process.env.NODE_ENV and not properly restoring it after the test ([ef0e084](https://github.com/strong-config/node/commit/ef0e084a5c4eda9ae064b0cc2ed498878c8a654d))
+
 ## [0.2.0](https://github.com/strong-config/node/compare/v0.1.9...v0.2.0) (2020-02-14)
 
 
