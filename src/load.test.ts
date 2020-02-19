@@ -1,13 +1,13 @@
+jest.mock('./validate')
 jest.mock('./utils/hydrate-config')
 jest.mock('./utils/generate-type-from-schema')
-jest.mock('./utils/validate-json-against-schema')
 jest.mock('./utils/sops')
 
 import { load } from './load'
 import { defaultOptions } from './options'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
-import validateJsonAgainstSchema from './utils/validate-json-against-schema'
+import validate from './validate'
 import * as readFile from './utils/read-file'
 import { decryptToObject } from './utils/sops'
 
@@ -108,9 +108,9 @@ describe('load()', () => {
     it('validates config against schema if schema was found', () => {
       load(runtimeEnv, defaultOptions)
 
-      expect(validateJsonAgainstSchema).toHaveBeenCalledWith(
-        mockedHydratedConfig,
-        mockedSchemaFile.contents
+      expect(validate).toHaveBeenCalledWith(
+        runtimeEnv,
+        defaultOptions.configRoot
       )
     })
 

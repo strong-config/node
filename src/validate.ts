@@ -1,6 +1,8 @@
 import R from 'ramda'
 import path from 'path'
+import { JSONSchema4 } from 'json-schema'
 
+import * as sops from './utils/sops'
 import { defaultOptions, ConfigFileExtensions } from './options'
 
 // Utils
@@ -13,6 +15,7 @@ export const validate = (
   fileName: string,
   configRoot: string = defaultOptions.configRoot
 ): true => {
+  /* istanbul ignore next: no need to test that a node built-in works correctly */
   const normalizedConfigRoot = path.normalize(configRoot)
   const normalizedFileName = Object.values(ConfigFileExtensions).find(ext =>
     fileName.endsWith(ext)
@@ -23,13 +26,39 @@ export const validate = (
   const configFile = getFileFromPath(normalizedFileName)
   const schemaFile = readSchemaFile(normalizedConfigRoot)
 
+  const decryptedConfig = sops.decryptToObject(
+    configFile.filePath,
+    configFile.contents
+  )
+
   if (R.isNil(schemaFile)) {
     throw new Error(
       '[💪 strong-config] ❌ No schema file found. Cannot validate without a schema.'
     )
   }
 
-  return validateJsonAgainstSchema(configFile.contents, schemaFile.contents)
+  let schema
+  if (schemaFile.contents.title !== 'Schema for strong-config options') {
+    /*
+     * Here we add the 'runtimeEnv' prop to the user's schema because we also
+     * hydrate every config object with a 'runtimeEnv' prop automatically.
+     *
+     * So if the user were to strictly define their schema and forbid arbitrary
+     * properties via the json-schema attribute 'additionalProperties: false',
+     * then 'ajv' would find an unexpected property 'runtimeEnv' in the config
+     * object and would (rightfully) fail the schema validation.
+     */
+    const augmentedSchema: JSONSchema4 = schemaFile.contents
+    augmentedSchema.properties
+      ? (augmentedSchema.properties['runtimeEnv'] = { type: 'string' })
+      : (augmentedSchema['properties'] = { runtimeEnv: { type: 'string' } })
+
+    schema = augmentedSchema
+  } else {
+    schema = schemaFile.contents
+  }
+
+  return validateJsonAgainstSchema(decryptedConfig, schema)
 }
 
 export default validate

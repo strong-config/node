@@ -3,7 +3,7 @@
   "type": "object",
   "title": "Example Config",
   "required": ["name", "someField"],
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
     "name": {
       "title": "Name",

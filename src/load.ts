@@ -1,8 +1,8 @@
 import path from 'path'
 
+import validate from './validate'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig } from './utils/hydrate-config'
-import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import * as sops from './utils/sops'
 
@@ -20,11 +20,10 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
   )
 
   const config = hydrateConfig(runtimeEnv, options)(decrypted)
-
   const schemaFile = readSchemaFile(normalizedConfigRoot)
 
   if (schemaFile) {
-    validateJsonAgainstSchema(config, schemaFile.contents)
+    validate(runtimeEnv, normalizedConfigRoot)
     // TODO: replace with proper logger and only log if in debug-mode
     console.debug(`[💪 strong-config] ✅ ${runtimeEnv} config is valid`)
 
