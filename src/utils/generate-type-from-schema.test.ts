@@ -1,52 +1,13 @@
-import { defaultOptions, TypeOptions } from '../options'
-
-const configRoot = 'config'
-const mockedTypes = defaultOptions.types as TypeOptions
-
-const mockedCompiledTypes = `
-  export interface TheTopLevelInterface {
-    name: string;
-    otherField: number;
-  }
-`
-const expectedRootType = `export interface Config extends TheTopLevelInterface {
-  runtimeEnv: string;
-}
-`
-const mockedSchemaString = `
-  {
-    "title": "the top-level-interface"
-  }
-`
-const mockedSchemaStringWithoutTitle = `
-  {
-    "required": ["field"],
-    "description": "This is a description"
-  }
-`
-const mockedSchemaStringWithInvalidTitle = `
-  {
-    "title": "config",
-    "description": "This is a description"
-  }
-`
-
-jest.mock('fs')
-jest.mock('json-schema-to-typescript')
-
 import fs from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
-
-const mockedFs = fs as jest.Mocked<typeof fs>
-const mockedCompileFromFile = compileFromFile as jest.MockedFunction<
-  typeof compileFromFile
->
-
-mockedFs.readFileSync = jest.fn().mockReturnValue(mockedSchemaString)
-mockedFs.writeFileSync = jest.fn().mockReturnValue(undefined)
-mockedCompileFromFile.mockResolvedValue(mockedCompiledTypes)
-
 import { pascalCase, generateTypeFromSchema } from './generate-type-from-schema'
+import { defaultOptions, TypeOptions } from '../options'
+
+/*
+ * MOCKS
+ */
+jest.mock('fs')
+jest.mock('json-schema-to-typescript')
 
 describe('pascalCase()', () => {
   test.each([
@@ -61,39 +22,71 @@ describe('pascalCase()', () => {
 })
 
 describe('generateTypeFromSchema()', () => {
+  const mockedTypes = defaultOptions.types as TypeOptions
+  const mockedSchemaString = `
+{
+  "title": "the top-level-interface"
+}`
+
+  const mockedFs = fs as jest.Mocked<typeof fs>
+  mockedFs.readFileSync = jest.fn().mockReturnValue(mockedSchemaString)
+  mockedFs.writeFileSync = jest.fn().mockReturnValue(undefined)
+
+  const mockedCompileFromFile = compileFromFile as jest.MockedFunction<
+    typeof compileFromFile
+  >
+  const mockedCompiledTypes = `
+export interface TheTopLevelInterface {
+  name: string
+  otherField: number
+}`
+  mockedCompileFromFile.mockResolvedValue(mockedCompiledTypes)
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   describe('given a configRoot with a valid schema.json file', () => {
     it('generates a TypeScript file with corresponding type definitionas', async () => {
+      const expectedRootType = `
+export interface Config extends TheTopLevelInterface {
+  runtimeEnv: string
+}`
       const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
       const typeOptions = mockedTypes as TypeOptions
 
-      await generateTypeFromSchema(configRoot, mockedTypes)
+      await generateTypeFromSchema(defaultOptions.configRoot, mockedTypes)
 
       expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-        typeOptions.filePath,
+        `${defaultOptions.configRoot}/${typeOptions.fileName}`,
         expectedTypes
       )
     })
   })
 
   it('throws when top-level schema definition does not have a title field', async () => {
+    const mockedSchemaStringWithoutTitle = `{
+      "required": ["field"],
+      "description": "This is a description"
+    }`
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
     await expect(
-      generateTypeFromSchema(configRoot, mockedTypes)
+      generateTypeFromSchema(defaultOptions.configRoot, mockedTypes)
     ).rejects.toThrowError(Error)
   })
 
   it('throws when top-level schema definition has invalid title field', async () => {
+    const mockedSchemaStringWithInvalidTitle = `{
+      "title": "config",
+      "description": "This is a description"
+    }`
     mockedFs.readFileSync.mockReturnValueOnce(
       mockedSchemaStringWithInvalidTitle
     )
 
     await expect(
-      generateTypeFromSchema(configRoot, mockedTypes)
+      generateTypeFromSchema(defaultOptions.configRoot, mockedTypes)
     ).rejects.toThrow(Error)
   })
 })

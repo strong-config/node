@@ -16,7 +16,9 @@ export const generateTypeFromSchema = async (
   types: TypeOptions
 ): Promise<void> => {
   const schemaPath = `${configRoot}/schema.json`
-  const baseTypes = await compileFromFile(schemaPath)
+  const baseTypes = await compileFromFile(schemaPath, {
+    style: { semi: false },
+  })
 
   const schemaString = fs.readFileSync(schemaPath).toString()
   const title = R.prop('title', JSON.parse(schemaString))
