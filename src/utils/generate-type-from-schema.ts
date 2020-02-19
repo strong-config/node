@@ -31,13 +31,11 @@ export const generateTypeFromSchema = async (
     )
   }
 
-  const configInterfaceAsString = `export interface ${
-    types.rootTypeName
-  } extends ${pascalCase(title)} {
-  runtimeEnv: string;
-}
-`
+  const configInterfaceAsString = `
+export interface ${types.rootTypeName} extends ${pascalCase(title)} {
+  runtimeEnv: string
+}`
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
-  fs.writeFileSync(types.filePath, exportedTypes)
+  fs.writeFileSync(`${configRoot}/${types.fileName}`, exportedTypes)
 }

@@ -1,6 +1,6 @@
 export interface TypeOptions {
   rootTypeName: string
-  filePath: string
+  fileName: string
 }
 
 export interface Options {
@@ -17,13 +17,13 @@ export enum ConfigFileExtensions {
 }
 
 export const defaultOptions: Options = {
+  configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
   types: {
     rootTypeName: 'Config',
-    filePath: 'strong-config.d.ts',
+    fileName: 'types.d.ts',
   },
   substitutionPattern: '\\$\\{(\\w+)\\}',
-  configRoot: 'config',
 }
 
 export default defaultOptions

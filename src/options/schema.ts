@@ -1,9 +1,15 @@
 export const optionsSchema = {
   type: 'object',
   title: 'Schema for strong-config options',
-  required: ['runtimeEnvName', 'types', 'substitutionPattern', 'configRoot'],
+  required: ['configRoot', 'runtimeEnvName', 'types', 'substitutionPattern'],
   additionalProperties: false,
   properties: {
+    configRoot: {
+      title: 'Config root path',
+      description: 'A path to a directory that contains all config files',
+      examples: ['config', '../config', 'app/config/'],
+      type: 'string',
+    },
     runtimeEnvName: {
       title: 'Runtime environment variable name',
       description:
@@ -26,10 +32,11 @@ export const optionsSchema = {
           type: 'string',
           pattern: '^[A-Z]\\w*$',
         },
-        filePath: {
-          title: 'Path to types file',
-          description: 'The file that the generated types should be stored in',
-          examples: ['strong-config.d.ts', './types/config.ts'],
+        fileName: {
+          title: 'File name for auto-generated TypeScript types',
+          description:
+            'Name for the types file containing auto-generated TypeScript types for your config',
+          examples: ['types.d.ts', 'config.d.ts'],
           type: 'string',
         },
       },
@@ -41,12 +48,6 @@ export const optionsSchema = {
       examples: ['\\$\\{(\\w+)\\}', '\\$(\\w+)'],
       type: 'string',
       format: 'regex',
-    },
-    configRoot: {
-      title: 'Config root path',
-      description: 'A path to a directory that contains all config files',
-      examples: ['config', '../config', '/app/config/'],
-      type: 'string',
     },
   },
 }
