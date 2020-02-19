@@ -87,14 +87,24 @@ describe('StrongConfig class', () => {
       expect(secondLoadResult).toStrictEqual(mockedConfig)
     })
 
-    it('throws if runtimeEnv is not set', () => {
-      delete process.env[defaultOptions.runtimeEnvName]
-      const strongConfig = new StrongConfig({
-        ...defaultOptions,
-        runtimeEnvName: undefined,
+    describe('when process.env.NODE_ENV is undefined', () => {
+      beforeAll(() => {
+        delete process.env[defaultOptions.runtimeEnvName]
       })
-      expect(() => strongConfig.load()).toThrow('runtimeEnv must be defined')
-      process.env[defaultOptions.runtimeEnvName] = runtimeEnv
+
+      it('throws if runtimeEnv is not set', () => {
+        const strongConfig = new StrongConfig({
+          ...defaultOptions,
+          runtimeEnvName: undefined,
+        })
+        expect(() => strongConfig.load()).toThrow(
+          /Can't load config.*.is undefined/
+        )
+      })
+
+      afterAll(() => {
+        process.env[defaultOptions.runtimeEnvName] = runtimeEnv
+      })
     })
   })
 
