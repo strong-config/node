@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/strong-config/node/compare/v0.2.3...v0.2.4) (2020-05-19)
+
+
+### Bug Fixes
+
+* fixed missing typescript declarations ([21fa006](https://github.com/strong-config/node/commit/21fa0067cd847d40c1545604ee9e61d1b9287e9d))
+
 ### [0.2.3](https://github.com/strong-config/node/compare/v0.2.2...v0.2.3) (2020-05-19)
 
 
