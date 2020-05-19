@@ -3,7 +3,7 @@ jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
 import Decrypt from './decrypt'
-import stdMocks from 'std-mocks'
+import { use, flush, restore } from 'std-mocks'
 
 import { validateCliWrapper } from './validate'
 import {
@@ -62,15 +62,15 @@ describe('strong-config decrypt', () => {
     ])
 
     beforeAll(() => {
-      stdMocks.use()
+      use()
     })
 
     beforeEach(() => {
-      stdMocks.flush()
+      flush()
     })
 
     afterAll(() => {
-      stdMocks.restore()
+      restore()
     })
 
     // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
@@ -79,7 +79,7 @@ describe('strong-config decrypt', () => {
         await Decrypt.run(['--help'])
       } catch (error) {}
 
-      expect(stdMocks.flush().stdout).toEqual(expectedHelpOutput)
+      expect(flush().stdout).toEqual(expectedHelpOutput)
     })
 
     // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
@@ -88,7 +88,7 @@ describe('strong-config decrypt', () => {
         await Decrypt.run(['some/config/file.yaml', '--help'])
       } catch (error) {}
 
-      expect(stdMocks.flush().stdout).toEqual(expectedHelpOutput)
+      expect(flush().stdout).toEqual(expectedHelpOutput)
     })
   })
 
