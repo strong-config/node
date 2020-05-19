@@ -1,4 +1,4 @@
-import R from 'ramda'
+import { compose, assoc, unary } from 'ramda'
 import { substituteWithEnv } from './substitute-with-env'
 
 import { DecryptedConfig, HydratedConfig } from '../types'
@@ -12,9 +12,9 @@ export const hydrateConfig = (
   runtimeEnv: string,
   { substitutionPattern }: Options
 ): InnerHydrateFunction =>
-  R.compose(
-    R.assoc('runtimeEnv', runtimeEnv),
-    R.unary(JSON.parse),
+  compose(
+    assoc('runtimeEnv', runtimeEnv),
+    unary(JSON.parse),
     substituteWithEnv(substitutionPattern),
-    R.unary(JSON.stringify)
+    unary(JSON.stringify)
   )

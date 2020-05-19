@@ -1,13 +1,13 @@
-import execa from 'execa'
-import yaml from 'js-yaml'
-import R from 'ramda'
+import { sync } from 'execa'
+import { load } from 'js-yaml'
+import { has, isNil } from 'ramda'
 
 import { EncryptedConfig, DecryptedConfig } from '../types'
 
-const hasSopsMetadata = R.has('sops')
+const hasSopsMetadata = has('sops')
 
 export const runSopsWithOptions = (options: string[]): string => {
-  const execaReturn = execa.sync('sops', options)
+  const execaReturn = sync('sops', options)
 
   if (execaReturn.exitCode !== 0) {
     throw new Error(execaReturn.toString())
@@ -20,7 +20,7 @@ export const decryptToObject = (
   filePath: string,
   parsedConfig: EncryptedConfig
 ): DecryptedConfig => {
-  if (R.isNil(parsedConfig)) {
+  if (isNil(parsedConfig)) {
     throw new Error('Config is nil and can not be decrytped')
   }
 
@@ -31,7 +31,7 @@ export const decryptToObject = (
 
   const sopsResult = runSopsWithOptions(['--decrypt', filePath])
 
-  return yaml.load(sopsResult)
+  return load(sopsResult)
 }
 
 export const decryptInPlace = (filePath: string): void =>

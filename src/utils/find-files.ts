@@ -1,15 +1,15 @@
 import { ConfigFileExtensions } from './../options'
-import R from 'ramda'
-import path from 'path'
-import glob from 'glob'
+import { compose, last, split, reject } from 'ramda'
+import { resolve } from 'path'
+import { sync } from 'glob'
 
 import { getFileExtensionPattern } from './read-file'
 
 export const isSchema = (filePath: string): boolean =>
-  R.compose<string, string[], string, boolean>(
+  compose<string, string[], string, boolean>(
     fileName => fileName.startsWith('schema'),
-    R.last,
-    R.split('/')
+    last,
+    split('/')
   )(filePath)
 
 export const isJson = (filePath: string): boolean => filePath.endsWith('.json')
@@ -28,11 +28,11 @@ export const findFiles = (
     globPattern = `${globFileName}.${globFileExtension}`
   }
 
-  return glob.sync(globPattern, { cwd: path.resolve(basePath), absolute: true })
+  return sync(globPattern, { cwd: resolve(basePath), absolute: true })
 }
 
 export const findConfigFilesAtPath = (
   basePath: string,
   fileName?: string
 ): string[] =>
-  R.reject(isSchema, findFiles(basePath, fileName, getFileExtensionPattern()))
+  reject(isSchema, findFiles(basePath, fileName, getFileExtensionPattern()))

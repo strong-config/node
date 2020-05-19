@@ -1,6 +1,6 @@
 import { compileFromFile } from 'json-schema-to-typescript'
-import fs from 'fs'
-import R from 'ramda'
+import { readFileSync, writeFileSync } from 'fs'
+import { prop } from 'ramda'
 
 import { TypeOptions } from '../options'
 
@@ -20,8 +20,8 @@ export const generateTypeFromSchema = async (
     style: { semi: false },
   })
 
-  const schemaString = fs.readFileSync(schemaPath).toString()
-  const title = R.prop('title', JSON.parse(schemaString))
+  const schemaString = readFileSync(schemaPath).toString()
+  const title = prop('title', JSON.parse(schemaString))
 
   if (title === undefined) {
     throw new Error('Expected title attribute in top-level schema definition.')
@@ -39,5 +39,5 @@ export interface ${types.rootTypeName} extends ${pascalCase(title)} {
 }`
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
-  fs.writeFileSync(`${configRoot}/${types.fileName}`, exportedTypes)
+  writeFileSync(`${configRoot}/${types.fileName}`, exportedTypes)
 }

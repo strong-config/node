@@ -1,5 +1,5 @@
-import R from 'ramda'
-import path from 'path'
+import { isNil } from 'ramda'
+import { normalize } from 'path'
 import { JSONSchema4 } from 'json-schema'
 
 import * as sops from './utils/sops'
@@ -16,7 +16,7 @@ export const validate = (
   configRoot: string = defaultOptions.configRoot
 ): true => {
   /* istanbul ignore next: no need to test that a node built-in works correctly */
-  const normalizedConfigRoot = path.normalize(configRoot)
+  const normalizedConfigRoot = normalize(configRoot)
   const normalizedFileName = Object.values(ConfigFileExtensions).find(ext =>
     fileName.endsWith(ext)
   )
@@ -31,7 +31,7 @@ export const validate = (
     configFile.contents
   )
 
-  if (R.isNil(schemaFile)) {
+  if (isNil(schemaFile)) {
     throw new Error(
       '[💪 strong-config] ❌ No schema file found. Cannot validate without a schema.'
     )

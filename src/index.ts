@@ -1,4 +1,4 @@
-import R from 'ramda'
+import { isNil } from 'ramda'
 import { load } from './load'
 import { validate } from './validate'
 import validateOptions from './options/validate-options'
@@ -25,7 +25,7 @@ export = class StrongConfig {
   }
 
   private checkRuntimeEnv(): void {
-    if (R.isNil(this.runtimeEnv)) {
+    if (isNil(this.runtimeEnv)) {
       throw new Error(
         `[💪 strong-config] Can't load config: process.env.${this.options.runtimeEnvName} is undefined.
          Maybe you have forgotten to set the environment variable ${this.options.runtimeEnvName} when starting your application?

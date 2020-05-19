@@ -1,5 +1,5 @@
-import R from 'ramda'
-import fs from 'fs'
+import { isEmpty } from 'ramda'
+import { existsSync } from 'fs'
 
 import { findConfigFilesAtPath } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
@@ -18,7 +18,7 @@ export const getFileExtensionPattern = (): string =>
 export const readConfigFile = (basePath: string, fileName: string): File => {
   const filePaths = findConfigFilesAtPath(basePath, fileName)
 
-  if (R.isEmpty(filePaths)) {
+  if (isEmpty(filePaths)) {
     throw new Error(
       `None of ${fileName}.${getFileExtensionPattern()} found. One of these files must exist.`
     )
@@ -35,5 +35,5 @@ export const readSchemaFile = (
   configRoot: string = defaultOptions.configRoot
 ): File | null => {
   const schemaPath = `${configRoot}/schema.json`
-  return fs.existsSync(schemaPath) ? getFileFromPath(schemaPath) : null
+  return existsSync(schemaPath) ? getFileFromPath(schemaPath) : null
 }

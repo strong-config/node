@@ -1,5 +1,4 @@
-import path from 'path'
-
+import { normalize } from 'path'
 import validate from './validate'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig } from './utils/hydrate-config'
@@ -10,7 +9,7 @@ import { HydratedConfig } from './types'
 import { Options } from './options'
 
 export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
-  const normalizedConfigRoot = path.normalize(options.configRoot)
+  const normalizedConfigRoot = normalize(options.configRoot)
 
   const configFile = readConfigFile(normalizedConfigRoot, runtimeEnv)
 
