@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/strong-config/node/compare/v0.2.2...v0.2.3) (2020-05-19)
+
+
+### Features
+
+* **CLI:** new 'strong-config generate-types' command ([b5d93d8](https://github.com/strong-config/node/commit/b5d93d83436c584b528fb05abe6c9c2a22b3e10f))
+
+
+### Bug Fixes
+
+* **options:** fixed incorrect json schema for 'types' option ([97b1e40](https://github.com/strong-config/node/commit/97b1e40c56902bd468d786b96dd2f981fb76138c))
+
 ### [0.2.2](https://github.com/strong-config/node/compare/v0.2.1...v0.2.2) (2020-03-14)
 
 ### [0.2.1](https://github.com/strong-config/node/compare/v0.2.0...v0.2.1) (2020-02-19)
