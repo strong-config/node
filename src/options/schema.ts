@@ -22,7 +22,7 @@ export const optionsSchema = {
       title: 'Type-related options',
       description:
         'Type-related options controlling the generation of Typescript types for the config',
-      type: ['object'],
+      type: ['object', 'boolean'],
       additionalProperties: false,
       properties: {
         rootTypeName: {
