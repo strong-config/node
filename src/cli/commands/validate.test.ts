@@ -1,7 +1,6 @@
+import { stdout } from 'stdout-stderr'
 jest.mock('../../validate')
 jest.mock('../spinner')
-
-import stdMocks from 'std-mocks'
 
 import { validate as validateUtil } from '../../validate'
 import {
@@ -11,6 +10,7 @@ import {
   getVerbosityLevel,
   VerbosityLevel,
 } from '../spinner'
+import Validate from './validate'
 
 const mockedValidateUtil = validateUtil as jest.MockedFunction<
   typeof validateUtil
@@ -28,8 +28,6 @@ const mockedGetVerbosityLevel = getVerbosityLevel as jest.MockedFunction<
 
 mockedGetVerbosityLevel.mockReturnValue(VerbosityLevel.Verbose)
 
-import Validate from './validate'
-
 const configFile = 'example/development.yaml'
 
 const validationError = new Error('some validation error')
@@ -42,40 +40,30 @@ describe('strong-config validate', () => {
   })
 
   describe('shows help', () => {
-    const expectedHelpOutput = expect.arrayContaining([
-      expect.stringMatching(/ARGUMENTS/),
-      expect.stringMatching(/USAGE/),
-      expect.stringMatching(/OPTIONS/),
-    ])
-
-    beforeAll(() => {
-      stdMocks.use()
-    })
-
-    beforeEach(() => {
-      stdMocks.flush()
-    })
-
-    afterAll(() => {
-      stdMocks.restore()
-    })
-
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('prints the help with --help', async () => {
+    it('prints the help with --help', async () => {
       try {
+        stdout.start()
         await Validate.run(['--help'])
+        stdout.stop()
       } catch (error) {}
 
-      expect(stdMocks.flush().stdout).toEqual(expectedHelpOutput)
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
 
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('always prints help with any command having --help', async () => {
+    it('always prints help with any command having --help', async () => {
       try {
+        stdout.start()
         await Validate.run([configFile, '--help'])
+        stdout.stop()
       } catch (error) {}
 
-      expect(stdMocks.flush().stdout).toEqual(expectedHelpOutput)
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
   })
 

@@ -3,7 +3,7 @@ jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
 import Decrypt from './decrypt'
-import { use, flush, restore } from 'std-mocks'
+import { stdout } from 'stdout-stderr'
 
 import { validateCliWrapper } from './validate'
 import {
@@ -55,40 +55,30 @@ describe('strong-config decrypt', () => {
   })
 
   describe('shows help', () => {
-    const expectedHelpOutput = expect.arrayContaining([
-      expect.stringMatching(/ARGUMENTS/),
-      expect.stringMatching(/USAGE/),
-      expect.stringMatching(/OPTIONS/),
-    ])
-
-    beforeAll(() => {
-      use()
-    })
-
-    beforeEach(() => {
-      flush()
-    })
-
-    afterAll(() => {
-      restore()
-    })
-
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('prints the help with --help', async () => {
+    it('prints the help with --help', async () => {
       try {
+        stdout.start()
         await Decrypt.run(['--help'])
+        stdout.stop()
       } catch (error) {}
 
-      expect(flush().stdout).toEqual(expectedHelpOutput)
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
 
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('always prints help with any command having --help', async () => {
+    it('always prints help with any command having --help', async () => {
       try {
+        stdout.start()
         await Decrypt.run(['some/config/file.yaml', '--help'])
+        stdout.stop()
       } catch (error) {}
 
-      expect(flush().stdout).toEqual(expectedHelpOutput)
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
   })
 

@@ -5001,7 +5001,7 @@ lodash@4.6.1:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.6.1.tgz#df00c1164ad236b183cfc3887a5e8d38cc63cbbc"
   integrity sha1-3wDBFkrSNrGDz8OIel6NOMxjy7w=
 
-lodash@^4.11.1, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.2.1:
+lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.2.1:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -6852,17 +6852,18 @@ static-extend@^0.1.1:
     define-property "^0.2.5"
     object-copy "^0.1.0"
 
-std-mocks@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/std-mocks/-/std-mocks-1.0.1.tgz#d3388876d7beeba3c70fbd8e2bcaf46eb07d79fe"
-  integrity sha1-0ziIdte+66PHD72OK8r0brB9ef4=
-  dependencies:
-    lodash "^4.11.1"
-
 stdin@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/stdin/-/stdin-0.0.1.tgz#d3041981aaec3dfdbc77a1b38d6372e38f5fb71e"
   integrity sha1-0wQZgarsPf28d6GzjWNy449ftx4=
+
+stdout-stderr@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/stdout-stderr/-/stdout-stderr-0.1.13.tgz#54e3450f3d4c54086a49c0c7f8786a44d1844b6f"
+  integrity sha512-Xnt9/HHHYfjZ7NeQLvuQDyL1LnbsbddgMFKCuaQKwGCdJm8LnstZIXop+uOY36UR1UXXoHXfMbC1KlVdVd2JLA==
+  dependencies:
+    debug "^4.1.1"
+    strip-ansi "^6.0.0"
 
 stealthy-require@^1.1.1:
   version "1.1.1"

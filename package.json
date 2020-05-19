@@ -53,6 +53,20 @@
     "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
     "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
+  "dependencies": {
+    "@oclif/command": "^1.5.19",
+    "@oclif/plugin-autocomplete": "^0.1.5",
+    "@oclif/plugin-help": "^2.2.2",
+    "@oclif/plugin-not-found": "^1.2.3",
+    "@oclif/plugin-warn-if-update-available": "^1.7.0",
+    "ajv": "^6.10.2",
+    "execa": "^3.4.0",
+    "glob": "^7.1.6",
+    "js-yaml": "^3.13.1",
+    "json-schema-to-typescript": "^8.0.0",
+    "ora": "^4.0.3",
+    "ramda": "^0.26.1"
+  },
   "devDependencies": {
     "@brickblock/eslint-config-base-ts": "^1.0.2",
     "@commitlint/config-conventional": "^8.2.0",
@@ -89,24 +103,10 @@
     "rimraf": "^3.0.0",
     "shelljs": "^0.8.3",
     "standard-version": "^7.0.1",
+    "stdout-stderr": "^0.1.13",
     "ts-jest": "^25.2.0",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3",
     "yaml-lint": "^1.2.4"
-  },
-  "dependencies": {
-    "@oclif/command": "^1.5.19",
-    "@oclif/plugin-autocomplete": "^0.1.5",
-    "@oclif/plugin-help": "^2.2.2",
-    "@oclif/plugin-not-found": "^1.2.3",
-    "@oclif/plugin-warn-if-update-available": "^1.7.0",
-    "ajv": "^6.10.2",
-    "execa": "^3.4.0",
-    "glob": "^7.1.6",
-    "js-yaml": "^3.13.1",
-    "json-schema-to-typescript": "^8.0.0",
-    "ora": "^4.0.3",
-    "ramda": "^0.26.1",
-    "std-mocks": "^1.0.1"
   }
 }

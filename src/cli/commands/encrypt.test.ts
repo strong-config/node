@@ -2,9 +2,9 @@ jest.mock('./validate')
 jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
-import stdMocks from 'std-mocks'
-
 import Encrypt from './encrypt'
+import { stdout } from 'stdout-stderr'
+
 import { validateCliWrapper } from './validate'
 import {
   startSpinner,
@@ -60,44 +60,34 @@ describe('strong-config encrypt', () => {
   })
 
   describe('--help', () => {
-    const expectedHelpOutput = expect.arrayContaining([
-      expect.stringMatching(/ARGUMENTS/),
-      expect.stringMatching(/USAGE/),
-      expect.stringMatching(/OPTIONS/),
-    ])
-
-    beforeAll(() => {
-      stdMocks.use()
-    })
-
-    beforeEach(() => {
-      stdMocks.flush()
-    })
-
-    afterAll(() => {
-      stdMocks.restore()
-    })
-
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('prints the help', async () => {
+    it('prints the help', async () => {
       try {
+        stdout.start()
         await Encrypt.run(['--help'])
+        stdout.stop()
       } catch (e) {}
-      const output = stdMocks.flush()
-      expect(output.stdout).toEqual(expectedHelpOutput)
+
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
 
-    // TODO: The stdMocks aren't working correctly. For some reason although there is output generated in the CLI, nothing gets captured in stdMocks
-    it.skip('always prints help with any command having --help', async () => {
+    it('always prints help with any command having --help', async () => {
       try {
+        stdout.start()
         await Encrypt.run([
           'some/config/file.yml',
           '--help',
           ...requiredKeyFlags,
         ])
+        stdout.stop()
       } catch (error) {}
 
-      expect(stdMocks.flush().stdout).toEqual(expectedHelpOutput)
+      expect(stdout.output).toContain('USAGE')
+      expect(stdout.output).toContain('ARGUMENTS')
+      expect(stdout.output).toContain('OPTIONS')
+      expect(stdout.output).toContain('EXAMPLES')
     })
   })
 
