@@ -1,20 +1,14 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "module": "commonjs",
-    "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitAny": true,
     "outDir": "./lib",
-    "paths": {
-      "*": ["node_modules/*"]
-    },
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
@@ -22,5 +16,5 @@
     "lib": ["es6"]
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "node_modules"]
+  "exclude": ["src/**/*.test.ts"]
 }
