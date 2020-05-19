@@ -1,90 +1,90 @@
 jest.mock('fs')
 jest.mock('js-yaml')
 
-import fs from 'fs'
-import yaml from 'js-yaml'
+import * as fs from 'fs'
+import * as yaml from 'js-yaml'
 
-const mockedFs = fs as jest.Mocked<typeof fs>
-const mockedYaml = yaml as jest.Mocked<typeof yaml>
-
-mockedFs.readFileSync = jest
-  .fn()
-  .mockReturnValue('parsed config in json or yaml format')
-mockedYaml.load = jest.fn().mockReturnValue({ parsed: 'yaml' })
-const pathToFile = 'some/path/to/file.yaml'
-
-import {
-  readFileToString,
-  isJson,
-  getFileFromPath,
-  parseToJson,
-} from './get-file-from-path'
+/*
+ * NOTE: Need to import this way because I couldn't figure out how to
+ * mock named imports (e.g. `import { blubb } from './dubb'`) with jest.
+ * Jest's `spyOn()` function can't be applied to individual functions
+ */
+import * as x from './get-file-from-path'
 
 describe('readFileToString()', () => {
+  const pathToFile = 'some/path/to/file.yaml'
   it('reads correct path', () => {
-    readFileToString(pathToFile)
+    jest
+      .spyOn(fs, 'readFileSync')
+      .mockReturnValueOnce('parsed config in json or yaml format')
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(pathToFile)
+    x.readFileToString(pathToFile)
+
+    expect(fs.readFileSync).toHaveBeenCalledWith(pathToFile)
   })
 
   it('always returns string', () => {
-    mockedFs.readFileSync.mockReturnValueOnce(Buffer.from('some buffer'))
+    jest
+      .spyOn(fs, 'readFileSync')
+      .mockReturnValueOnce(Buffer.from('some buffer'))
 
-    expect(readFileToString(pathToFile)).toBe('some buffer')
+    expect(x.readFileToString(pathToFile)).toBe('some buffer')
   })
 })
 
 describe('isJson()', () => {
   it('returns true when passed filePath ends with .json', () => {
-    expect(isJson('/dev/path/to/some/json/file.json')).toBe(true)
+    expect(x.isJson('/dev/path/to/some/json/file.json')).toBe(true)
   })
 
   it('returns false when passed filePath does not end with .json', () => {
-    expect(isJson('/dev/path/to/some/json/file.yml')).toBe(false)
+    expect(x.isJson('/dev/path/to/some/json/file.yml')).toBe(false)
   })
 })
 
 describe('parseToJson()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.spyOn(yaml, 'load').mockReturnValue({ parsed: 'yaml' })
   })
 
   it('parses YAML if YAML file is passed', () => {
-    parseToJson('/path/to/json/file.yml')('file: "yaml"')
+    x.parseToJson('/path/to/json/file.yml')('file: "yaml"')
 
-    expect(mockedYaml.load).toHaveBeenCalledTimes(1)
+    expect(yaml.load).toHaveBeenCalledTimes(1)
   })
 
   it('parses not YAML if JSON file is passed', () => {
-    parseToJson('/path/to/json/file.json')('{}')
+    x.parseToJson('/path/to/json/file.json')('{}')
 
-    expect(mockedYaml.load).toHaveBeenCalledTimes(0)
+    expect(yaml.load).toHaveBeenCalledTimes(0)
   })
 })
 
 describe('getFileFromPath()', () => {
   const innerParse = jest.fn().mockReturnValue({ parsed: 'tojson' })
 
-  beforeAll(() => {
-    readFileToString = jest.fn().mockReturnValue('string')
-    parseToJson = jest.fn(() => innerParse)
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.spyOn(x, 'readFileToString').mockReturnValue('string')
+    jest.spyOn(x, 'parseToJson').mockImplementation(() => innerParse)
   })
 
   it('reads the file to string', () => {
-    getFileFromPath('some/path/config.yaml')
+    x.getFileFromPath('some/path/config.yaml')
 
-    expect(readFileToString).toHaveBeenCalledWith('some/path/config.yaml')
+    expect(x.readFileToString).toHaveBeenCalledWith('some/path/config.yaml')
   })
 
   it('parses the string to json', () => {
-    getFileFromPath('some/path/config.yaml')
+    x.getFileFromPath('some/path/config.yaml')
 
-    expect(parseToJson).toHaveBeenCalledWith('some/path/config.yaml')
+    expect(x.parseToJson).toHaveBeenCalledWith('some/path/config.yaml')
     expect(innerParse).toHaveBeenCalledWith('string')
   })
 
   it('returns the expected file', () => {
-    const result = getFileFromPath('some/path/config.yaml')
+    const result = x.getFileFromPath('some/path/config.yaml')
 
     expect(result).toStrictEqual({
       filePath: 'some/path/config.yaml',
