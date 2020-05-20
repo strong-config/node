@@ -1,6 +1,10 @@
-lib
 tmp
 oclif.manifest.json
+
+# Build output
+lib
+dist
+build
 
 # Default output for generated types when strongConfig.load() is called
 strong-config.d.ts
@@ -30,27 +34,8 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
+# Dependencies
 node_modules/
-jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
 
 # Optional npm cache directory
 .npm
@@ -72,3 +57,6 @@ typings/
 
 # next.js build output
 .next
+
+# editor configs
+.vscode
