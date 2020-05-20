@@ -30,6 +30,8 @@
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
+    "postinstall": "yarn setup:sops && echo \n",
+    "setup:sops": "node lib/install-sops-binary.js",
     "health": "ts-node --transpile-only scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown && yarn lint:yaml",
     "lint:ts": "eslint --ext [.ts] src scripts",
@@ -41,7 +43,7 @@
     "test": "NODE_ENV=test jest --color",
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "watch": "tsc --watch",
-    "clean": "rimraf build/",
+    "clean": "rimraf lib",
     "build": "tsc",
     "dev:importkey": "gpg --import --quiet example/pgp/example-keypair.pgp",
     "dev:encrypt": "yarn dev:importkey && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
@@ -51,7 +53,8 @@
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
     "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
-    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
+    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'",
+    "dev:installSops": "ts-node --transpile-only src/install-sops-binary.ts"
   },
   "dependencies": {
     "@oclif/command": "^1.5.19",
@@ -64,7 +67,8 @@
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
     "json-schema-to-typescript": "^8.0.0",
-    "ora": "^4.0.3",
+    "node-fetch": "^2.6.0",
+    "ora": "^4.0.4",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
@@ -74,7 +78,8 @@
     "@types/glob": "^7.1.1",
     "@types/jest": "^25.1.2",
     "@types/js-yaml": "^3.12.1",
-    "@types/node": "^12.12.14",
+    "@types/node": "^14.0.4",
+    "@types/node-fetch": "^2.5.7",
     "@types/ora": "^3.2.0",
     "@types/pascal-case": "^1.1.2",
     "@types/ramda": "^0.26.36",
@@ -100,7 +105,7 @@
     "markdownlint-cli": "^0.19.0",
     "nodemon": "^2.0.1",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
+    "rimraf": "^3.0.2",
     "shelljs": "^0.8.3",
     "standard-version": "^7.0.1",
     "stdout-stderr": "^0.1.13",
