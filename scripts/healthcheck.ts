@@ -1,6 +1,8 @@
 import chalk from 'chalk'
 import ora from 'ora'
 import sh from 'shelljs'
+import * as fs from 'fs'
+import * as path from 'path'
 
 function run(command: string, options = { silent: true }): Promise<unknown> {
   return new Promise((resolve, reject): void => {
@@ -15,9 +17,9 @@ async function runLinters(): Promise<void> {
 
   try {
     await run('yarn lint')
-    spinner.succeed(chalk.bold('Linters: 👍'))
+    spinner.succeed(chalk.bold('Linters'))
   } catch (error) {
-    spinner.fail(chalk.bold('Linters: 👎\n'))
+    spinner.fail(chalk.bold('Linters'))
 
     // Need to re-run this to show the user what the error was
     await run('yarn lint', { silent: false })
@@ -30,21 +32,40 @@ async function runTests(): Promise<void> {
 
   try {
     await run('CI=true yarn test --coverage')
-    spinner.succeed(chalk.bold('Tests: 👍'))
+    spinner.succeed(chalk.bold('Tests'))
   } catch (error) {
-    spinner.fail(chalk.bold('Tests: 👎'))
+    spinner.fail(chalk.bold('Tests'))
     throw new Error(error)
   }
 }
 
 async function runBuild(): Promise<void> {
-  const spinner = ora('Building...').start()
+  const spinner = ora().start()
 
   try {
+    spinner.text = 'Cleaning previous build files...'
+    await run('yarn clean')
+
+    spinner.text = 'Building...'
     await run('CI=true yarn build')
-    spinner.succeed(chalk.bold('Build: 👍'))
+
+    spinner.text = 'Checking generated TypeScript declarations...'
+    if (!fs.existsSync(path.resolve('./lib/index.d.ts'))) {
+      throw new Error(
+        "Couldn't find TypeScript declaration files in build output.\nMake sure that `declaration: true` is set in `tsconfig.json`"
+      )
+    }
+
+    spinner.text = 'Checking generated sourcemaps...'
+    if (!fs.existsSync(path.resolve('./lib/index.d.ts.map'))) {
+      throw new Error(
+        "Couldn't find sourcemaps for TypeScript declaration files in build output.\nMake sure that `declarationMap: true` is set in `tsconfig.json`"
+      )
+    }
+
+    spinner.succeed(chalk.bold('Build'))
   } catch (error) {
-    spinner.fail(chalk.bold('Build: 👎'))
+    spinner.fail(chalk.bold('Build'))
     throw new Error(error)
   }
 }
@@ -56,9 +77,9 @@ async function runDevScripts(): Promise<void> {
     await run('yarn dev:load:es6')
     await run('yarn dev:load:commonjs')
     await run('yarn dev:validate')
-    spinner.succeed(chalk.bold('Dev scripts: 👍'))
+    spinner.succeed(chalk.bold('Dev Scripts'))
   } catch (error) {
-    spinner.fail(chalk.bold('Dev scripts: 👎'))
+    spinner.fail(chalk.bold('Dev Scripts'))
     throw new Error(error)
   }
 }
@@ -72,13 +93,13 @@ async function printTodos(): Promise<void> {
     todos = await run('yarn todo')
     spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
   } catch (error) {
-    spinner.fail(chalk.bold('Todos: 👎'))
+    spinner.fail(chalk.bold('Todos'))
     throw new Error(error)
   }
 }
 
 async function main(): Promise<void> {
-  ora('Checking overall project health...').info()
+  ora('Checking overall project health...\n').info()
 
   await runLinters()
   await runTests()
