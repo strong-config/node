@@ -7,13 +7,43 @@ import { EncryptedConfig, DecryptedConfig } from '../types'
 const hasSopsMetadata = has('sops')
 
 export const runSopsWithOptions = (options: string[]): string => {
-  const execaReturn = sync('sops', options)
-
-  if (execaReturn.exitCode !== 0) {
-    throw new Error(execaReturn.toString())
+  let sopsResult
+  try {
+    // Trying to use global `sops` from $PATH first
+    sopsResult = sync('sops', options)
+  } catch (error) {
+    // If the error code is ENOENT, it likely means the 'sops' binary
+    // isn't available in the global path. In this case, we want to swallow
+    // the error here and retry with a local sops binary further down
+    if (error.code !== 'ENOENT') {
+      throw new Error(error)
+    }
   }
 
-  return execaReturn.stdout.toString()
+  if (!sopsResult) {
+    /*
+     * If `sops` binary could not be found in $PATH, search in current directory
+     * This is useful for serverless environments such as Google Cloud Functions
+     * where it's not possible to install any non-npm binaries in the environment
+     */
+    try {
+      sopsResult = sync('./sops', options)
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(
+          `❌ Couldn't find 'sops' binary neither in $PATH nor in current directory via 'process.cwd()'\nPlease make sure it is available in your runtime environment.\n\n${error}`
+        )
+      } else {
+        throw new Error(error)
+      }
+    }
+  }
+
+  if (sopsResult.exitCode !== 0) {
+    throw new Error(sopsResult.toString())
+  }
+
+  return sopsResult.stdout.toString()
 }
 
 export const decryptToObject = (

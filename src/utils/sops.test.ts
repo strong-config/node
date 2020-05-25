@@ -1,4 +1,4 @@
-import R from 'ramda'
+import { dissoc } from 'ramda'
 import { ExecaSyncReturnValue } from 'execa'
 
 import { EncryptedConfig } from '../types'
@@ -25,7 +25,7 @@ const mockedDecryptedConfigAsString: string = JSON.stringify({
   field: 'asdf',
   fieldSecret: 'PLAIN TEXT',
 })
-const mockedParsedConfigNoSops: EncryptedConfig = R.dissoc(
+const mockedParsedConfigNoSops: EncryptedConfig = dissoc(
   'sops',
   mockedParsedConfig
 )
