@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/strong-config/node/compare/v0.2.7...v0.2.8) (2020-05-25)
+
+### [0.2.7](https://github.com/strong-config/node/compare/v0.2.6...v0.2.7) (2020-05-25)
+
+
+### Features
+
+* **sops:** also search in local directory for ‘sops’ binary if it isn’t found in global $PATH ([692a236](https://github.com/strong-config/node/commit/692a236717b766e7029a3f333a1933cbf5a62278))
+
 ### [0.2.6](https://github.com/strong-config/node/compare/v0.2.5...v0.2.6) (2020-05-20)
 
 ### [0.2.5](https://github.com/strong-config/node/compare/v0.2.4...v0.2.5) (2020-05-20)
