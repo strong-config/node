@@ -1,29 +1,39 @@
+import { existsSync } from 'fs'
 import { sync } from 'execa'
 import { load } from 'js-yaml'
 import { has, isNil } from 'ramda'
+import which from 'which'
 
 import { EncryptedConfig, DecryptedConfig } from '../types'
 
 const hasSopsMetadata = has('sops')
 
-export const runSopsWithOptions = (options: string[]): string => {
-  let sopsResult
+function getSopsBinary(): 'global' | 'local' | false {
+  if (which.sync('sops', { nothrow: true })) {
+    return 'global'
+  }
 
+  if (existsSync('sops')) {
+    return 'local'
+  }
+
+  return false
+}
+
+export const runSopsWithOptions = (options: string[]): string => {
+  const sopsBinary = getSopsBinary()
+  if (!sopsBinary) {
+    throw new Error(
+      `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`
+    )
+  }
+
+  let sopsResult
   try {
-    sopsResult = sync('sops', options)
+    sopsResult = sync(sopsBinary === 'global' ? 'sops' : './sops', options)
   } catch (error) {
     if (!sopsResult) {
-      // If the error code is ENOENT, it likely means the 'sops' binary
-      // isn't available in the global $PATH. In this case, try again
-      // with a local 'sops' binary from the current directory.
-      // This is useful for serverless environments such as Google Cloud Functions
-      // where it's not possible to install any non-npm binaries in the environment.
-      if (error.code === 'ENOENT') {
-        sopsResult = sync('./sops', options)
-      } else {
-        // If local sops also fails, bubble up the error
-        throw new Error(error)
-      }
+      throw new Error(`Unexpected error when executing sops:\n\n${error}`)
     }
   }
 
