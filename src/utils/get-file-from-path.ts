@@ -21,7 +21,7 @@ export const parseToJson = (filePath: string) => (
 
 export const getFileFromPath = (filePath: string): File =>
   compose<string, string, JSONObject, File>(
-    contents => ({ contents, filePath }),
+    (contents) => ({ contents, filePath }),
     parseToJson(filePath),
     readFileToString
   )(filePath)

@@ -12,7 +12,7 @@ import { TypeOptions } from '../options'
 export const pascalCase = (input: string): string =>
   input
     .split(/[^a-zA-Z0-9]+/g)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('')
 
 export const generateTypeFromSchema = async (

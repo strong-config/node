@@ -67,8 +67,7 @@ export default class Validate extends Command {
 
   static examples = ['$ validate config/development.yaml', '$ validate --help']
 
-  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-  async run() {
+  async run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
     const verbosityLevel = flags.verbose ? 2 : 1
 

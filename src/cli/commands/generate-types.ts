@@ -40,8 +40,7 @@ export default class GenerateTypes extends Command {
     '$ generate-types -c ./some/sub/folder/config',
   ]
 
-  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-  async run() {
+  async run(): Promise<void> {
     const { flags } = this.parse(GenerateTypes)
     startSpinner('Generating types...')
 

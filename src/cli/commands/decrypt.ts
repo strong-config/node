@@ -86,8 +86,7 @@ export default class Decrypt extends Command {
     '$ decrypt --help',
   ]
 
-  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-  async run() {
+  async run(): Promise<void> {
     const { args, flags } = this.parse(Decrypt)
 
     decrypt(args, flags)

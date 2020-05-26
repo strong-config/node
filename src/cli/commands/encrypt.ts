@@ -116,8 +116,7 @@ export default class Encrypt extends Command {
     '$ encrypt --help',
   ]
 
-  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-  async run() {
+  async run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
 
     if (readSchemaFile(flags['config-root'])) {

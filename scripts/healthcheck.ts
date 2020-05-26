@@ -1,12 +1,12 @@
 import chalk from 'chalk'
 import ora from 'ora'
-import sh from 'shelljs'
+import { exec } from 'shelljs'
 import * as fs from 'fs'
 import * as path from 'path'
 
 function run(command: string, options = { silent: true }): Promise<unknown> {
   return new Promise((resolve, reject): void => {
-    sh.exec(command, options, function(exitCode, stdout, stderr) {
+    exec(command, options, function (exitCode, stdout, stderr) {
       exitCode !== 0 ? reject(stderr) : resolve(stdout.trim())
     })
   })
@@ -114,7 +114,7 @@ main()
 
     return
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(
       `\n${chalk.bold('❌ Project not healthy ❌')}\n\n${chalk.red(error)}`
     )

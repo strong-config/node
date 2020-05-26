@@ -7,7 +7,7 @@ import { getFileExtensionPattern } from './read-file'
 
 export const isSchema = (filePath: string): boolean =>
   compose<string, string[], string, boolean>(
-    fileName => fileName.startsWith('schema'),
+    (fileName) => fileName.startsWith('schema'),
     last,
     split('/')
   )(filePath)
@@ -21,7 +21,9 @@ export const findFiles = (
 ): string[] => {
   let globPattern
   if (
-    Object.values(ConfigFileExtensions).find(ext => globFileName.endsWith(ext))
+    Object.values(ConfigFileExtensions).find((ext) =>
+      globFileName.endsWith(ext)
+    )
   ) {
     globPattern = globFileName
   } else {

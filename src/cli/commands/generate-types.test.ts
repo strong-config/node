@@ -3,7 +3,7 @@ jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
 import { stdout } from 'stdout-stderr'
-import * as fs from 'fs'
+import fs from 'fs'
 import * as x from '../../utils/generate-type-from-schema'
 import * as y from '../../utils/read-file'
 import { defaultOptions } from './../../options'
@@ -54,7 +54,7 @@ describe('strong-config generate-types', () => {
       mockedWriteFileSync = jest.spyOn(fs, 'writeFileSync').mockImplementation()
     })
 
-    afterAll(() => {
+    afterEach(() => {
       mockedExit.mockRestore()
       mockedWriteFileSync.mockRestore()
     })
