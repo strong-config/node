@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "forceConsistentCasingInFileNames": true,
@@ -10,13 +8,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitAny": true,
-    "outDir": "./lib",
     "resolveJsonModule": true,
-    "sourceMap": true,
     "strict": true,
     "target": "es6",
     "lib": ["es6"]
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts"]
+  "include": ["src", "scripts"]
 }

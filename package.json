@@ -44,7 +44,7 @@
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "watch": "tsc --watch",
     "clean": "rimraf lib",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "dev:importkey": "gpg --import --quiet example/pgp/example-keypair.pgp",
     "dev:encrypt": "yarn dev:importkey && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
     "dev:decrypt": "sops --decrypt --in-place example/development.yaml && cat example/development.yaml",
