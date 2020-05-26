@@ -1,89 +1,100 @@
-import { dissoc } from 'ramda'
-import { ExecaSyncReturnValue } from 'execa'
-
-import { EncryptedConfig } from '../types'
-
-jest.mock('execa')
-jest.mock('js-yaml')
-const mockedFilePath = './config/development.yaml'
-const mockedParsedConfig: EncryptedConfig = {
-  field: 'asdf',
-  fieldSecret: 'ENC[some encrypted value]',
-  /* eslint-disable @typescript-eslint/camelcase */
-  sops: {
-    kms: 'data',
-    gcp_kms: 'data',
-    azure_kv: 'data',
-    pgp: 'data',
-    lastmodified: 'timestamp',
-    mac: 'data',
-    version: 'version',
-  },
-  /* eslint-enable @typescript-eslint/camelcase */
-}
-const mockedDecryptedConfigAsString: string = JSON.stringify({
-  field: 'asdf',
-  fieldSecret: 'PLAIN TEXT',
-})
-const mockedParsedConfigNoSops: EncryptedConfig = dissoc(
-  'sops',
-  mockedParsedConfig
-)
 import execa from 'execa'
-const mockedExeca = execa as jest.Mocked<typeof execa>
-mockedExeca.sync = jest.fn().mockReturnValue({
-  stdout: mockedDecryptedConfigAsString,
-  exitCode: 0,
-  stderr: '',
-})
 import yaml from 'js-yaml'
-const mockedYaml = yaml as jest.Mocked<typeof yaml>
-mockedYaml.load = jest.fn().mockReturnValue('some: yaml')
-
+import { dissoc } from 'ramda'
+import { EncryptedConfig, DecryptedConfig } from '../types'
+import { ExecaSyncReturnValue } from 'execa'
 import { decryptToObject, decryptInPlace } from './sops'
 
-describe('decryptToObject()', () => {
-  it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
-    const result = decryptToObject(mockedFilePath, mockedParsedConfigNoSops)
+describe('utils :: sops', () => {
+  const configFilePathMock = './config/development.yaml'
 
-    expect(result).toEqual(mockedParsedConfigNoSops)
+  const decryptedConfigMock: DecryptedConfig = {
+    field: 'asdf',
+    fieldSecret: 'PLAIN TEXT',
+  }
+
+  const encryptedConfigMock: EncryptedConfig = {
+    field: decryptedConfigMock.field,
+    fieldSecret: 'ENC[some encrypted value]',
+    sops: {
+      kms: 'data',
+      gcp_kms: 'data',
+      azure_kv: 'data',
+      pgp: 'data',
+      lastmodified: 'timestamp',
+      mac: 'data',
+      version: 'version',
+    },
+  }
+
+  const encryptedConfigNoSopsMock: EncryptedConfig = dissoc(
+    'sops',
+    encryptedConfigMock
+  )
+
+  let execaSyncMock: jest.SpyInstance
+  beforeAll(() => {
+    execaSyncMock = jest.spyOn(execa, 'sync')
+    execaSyncMock.mockImplementation(() => ({
+      exitCode: 0,
+      stdout: Buffer.from(JSON.stringify(decryptedConfigMock)),
+      stderr: Buffer.from(''),
+    }))
   })
 
-  it('calls sops binary to decrypt in case there is SOPS metadata present', () => {
-    decryptToObject(mockedFilePath, mockedParsedConfig)
-
-    expect(mockedExeca.sync).toHaveBeenCalledWith('sops', [
-      '--decrypt',
-      mockedFilePath,
-    ])
+  afterAll(() => {
+    execaSyncMock.mockRestore()
   })
 
-  it('throws when SOPS binary encounters an error while decrypting the config', () => {
-    mockedExeca.sync.mockReturnValueOnce({
-      exitCode: 1,
-      stdout: Buffer.from('some stdout'),
-      stderr: Buffer.from('non-empty stderr'),
-    } as ExecaSyncReturnValue<Buffer>)
+  describe('decryptToObject()', () => {
+    it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
+      expect(
+        decryptToObject(configFilePathMock, encryptedConfigNoSopsMock)
+      ).toEqual(encryptedConfigNoSopsMock)
+    })
 
-    expect(() => decryptToObject(mockedFilePath, mockedParsedConfig)).toThrow(
-      Error
-    )
+    it('calls the sops binary to decrypt when SOPS metadata is present', () => {
+      decryptToObject(configFilePathMock, encryptedConfigMock)
+
+      expect(execa.sync).toHaveBeenCalledWith('sops', [
+        '--decrypt',
+        configFilePathMock,
+      ])
+    })
+
+    it('throws when SOPS binary encounters an error while decrypting the config', () => {
+      execaSyncMock.mockImplementationOnce(
+        () =>
+          ({
+            exitCode: 1,
+            stdout: Buffer.from('some stdout'),
+            stderr: Buffer.from('non-empty stderr'),
+          } as ExecaSyncReturnValue<Buffer>)
+      )
+
+      expect(() =>
+        decryptToObject(configFilePathMock, encryptedConfigMock)
+      ).toThrow(Error)
+    })
+
+    it('parses the output of SOPS to YAML', () => {
+      jest.spyOn(yaml, 'load')
+      decryptToObject(configFilePathMock, encryptedConfigMock)
+
+      expect(yaml.load).toHaveBeenCalledWith(
+        JSON.stringify(decryptedConfigMock)
+      )
+    })
   })
 
-  it('parses the output of SOPS as YAML', () => {
-    decryptToObject(mockedFilePath, mockedParsedConfig)
+  describe('decryptInPlace()', () => {
+    it('calls the SOPS binary with the flag "--in-place"', () => {
+      decryptInPlace(configFilePathMock)
 
-    expect(mockedYaml.load).toHaveBeenCalledWith(mockedDecryptedConfigAsString)
-  })
-})
-
-describe('decryptInPlace()', () => {
-  it('calls the SOPS binary with the flag "--in-place"', () => {
-    decryptInPlace(mockedFilePath)
-
-    expect(mockedExeca.sync).toHaveBeenCalledWith(
-      'sops',
-      expect.arrayContaining(['--in-place'])
-    )
+      expect(execa.sync).toHaveBeenCalledWith(
+        'sops',
+        expect.arrayContaining(['--in-place'])
+      )
+    })
   })
 })

@@ -4,51 +4,48 @@ import { load } from 'js-yaml'
 import { has, isNil } from 'ramda'
 import which from 'which'
 
-import { EncryptedConfig, DecryptedConfig } from '../types'
+import type { EncryptedConfig, DecryptedConfig } from '../types'
 
-const hasSopsMetadata = has('sops')
-
-function getSopsBinary(): 'global' | 'local' | false {
+function getSopsBinary(): string | undefined {
   if (which.sync('sops', { nothrow: true })) {
-    return 'global'
+    return 'sops'
   }
 
   if (existsSync('sops')) {
-    return 'local'
+    return './sops'
   }
 
-  return false
+  return undefined
+}
+
+const sopsErrors = {
+  SOPS_NOT_FOUND: `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`,
+  DECRYPTION_ERROR: `Sops failed to retrieve the decryption key. This is often a permission error with your KMS provider.`,
 }
 
 export const runSopsWithOptions = (options: string[]): string => {
   const sopsBinary = getSopsBinary()
+
   if (!sopsBinary) {
-    throw new Error(
-      `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`
-    )
+    throw new Error(sopsErrors['SOPS_NOT_FOUND'])
   }
 
   let sopsResult
   try {
-    sopsResult = sync(sopsBinary === 'global' ? 'sops' : './sops', options)
+    sopsResult = sync(sopsBinary, options)
   } catch (error) {
-    if (!sopsResult) {
-      throw new Error(`Unexpected error when executing sops:\n\n${error}`)
-    }
+    console.error(error)
+    throw new Error(error)
   }
 
   switch (sopsResult.exitCode) {
     case 0:
-      break
+      return sopsResult.stdout.toString()
     case 128:
-      throw new Error(
-        `Sops failed to retrieve the decryption key. This is often a permissin error with your KMS provider.\n${sopsResult}`
-      )
+      throw new Error(`${sopsErrors['DECRYPTION_ERROR']}\n${sopsResult.stdout}`)
     default:
-      throw new Error(sopsResult.toString())
+      throw new Error(`Unexpected sops error:\n${sopsResult.stdout}`)
   }
-
-  return sopsResult.stdout.toString()
 }
 
 export const decryptToObject = (
@@ -60,7 +57,7 @@ export const decryptToObject = (
   }
 
   // If there's no SOPS metadata, parsedConfig already represents decrypted config
-  if (!hasSopsMetadata(parsedConfig)) {
+  if (!has('sops')(parsedConfig)) {
     return parsedConfig
   }
 
