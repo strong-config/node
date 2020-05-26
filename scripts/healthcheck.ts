@@ -63,6 +63,13 @@ async function runBuild(): Promise<void> {
       )
     }
 
+    spinner.text = 'Checking that tests are excluded from build output...'
+    if (fs.existsSync(path.resolve('./lib/index.test.ts'))) {
+      throw new Error(
+        "Detected test files in build files. Make sure to exclude `src/**/*.test.ts` from the build output via TypeScript's `exclude` option"
+      )
+    }
+
     spinner.succeed(chalk.bold('Build'))
   } catch (error) {
     spinner.fail(chalk.bold('Build'))
