@@ -30,7 +30,9 @@
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
   "scripts": {
-    "postinstall": "yarn setup:sops && echo \n",
+    "postinstall:comment1": "Don't run the sops-install script in the context of this repo, otherwise it would run everytime we 'yarn add' something",
+    "postinstall:comment2": "In the context of other applications installing the strong-config package, only run the sops-install script if the sops binary is not available in the runtime environment",
+    "postinstall": "if [ ! $npm_package_name == '@strong-config/node' ] && ! command -v sops > /dev/null && ! command -v ./node_modules/.bin/sops > /dev/null; then yarn setup:sops && echo '\n'; fi",
     "setup:sops": "node lib/install-sops-binary.js",
     "health": "ts-node --transpile-only scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown && yarn lint:yaml",
