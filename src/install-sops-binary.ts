@@ -1,7 +1,10 @@
 import { startSpinner, succeedSpinner, failSpinner } from './cli/spinner'
 import fetch from 'node-fetch'
 import * as util from 'util'
-import { chmodSync, copyFileSync, createWriteStream } from 'fs'
+
+// We're using the async implementations from 'fs-extra' for the spinner to work properly.
+// When using the standard sync implementations (e.g. chmodSync) then the spinner freezes.
+import { chmod, copyFile, createWriteStream, pathExists } from 'fs-extra'
 import * as os from 'os'
 import { pipeline } from 'stream'
 
@@ -10,12 +13,20 @@ const streamPipeline = util.promisify(pipeline)
 const REPO = 'mozilla/sops'
 const VERSION = '3.5.0'
 const BINARY = 'sops'
+const DEST_PATH = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
+
+const checkSops = async (): Promise<void> => {
+  // If sops is available in the runtime environment already, skip downloading and exit early
+  if (await pathExists(DEST_PATH)) {
+    process.exit(0)
+  }
+}
 
 const getFileExtension = (): string => {
   const type = os.type()
   const arch = os.arch()
 
-  console.log(`Detected OS ${type} [${arch}]`)
+  console.log(`Detected OS '${type} [${arch}]'`)
 
   switch (type) {
     case 'Darwin':
@@ -59,25 +70,28 @@ const downloadBinary = async (
   }
 }
 
-const makeBinaryExecutable = (path: string): void => {
+const makeBinaryExecutable = async (path: string): Promise<void> => {
   startSpinner(`Making ${BINARY} binary executable...`)
 
   try {
-    chmodSync(path, 0o755)
+    await chmod(path, 0o755)
     succeedSpinner(`✅ ${BINARY} binary is executable`)
   } catch (error) {
     failSpinner('Failed to make binary executable', error)
   }
 }
 
-const copyFileToConsumingPackagesBinaryPath = (path: string): void => {
+const copyFileToConsumingPackagesBinaryPath = async (
+  srcPath: string
+): Promise<void> => {
+  const destPath = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
   try {
     startSpinner(
       `Copying ${BINARY} binary to consuming package's ./node_modules/.bin folder...`
     )
     if (process?.env?.INIT_CWD) {
-      copyFileSync(path, `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`)
-      succeedSpinner(`✅ Copied ${BINARY} binary to ${process.env.INIT_CWD}`)
+      await copyFile(srcPath, destPath)
+      succeedSpinner(`✅ ${BINARY} binary to ${destPath}`)
     } else {
       throw new Error(
         'process.env.INIT_CWD is nil. This variable is usually available when running yarn or npm scripts 🤔.'
@@ -94,9 +108,10 @@ const copyFileToConsumingPackagesBinaryPath = (path: string): void => {
 }
 
 async function main(): Promise<void> {
+  await checkSops()
   const downloadPath = await downloadBinary(REPO, BINARY, VERSION)
-  makeBinaryExecutable(downloadPath)
-  copyFileToConsumingPackagesBinaryPath(downloadPath)
+  await makeBinaryExecutable(downloadPath)
+  await copyFileToConsumingPackagesBinaryPath(downloadPath)
 }
 
 main()
