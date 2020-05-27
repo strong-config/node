@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.15](https://github.com/strong-config/node/compare/v0.2.6...v0.2.15) (2020-05-27)
+
+
+### Features
+
+* **sops:** also search in local directory for ‘sops’ binary if it isn’t found in global $PATH ([692a236](https://github.com/strong-config/node/commit/692a236717b766e7029a3f333a1933cbf5a62278))
+* **sops:** improved error handling when sops gets a permission-denied error ([ea5780c](https://github.com/strong-config/node/commit/ea5780c774ad08bb5574c443999ec5d089da8ea6))
+
+
+### Bug Fixes
+
+* **security:** fixed vulnerabilities in devDependencies ([bebcedc](https://github.com/strong-config/node/commit/bebcedc376b10676e728b4a182ddec57b9914ea1))
+* use async versions of ‘fs’ functions to not freeze CLI spinners when running sops-install script ([73a24ae](https://github.com/strong-config/node/commit/73a24ae28abbcfc65e3b7d6306a4a2dbbe3d1dea))
+
 ### [0.2.8](https://github.com/strong-config/node/compare/v0.2.7...v0.2.8) (2020-05-25)
 
 ### [0.2.7](https://github.com/strong-config/node/compare/v0.2.6...v0.2.7) (2020-05-25)
