@@ -1,6 +1,13 @@
 name: Node.js CI
 
-on: [push]
+on:
+  push:
+    tags-ignore:
+      - '*.*'
+
+env:
+  GIT_USER_NAME: Brickblock Bot
+  GIT_USER_EMAIL: github-bot@brickblock.io
 
 jobs:
   release:
@@ -11,10 +18,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+          registry-url: 'https://registry.npmjs.org'
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
+      - run: |
+          git config user.name "${GIT_USER_NAME}"
+          git config user.email "${GIT_USER_EMAIL}"
+          git config push.followTags true
+          git config push.default current
       - run: yarn release
-      - run: yarn publish
+      - run: yarn publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   # lint:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
