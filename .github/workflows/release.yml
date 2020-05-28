@@ -38,7 +38,7 @@ jobs:
 
       - run: yarn release
 
-      - run: git push https://brickblock-bot:${BOT_TOKEN}@github.com/strong-config/node.git HEAD:master
+      - run: git push https://chapati23:f6cd6ef7f4295d4222a37f710f1dc70c81826cce@github.com/strong-config/node.git HEAD:master --no-verify
         env:
           BOT_TOKEN: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
       # - run: npm publish --access public
