@@ -3,22 +3,65 @@ name: Node.js CI
 on: [push]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM or Yarn install with caching
+        uses: bahmutov/npm-install@v1.1.0
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM or Yarn install with caching
+        uses: bahmutov/npm-install@v1.1.0
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
+
   build:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [12.x]
-        # node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x]
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: NPM or Yarn install with caching
+        uses: bahmutov/npm-install@v1.1.0
+
       - run: yarn install --frozen-lockfile
-      - run: yarn lint
-      - run: yarn test
-        env:
-          CI: true
+      - run: yarn build
