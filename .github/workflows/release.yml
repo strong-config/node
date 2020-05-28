@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
 
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
@@ -38,9 +40,7 @@ jobs:
 
       - run: yarn release
 
-      - run: git push https://chapati23:f6cd6ef7f4295d4222a37f710f1dc70c81826cce@github.com/strong-config/node.git HEAD:master --no-verify
-        env:
-          BOT_TOKEN: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
+      - run: git push
       # - run: npm publish --access public
       #   env:
       #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
