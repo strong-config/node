@@ -32,8 +32,7 @@
   "scripts": {
     "postinstall:comment1": "Don't run the sops-install script in the context of this repo, otherwise it would run everytime we 'yarn add' something",
     "postinstall:comment2": "In the context of other applications installing the strong-config package, only run the sops-install script if the sops binary is not available in the runtime environment",
-    "postinstall": "if [ ! $npm_package_name == '@strong-config/node' ] && ! command -v sops > /dev/null && ! command -v ./node_modules/.bin/sops > /dev/null; then yarn setup:sops && echo '\n'; fi",
-    "setup:sops": "node lib/install-sops-binary.js",
+    "postinstall": "node postinstall.js",
     "health": "ts-node --transpile-only scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown && yarn lint:yaml",
     "lint:ts": "eslint --ext [.ts] src scripts",
@@ -55,8 +54,7 @@
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
     "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
-    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'",
-    "dev:installSops": "ts-node --transpile-only src/install-sops-binary.ts"
+    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
   },
   "dependencies": {
     "@oclif/command": "^1.5.19",
