@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.2.19 (2020-05-28)
+
+### 0.2.18 (2020-05-28)
+
+### 0.2.17 (2020-05-28)
+
+### 0.2.16 (2020-05-28)
+
 ### [0.2.15](https://github.com/strong-config/node/compare/v0.2.6...v0.2.15) (2020-05-27)
 
 
@@ -15,6 +23,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **security:** fixed vulnerabilities in devDependencies ([bebcedc](https://github.com/strong-config/node/commit/bebcedc376b10676e728b4a182ddec57b9914ea1))
 * use async versions of ‘fs’ functions to not freeze CLI spinners when running sops-install script ([73a24ae](https://github.com/strong-config/node/commit/73a24ae28abbcfc65e3b7d6306a4a2dbbe3d1dea))
+
+
 
 ### [0.2.8](https://github.com/strong-config/node/compare/v0.2.7...v0.2.8) (2020-05-25)
 
