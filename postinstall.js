@@ -71,7 +71,9 @@ const downloadBinary = async (repo, binary, version) => {
         `Binary download failed with unexpected response: ${response.statusText}`
       )
 
-    const downloadPath = `./node_modules/.bin/${binary}`
+    const downloadPath = `./node_modules/.bin/${
+      ext === 'exe' ? binary + '.exe' : binary
+    }`
     await streamPipeline(response.body, createWriteStream(downloadPath))
 
     succeedSpinner(`✅ Downloaded binary to ${downloadPath}`)
