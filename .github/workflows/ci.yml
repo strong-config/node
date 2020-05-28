@@ -28,10 +28,12 @@ jobs:
           git config user.email "${GIT_USER_EMAIL}"
           git config push.followTags true
           git config push.default current
-      - run: yarn release
-      - run: yarn publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: |
+          yarn release
+          git push --follow-tags
+      # - run: yarn publish --access public
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   # lint:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
