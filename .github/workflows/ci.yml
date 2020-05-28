@@ -16,21 +16,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
           scope: '@strong-config'
+
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
-      - run: |
+
+      - name: Configure git
+        run: |
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
           git config push.followTags true
           git config push.default current
+
       - run: yarn release
+
       - run: git push --follow-tags
+
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
