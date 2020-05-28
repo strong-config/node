@@ -38,7 +38,7 @@ jobs:
 
       - run: yarn release
 
-      - run: git push --follow-tags
+      - run: git push https://${GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
       # - run: npm publish --access public
