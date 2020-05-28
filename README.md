@@ -1,6 +1,6 @@
 # 💪 strong-config
 
-![GitHub Actions Status: Build](https://github.com/@strong-config/node/workflows/ci/badge.svg)
+![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 
 <!-- markdownlint-disable line-length -->
 
