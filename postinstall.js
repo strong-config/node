@@ -1,12 +1,15 @@
-import { startSpinner, succeedSpinner, failSpinner } from './cli/spinner'
-import fetch from 'node-fetch'
-import * as util from 'util'
+/* eslint-disable @typescript-eslint/no-var-requires */
+const fetch = require('node-fetch')
+const ora = require('ora')
+const os = require('os')
+const path = require('path')
+const util = require('util')
+const which = require('which')
+const { pipeline } = require('stream')
 
 // We're using the async implementations from 'fs-extra' for the spinner to work properly.
 // When using the standard sync implementations (e.g. chmodSync) then the spinner freezes.
-import { chmod, copyFile, createWriteStream, pathExists } from 'fs-extra'
-import * as os from 'os'
-import { pipeline } from 'stream'
+const { chmod, copyFile, createWriteStream, pathExists } = require('fs-extra')
 
 const streamPipeline = util.promisify(pipeline)
 
@@ -15,14 +18,28 @@ const VERSION = '3.5.0'
 const BINARY = 'sops'
 const DEST_PATH = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
 
-const checkSops = async (): Promise<void> => {
+let oraInstance
+const startSpinner = (message) => {
+  oraInstance = ora(message).start()
+}
+
+const failSpinner = (message, error) => {
+  oraInstance.fail(message)
+  console.error(error)
+}
+
+const succeedSpinner = (message) => {
+  oraInstance.stopAndPersist({ symbol: '💪 ', text: message })
+}
+
+const checkSops = async () => {
   // If sops is available in the runtime environment already, skip downloading and exit early
-  if (await pathExists(DEST_PATH)) {
+  if (which.sync('sops', { nothrow: true }) || (await pathExists(DEST_PATH))) {
     process.exit(0)
   }
 }
 
-const getFileExtension = (): string => {
+const getFileExtension = () => {
   const type = os.type()
   const arch = os.arch()
 
@@ -41,11 +58,7 @@ const getFileExtension = (): string => {
   }
 }
 
-const downloadBinary = async (
-  repo: string,
-  binary: string,
-  version: string
-): Promise<string> => {
+const downloadBinary = async (repo, binary, version) => {
   const ext = getFileExtension()
   const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}.${ext}`
 
@@ -70,7 +83,7 @@ const downloadBinary = async (
   }
 }
 
-const makeBinaryExecutable = async (path: string): Promise<void> => {
+const makeBinaryExecutable = async (path) => {
   startSpinner(`Making ${BINARY} binary executable...`)
 
   try {
@@ -81,21 +94,28 @@ const makeBinaryExecutable = async (path: string): Promise<void> => {
   }
 }
 
-const copyFileToConsumingPackagesBinaryPath = async (
-  srcPath: string
-): Promise<void> => {
+const copyFileToConsumingPackagesBinaryPath = async (srcPath) => {
   const destPath = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
+
+  // This is the case when running 'postinstall' from the strong-config project itself
+  if (path.resolve(srcPath) === path.resolve(destPath)) {
+    return
+  }
+
   try {
     startSpinner(
       `Copying ${BINARY} binary to consuming package's ./node_modules/.bin folder...`
     )
-    if (process?.env?.INIT_CWD) {
-      await copyFile(srcPath, destPath)
-      succeedSpinner(`✅ ${BINARY} binary to ${destPath}`)
-    } else {
-      throw new Error(
+
+    if (!process.env.INIT_CWD) {
+      failSpinner(
         'process.env.INIT_CWD is nil. This variable is usually available when running yarn or npm scripts 🤔.'
       )
+      process.exit(1)
+    } else {
+      await copyFile(srcPath, destPath)
+      succeedSpinner(`✅ ${BINARY} binary to ${destPath}`)
+      return
     }
   } catch (error) {
     console.log(error)
@@ -104,10 +124,11 @@ const copyFileToConsumingPackagesBinaryPath = async (
       `Failed to copy ${BINARY} binary to ${process.env.INIT_CWD}`,
       error
     )
+    process.exit(1)
   }
 }
 
-async function main(): Promise<void> {
+async function main() {
   await checkSops()
   const downloadPath = await downloadBinary(REPO, BINARY, VERSION)
   await makeBinaryExecutable(downloadPath)
