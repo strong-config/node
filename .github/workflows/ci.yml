@@ -31,9 +31,9 @@ jobs:
       - run: |
           yarn release
           git push --follow-tags
-      # - run: yarn publish --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: yarn publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   # lint:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
