@@ -21,7 +21,6 @@ jobs:
       - name: NPM or Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
 
-      - run: yarn install --frozen-lockfile
       - run: yarn lint
 
   test:
@@ -42,7 +41,6 @@ jobs:
       - name: NPM or Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
 
-      - run: yarn install --frozen-lockfile
       - run: yarn test
 
   build:
@@ -63,5 +61,4 @@ jobs:
       - name: NPM or Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
 
-      - run: yarn install --frozen-lockfile
       - run: yarn build
