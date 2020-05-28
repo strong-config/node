@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: 12.x
           registry-url: 'https://registry.npmjs.org'
+          scope: '@strong-config'
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
       - run: |
