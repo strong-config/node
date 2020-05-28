@@ -1,5 +1,7 @@
 # 💪 strong-config
 
+![GitHub Actions Status: Build](https://github.com/@strong-config/node/workflows/ci/badge.svg)
+
 <!-- markdownlint-disable line-length -->
 
 [![pipeline status](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/pipeline.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master) [![coverage report](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/coverage.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master)
@@ -151,8 +153,8 @@ Let's have a closer look.
 - **`types`**: Block containing options to customize the type generation. If you
   don't want to generate types, overwrite this block with `types: false`.
   - **`rootTypeName`**: The interface name you can import in your code. This
-  interface type describes the entire structure of your config based on the
-  schema file you provide.
+    interface type describes the entire structure of your config based on the
+    schema file you provide.
   - **`filePath`**: The desired path of the output type file.
 - **`substitutionPattern`**: Substitutions allow you to include variables of
   your execution environment in the config. For example, assignments like
