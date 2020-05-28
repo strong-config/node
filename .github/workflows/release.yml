@@ -38,7 +38,9 @@ jobs:
 
       - run: yarn release
 
-      - run: git push --follow-tags
+      - run: git push ${GIT_USER_NAME}:${BRICKBLOCK_BOT_TOKEN}@github.com/strong-config/node.git HEAD:master --follow-tags
+        env:
+          BRICKBLOCK_BOT_TOKEN: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
 
       - run: npm publish --access public
         env:
