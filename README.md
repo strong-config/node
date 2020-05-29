@@ -4,7 +4,7 @@
 
 <!-- markdownlint-disable line-length -->
 
-[![pipeline status](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/pipeline.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master) [![coverage report](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/coverage.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master)
+[![coverage report](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/coverage.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master)
 
 <!-- markdownlint-enable line-length -->
 
