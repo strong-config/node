@@ -1,14 +1,18 @@
-name: Continuous Integration Checks
+name: CI + Release [master]
 
 on:
   push:
     branches:
-      - '**'
+      - master
     tags-ignore:
       - '**'
     paths-ignore:
       - 'package.json'
       - 'CHANGELOG.md'
+
+env:
+  GIT_USER_NAME: brickblock-bot
+  GIT_USER_EMAIL: bot@brickblock.io
 
 jobs:
   lint:
@@ -58,3 +62,41 @@ jobs:
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
       - run: yarn build
+
+  release:
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BRICKBLOCK_BOT_TOKEN }}
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          registry-url: https://registry.npmjs.org
+          scope: '@strong-config'
+
+      - name: Yarn install with caching
+        uses: bahmutov/npm-install@v1.1.0
+
+      - run: yarn build
+
+      - name: Configure git for pushing back auto-generated CHANGELOG
+        run: |
+          git config user.name "${GIT_USER_NAME}"
+          git config user.email "${GIT_USER_EMAIL}"
+          git config push.followTags true
+          git config push.default current
+
+      - run: yarn release
+
+      - run: git push
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Post changelog to Slack
+        run: npx @brickblock/slack-changelog-notifier --projectName $GITHUB_REPOSITORY
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
