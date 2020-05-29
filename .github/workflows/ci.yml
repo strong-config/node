@@ -6,6 +6,9 @@ on:
       - '**'
     tags-ignore:
       - '**'
+    paths-ignore:
+      - 'package.json'
+      - 'CHANGELOG.md'
 
 jobs:
   lint:

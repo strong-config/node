@@ -6,6 +6,9 @@ on:
       - master
     tags-ignore:
       - '**'
+    paths-ignore:
+      - 'package.json'
+      - 'CHANGELOG.md'
 
 env:
   GIT_USER_NAME: brickblock-bot
