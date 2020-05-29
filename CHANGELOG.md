@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.24](https://github.com/strong-config/node/compare/v0.2.15...v0.2.24) (2020-05-29)
+
+
+### Features
+
+* **sops:** refactor postinstall script to javascript to simplify using it in the same way everywhere (e.g. local dev, from another package, in CI..) ([a2f813f](https://github.com/strong-config/node/commit/a2f813fa55e83484893ea5b91916a01eeaa95bcc))
+
+
+### Bug Fixes
+
+* **sops:** retain *.exe file extension when downloading sops on windows systems ([4389fc4](https://github.com/strong-config/node/commit/4389fc413609846719f3e79762800da12d31752d))
+
 ### 0.2.23 (2020-05-29)
 
 ### 0.2.22 (2020-05-29)
