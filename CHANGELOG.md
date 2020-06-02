@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.25](https://github.com/strong-config/node/compare/v0.2.24...v0.2.25) (2020-06-02)
+
+
+### Bug Fixes
+
+* **setup:** added postinstall.js to files-array in package.json to include it in the production build of the package ([33a6250](https://github.com/strong-config/node/commit/33a62505eef86864d44c65da60bd636ac3715e9a))
+
 ### [0.2.24](https://github.com/strong-config/node/compare/v0.2.15...v0.2.24) (2020-05-29)
 
 
