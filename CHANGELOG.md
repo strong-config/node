@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.28](https://github.com/strong-config/node/compare/v0.2.27...v0.2.28) (2020-06-02)
+
+
+### Bug Fixes
+
+* **ci:** include oclif manifest in files-array in package.json so it will not only be available in development mode ([1a8504d](https://github.com/strong-config/node/commit/1a8504dfaee02705d1b58981bfda1faa7004bb80))
+
 ### [0.2.27](https://github.com/strong-config/node/compare/v0.2.26...v0.2.27) (2020-06-02)
 
 
