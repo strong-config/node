@@ -5,6 +5,9 @@ lib
 dist
 build
 
+# This file gets bundled with the npm package but it interferes with local development so we don't want to have it locally
+oclif.manifest.json
+
 # Default output for generated types when strongConfig.load() is called
 strong-config.d.ts
 

@@ -88,8 +88,6 @@ jobs:
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
 
-      - run: yarn build
-
       - name: Configure git for pushing back auto-generated CHANGELOG
         run: |
           git config user.name "${GIT_USER_NAME}"

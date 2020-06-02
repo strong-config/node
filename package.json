@@ -42,8 +42,6 @@
     "lint:json": "jsonlint-cli package.json src/**/*.json",
     "lint:markdown": "markdownlint **/*.md --ignore node_modules --ignore CHANGELOG.md --ignore .gitlab",
     "lint:yaml": "yamllint **/*.yaml **/*.yml --ignore=node_modules/**/*.yaml --ignore=node_modules/**/*.yml",
-    "release": "npx standard-version",
-    "postrelease": "oclif-dev manifest && git add oclif.manifest.json && git commit -m 'chore: auto-update oclif.manifest.json'",
     "test": "jest --color",
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "watch": "tsc --watch",
@@ -57,7 +55,10 @@
     "dev:load": "yarn dev:load:es6",
     "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
     "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
-    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'"
+    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'",
+    "release": "npx standard-version",
+    "prepack": "yarn clean && yarn build && oclif-dev manifest",
+    "postpack": "rimraf oclif.manifest.json"
   },
   "dependencies": {
     "@oclif/command": "^1.5.19",
