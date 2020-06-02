@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.29](https://github.com/strong-config/node/compare/v0.2.28...v0.2.29) (2020-06-02)
+
+
+### Bug Fixes
+
+* **ci:** manifest generation actually needs to happen POSTrelease as it depends on an up-to-date version number which is bumped in the release-step ([fd3864b](https://github.com/strong-config/node/commit/fd3864bb177a9b034d17d4e4fd91c7ee0eba31ae))
+
 ### [0.2.28](https://github.com/strong-config/node/compare/v0.2.27...v0.2.28) (2020-06-02)
 
 
