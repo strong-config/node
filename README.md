@@ -2,12 +2,6 @@
 
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 
-<!-- markdownlint-disable line-length -->
-
-[![coverage report](https://git.brickblock.sh/devops/strong-config-ts-mirror/badges/master/coverage.svg)](https://git.brickblock.sh/devops/strong-config-ts-mirror/commits/master)
-
-<!-- markdownlint-enable line-length -->
-
 Simple, safe and secure config management for NodeJS. Based on [SOPS](https://github.com/mozilla/sops).
 
 Have you ever struggled with different config values across local, CI,
