@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.30](https://github.com/strong-config/node/compare/v0.2.29...v0.2.30) (2020-06-02)
+
+
+### Features
+
+* **encrypt:** small error handling improvements when using sops with GCP KMS as the key provider ([82eed6b](https://github.com/strong-config/node/commit/82eed6b4e4d5f017d124a14cbe443d344770072a))
+
 ### [0.2.29](https://github.com/strong-config/node/compare/v0.2.28...v0.2.29) (2020-06-02)
 
 
