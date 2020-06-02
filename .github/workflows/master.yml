@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - 'package.json'
       - 'CHANGELOG.md'
+      - 'oclif.manifest.json'
 
 env:
   GIT_USER_NAME: brickblock-bot
