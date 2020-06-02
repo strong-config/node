@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.31](https://github.com/strong-config/node/compare/v0.2.30...v0.2.31) (2020-06-02)
+
+
+### Features
+
+* **cli:** added “yarn check-encrypt” (alias: “yarn check”) command to ensure that config files are encrypted ([477a04c](https://github.com/strong-config/node/commit/477a04c08f1b3a2f9446ef56194980be01c8fc5a))
+
+
+### Bug Fixes
+
+* unignore example files to add new config-fixture required by tests ([98405d6](https://github.com/strong-config/node/commit/98405d608f089ae65979f899d0ffec5d74923b2d))
+
 ### [0.2.30](https://github.com/strong-config/node/compare/v0.2.29...v0.2.30) (2020-06-02)
 
 
