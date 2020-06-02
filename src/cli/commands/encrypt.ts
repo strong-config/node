@@ -34,7 +34,13 @@ const encrypt = (
     )
 
     if (error.exitCode === 203) {
-      console.log(`🤔 It looks like ${args.config_file} is already encrypted`)
+      console.log(
+        `🤔 It looks like ${args.config_file} is already encrypted!\n`
+      )
+    }
+
+    if (error.stderr?.includes('GCP')) {
+      console.log(`🌩 Google Cloud KMS Error:\n${error.stderr}`)
     }
 
     process.exit(1)

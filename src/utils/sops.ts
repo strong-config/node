@@ -30,13 +30,7 @@ export const runSopsWithOptions = (options: string[]): string => {
     throw new Error(sopsErrors['SOPS_NOT_FOUND'])
   }
 
-  let sopsResult
-  try {
-    sopsResult = sync(sopsBinary, options)
-  } catch (error) {
-    console.error(error)
-    throw new Error(error)
-  }
+  const sopsResult = sync(sopsBinary, options)
 
   switch (sopsResult.exitCode) {
     case 0:
