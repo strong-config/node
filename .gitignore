@@ -11,11 +11,8 @@ oclif.manifest.json
 # Default output for generated types when strongConfig.load() is called
 strong-config.d.ts
 
-# Example files except the provided config, schema, and keypair
-example/*
-!example/development.yaml
-!example/schema.yaml
-!example/pgp/*
+# Auto-generated example types file
+example/types.d.ts
 
 # Logs
 logs
