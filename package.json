@@ -44,7 +44,7 @@
     "lint:yaml": "yamllint **/*.yaml **/*.yml --ignore=node_modules/**/*.yaml --ignore=node_modules/**/*.yml",
     "test": "jest --color",
     "todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
-    "watch": "tsc --watch",
+    "watch": "tsc --watch -p tsconfig.build.json",
     "clean": "rimraf lib",
     "build": "tsc -p tsconfig.build.json",
     "dev:importkey": "gpg --import --quiet example/pgp/example-keypair.pgp",
