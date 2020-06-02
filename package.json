@@ -7,7 +7,8 @@
   "files": [
     "/bin",
     "/lib",
-    "postinstall.js"
+    "postinstall.js",
+    "oclif.manifest.json"
   ],
   "bin": {
     "strong-config": "./bin/run"
