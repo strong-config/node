@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.27](https://github.com/strong-config/node/compare/v0.2.26...v0.2.27) (2020-06-02)
+
+
+### Bug Fixes
+
+* **ci:** also commit oclif.manifest.json during auto-release process ([10e06b4](https://github.com/strong-config/node/commit/10e06b4c9eaf2e8193341b133feda9b1b2aa83f5))
+
 ### [0.2.26](https://github.com/strong-config/node/compare/v0.2.25...v0.2.26) (2020-06-02)
 
 ### [0.2.25](https://github.com/strong-config/node/compare/v0.2.24...v0.2.25) (2020-06-02)
