@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "files": [
     "/bin",
-    "/lib"
+    "/lib",
+    "postinstall.js"
   ],
   "bin": {
     "strong-config": "./bin/run"
