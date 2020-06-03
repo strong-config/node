@@ -78,12 +78,24 @@ async function runBuild(): Promise<void> {
 }
 
 async function runDevScripts(): Promise<void> {
-  const spinner = ora('Running dev scripts...').start()
+  const spinner = ora('Running Dev Scripts...').start()
 
   try {
+    spinner.text = 'Running Dev Scripts: yarn dev:load:es6'
     await run('yarn dev:load:es6')
+    spinner.text = 'Running Dev Scripts: yarn dev:load:commonjs'
     await run('yarn dev:load:commonjs')
+    spinner.text = 'Running Dev Scripts: yarn dev:decrypt'
+    await run('yarn dev:decrypt')
+    spinner.text = 'Running Dev Scripts: yarn dev:encrypt'
+    await run('yarn dev:encrypt')
+
+    // NOTE: This is necessary to not always bump the timestamps and therefore change the file everytime we run health checks
+    await run('git checkout example/development.yaml')
+    spinner.text = 'Running Dev Scripts: yarn dev:validate'
     await run('yarn dev:validate')
+    spinner.text = 'Running Dev Scripts: yarn dev:check'
+    await run('yarn dev:check')
     spinner.succeed(chalk.bold('Dev Scripts'))
   } catch (error) {
     spinner.fail(chalk.bold('Dev Scripts'))
