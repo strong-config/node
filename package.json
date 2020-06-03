@@ -32,8 +32,6 @@
     }
   },
   "scripts": {
-    "postinstall:comment1": "Don't run the sops-install script in the context of this repo, otherwise it would run everytime we 'yarn add' something",
-    "postinstall:comment2": "In the context of other applications installing the strong-config package, only run the sops-install script if the sops binary is not available in the runtime environment",
     "postinstall": "node postinstall.js",
     "health": "ts-node --transpile-only scripts/healthcheck.ts",
     "lint": "yarn lint:ts && yarn lint:json && yarn lint:markdown && yarn lint:yaml",

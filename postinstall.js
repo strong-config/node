@@ -1,3 +1,10 @@
+/*
+ * EXPLAINER
+ * This script contains logic to NOT run in the context of this repo, otherwise it would run everytime we 'yarn add' something in development.
+ * In the context of other applications, installing the package via 'yarn add @strong-config/node' will run this script to install the sops binary.
+ * Unless sops is already installed, then it will opt out and exit early with code 0.
+ */
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 const fetch = require('node-fetch')
 const ora = require('ora')
