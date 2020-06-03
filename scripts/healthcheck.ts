@@ -31,7 +31,7 @@ async function runTests(): Promise<void> {
   const spinner = ora('Running tests...').start()
 
   try {
-    await run('CI=true yarn test --coverage')
+    await run('yarn test --coverage')
     spinner.succeed(chalk.bold('Tests'))
   } catch (error) {
     spinner.fail(chalk.bold('Tests'))
@@ -47,7 +47,7 @@ async function runBuild(): Promise<void> {
     await run('yarn build:clean')
 
     spinner.text = 'Building...'
-    await run('CI=true yarn build')
+    await run('yarn build')
 
     spinner.text = 'Checking generated TypeScript declarations...'
     if (!fs.existsSync(path.resolve('./lib/index.d.ts'))) {
