@@ -13,6 +13,6 @@ module.exports = {
     'pre-commit': 'lint-staged',
     'pre-push:comment':
       'Run healthcheck on prepush to ensure no bad code makes it to GitLab',
-    'pre-push': 'yarn health',
+    'pre-push': 'yarn report:health',
   },
 }

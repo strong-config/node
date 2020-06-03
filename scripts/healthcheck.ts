@@ -44,7 +44,7 @@ async function runBuild(): Promise<void> {
 
   try {
     spinner.text = 'Cleaning previous build files...'
-    await run('yarn clean')
+    await run('yarn build:clean')
 
     spinner.text = 'Building...'
     await run('CI=true yarn build')
@@ -97,7 +97,7 @@ async function printTodos(): Promise<void> {
   let todos
 
   try {
-    todos = await run('yarn todo')
+    todos = await run('yarn report:todo')
     spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))
