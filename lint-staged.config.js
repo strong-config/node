@@ -3,6 +3,6 @@ module.exports = {
   '*.json': ['eslint --fix'],
   '*.{yaml,yml}': ['eslint --fix'],
   'example/*.{yaml,yml}': ['strong-config validate --config-root example'],
-  '*.md': ['markdownlint --ignore CHANGELOG.md --ignore node_modules'],
+  '*.md': ['markdownlint --ignore CHANGELOG.md'],
   'example/development.yaml': ['strong-config check example/development.yaml'],
 }
