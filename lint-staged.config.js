@@ -4,4 +4,5 @@ module.exports = {
   '*.{yaml,yml}': ['eslint --fix'],
   'example/*.{yaml,yml}': ['strong-config validate --config-root example'],
   '*.md': ['markdownlint --ignore CHANGELOG.md --ignore node_modules'],
+  'example/development.yaml': ['strong-config check example/development.yaml'],
 }
