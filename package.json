@@ -2,6 +2,10 @@
   "name": "@strong-config/node",
   "version": "0.2.31",
   "description": "SOPS-based secret management tool for Node.js",
+  "repository": "git@github.com:strong-config/node.git",
+  "bugs": "https://github.com/strong-config/node/issues",
+  "author": "Brickblock Engineering <dev@brickblock.io>",
+  "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -27,10 +31,6 @@
       "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     }
   },
-  "repository": "git@github.com:strong-config/node.git",
-  "bugs": "https://github.com/strong-config/node/issues",
-  "author": "Brickblock Engineering <dev@brickblock.io>",
-  "license": "MIT",
   "scripts": {
     "postinstall:comment1": "Don't run the sops-install script in the context of this repo, otherwise it would run everytime we 'yarn add' something",
     "postinstall:comment2": "In the context of other applications installing the strong-config package, only run the sops-install script if the sops binary is not available in the runtime environment",
