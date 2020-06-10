@@ -1,8 +1,9 @@
+#!/usr/bin/env node
+import * as fs from 'fs'
+import * as path from 'path'
 import chalk from 'chalk'
 import ora from 'ora'
 import { exec } from 'shelljs'
-import * as fs from 'fs'
-import * as path from 'path'
 
 function run(command: string, options = { silent: true }): Promise<unknown> {
   return new Promise((resolve, reject): void => {
@@ -50,6 +51,7 @@ async function runBuild(): Promise<void> {
     await run('yarn build')
 
     spinner.text = 'Checking generated TypeScript declarations...'
+
     if (!fs.existsSync(path.resolve('./lib/index.d.ts'))) {
       throw new Error(
         "Couldn't find TypeScript declaration files in build output.\nMake sure that `declaration: true` is set in `tsconfig.json`"
@@ -57,6 +59,7 @@ async function runBuild(): Promise<void> {
     }
 
     spinner.text = 'Checking generated sourcemaps...'
+
     if (!fs.existsSync(path.resolve('./lib/index.d.ts.map'))) {
       throw new Error(
         "Couldn't find sourcemaps for TypeScript declaration files in build output.\nMake sure that `declarationMap: true` is set in `tsconfig.json`"
@@ -64,6 +67,7 @@ async function runBuild(): Promise<void> {
     }
 
     spinner.text = 'Checking that tests are excluded from build output...'
+
     if (fs.existsSync(path.resolve('./lib/index.test.ts'))) {
       throw new Error(
         "Detected test files in build files. Make sure to exclude `src/**/*.test.ts` from the build output via TypeScript's `exclude` option"
@@ -109,7 +113,7 @@ async function printTodos(): Promise<void> {
   let todos
 
   try {
-    todos = await run('yarn report:todo')
+    todos = (await run('yarn report:todo')) as string
     spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))

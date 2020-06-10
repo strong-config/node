@@ -2,8 +2,8 @@ jest.mock('./validate')
 jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
-import Decrypt from './decrypt'
 import { stdout } from 'stdout-stderr'
+import { Decrypt } from './decrypt'
 
 import { validateCliWrapper } from './validate'
 import {
@@ -59,8 +59,18 @@ describe('strong-config decrypt', () => {
       try {
         stdout.start()
         await Decrypt.run(['--help'])
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+      } catch (error) {
         stdout.stop()
-      } catch (error) {}
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')
@@ -72,8 +82,18 @@ describe('strong-config decrypt', () => {
       try {
         stdout.start()
         await Decrypt.run(['some/config/file.yaml', '--help'])
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+      } catch (error) {
         stdout.stop()
-      } catch (error) {}
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')

@@ -1,7 +1,7 @@
-import { ConfigFileExtensions } from './../options'
-import { compose, last, split, reject } from 'ramda'
 import { resolve } from 'path'
+import { compose, last, reject, split } from 'ramda'
 import { sync } from 'glob'
+import { ConfigFileExtensions } from './../options'
 
 import { getFileExtensionPattern } from './read-file'
 
@@ -20,9 +20,10 @@ export const findFiles = (
   globFileExtension = '*'
 ): string[] => {
   let globPattern
+
   if (
-    Object.values(ConfigFileExtensions).find((ext) =>
-      globFileName.endsWith(ext)
+    Object.values(ConfigFileExtensions).find((extension) =>
+      globFileName.endsWith(extension)
     )
   ) {
     globPattern = globFileName

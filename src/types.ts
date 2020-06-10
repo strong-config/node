@@ -1,7 +1,9 @@
 type JSON = string | number | boolean | null | JSON[] | JSONObject
+
 export type JSONObject = { [key: string]: JSON }
 
 export type BaseConfig = JSONObject
+
 export type Schema = JSONObject
 
 type SopsMetadata = {
@@ -16,6 +18,9 @@ type SopsMetadata = {
 }
 
 export type EncryptedConfig = { sops?: SopsMetadata } & BaseConfig
+
 export type DecryptedConfig = Omit<BaseConfig, 'sops'>
+
 export type HydratedConfig = { runtimeEnv: string } & DecryptedConfig
+
 export type MemoizedConfig = HydratedConfig | undefined

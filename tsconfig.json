@@ -13,5 +13,5 @@
     "target": "es6",
     "lib": ["es6"]
   },
-  "include": ["src", "scripts"]
+  "include": ["src", "scripts", "example"]
 }

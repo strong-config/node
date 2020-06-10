@@ -1,5 +1,6 @@
+#!/usr/bin/env node
 import { generateTypeFromSchema } from './../../utils/generate-type-from-schema'
-import { Command, flags } from '@oclif/command'
+import { Command, flags as Flags } from '@oclif/command'
 
 import {
   startSpinner,
@@ -16,16 +17,16 @@ export default class GenerateTypes extends Command {
   static strict = true
 
   static flags = {
-    help: flags.help({
+    help: Flags.help({
       char: 'h',
       description: 'show help',
     }),
-    'config-root': flags.string({
+    'config-root': Flags.string({
       char: 'c',
       description: 'your config folder containing your schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: flags.boolean({
+    verbose: Flags.boolean({
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
@@ -40,7 +41,7 @@ export default class GenerateTypes extends Command {
     '$ generate-types -c ./some/sub/folder/config',
   ]
 
-  async run(): Promise<void> {
+  run(): Promise<void> {
     const { flags } = this.parse(GenerateTypes)
     startSpinner('Generating types...')
 
@@ -54,9 +55,22 @@ export default class GenerateTypes extends Command {
       process.exit(1)
     } else {
       if (defaultOptions.types) {
-        await generateTypeFromSchema(flags['config-root'], defaultOptions.types)
-        succeedSpinner(
-          `Successfully generated types to '${flags['config-root']}/${defaultOptions.types.fileName}'`
+        generateTypeFromSchema(
+          flags['config-root'],
+          defaultOptions.types,
+          (error) => {
+            if (error) {
+              failSpinner(
+                "Couldn't generate types from schema",
+                error,
+                getVerbosityLevel(flags.verbose)
+              )
+            }
+
+            succeedSpinner(
+              `Successfully generated types to '${flags['config-root']}/${defaultOptions.types.fileName}'`
+            )
+          }
         )
       }
 

@@ -1,15 +1,15 @@
-import { isNil } from 'ramda'
 import { normalize } from 'path'
+import { isNil } from 'ramda'
 import { JSONSchema4 } from 'json-schema'
 
 import * as sops from './utils/sops'
-import { defaultOptions, ConfigFileExtensions } from './options'
+import { ConfigFileExtensions, defaultOptions } from './options'
 
 // Utils
 import { findConfigFilesAtPath } from './utils/find-files'
 import { readSchemaFile } from './utils/read-file'
 import { getFileFromPath } from './utils/get-file-from-path'
-import validateJsonAgainstSchema from './utils/validate-json-against-schema'
+import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 
 export const validate = (
   fileName: string,
@@ -17,9 +17,9 @@ export const validate = (
 ): true => {
   /* istanbul ignore next: no need to test that a node built-in works correctly */
   const normalizedConfigRoot = normalize(configRoot)
-  const normalizedFileName = Object.values(ConfigFileExtensions).find((ext) =>
-    fileName.endsWith(ext)
-  )
+  const normalizedFileName = Object.values(
+    ConfigFileExtensions
+  ).find((extension) => fileName.endsWith(extension))
     ? fileName
     : findConfigFilesAtPath(normalizedConfigRoot, fileName)[0]
 
@@ -38,6 +38,7 @@ export const validate = (
   }
 
   let schema
+
   if (schemaFile.contents.title !== 'Schema for strong-config options') {
     /*
      * Here we add the 'runtimeEnv' prop to the user's schema because we also
@@ -60,5 +61,3 @@ export const validate = (
 
   return validateJsonAgainstSchema(decryptedConfig, schema)
 }
-
-export default validate

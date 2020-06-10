@@ -1,17 +1,18 @@
-jest.mock('./load')
-jest.mock('./validate')
-jest.mock('./options/validate-options')
-
 import { load } from './load'
 import { validate } from './validate'
-import validateOptions from './options/validate-options'
 import { defaultOptions } from './options'
+import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
+import optionsSchema from './options/schema.json'
+import StrongConfig = require('.')
 
 const mockedLoad = load as jest.MockedFunction<typeof load>
 const mockedValidate = validate as jest.MockedFunction<typeof validate>
 const mockedValidateOptions = validateOptions as jest.MockedFunction<
   typeof validateOptions
 >
+jest.mock('./load')
+jest.mock('./validate')
+jest.mock('./utils/validate-json-against-schema')
 
 const runtimeEnv = process.env.NODE_ENV || 'test'
 const mockedConfig = { some: 'config', runtimeEnv }

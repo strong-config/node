@@ -1,6 +1,7 @@
-import { JSONObject, EncryptedConfig } from './../../types'
+#!/usr/bin/env node
+import { Command, flags as Flags } from '@oclif/command'
+import type { JSONObject, EncryptedConfig } from './../../types'
 import { getFileFromPath } from '../../utils/get-file-from-path'
-import { Command, flags } from '@oclif/command'
 import { pathExistsSync } from 'fs-extra'
 import fastGlob from 'fast-glob'
 import defaultOptions from '../../options'
@@ -19,7 +20,7 @@ export const checkAllConfigFiles = async (flags: Flags): Promise<void> => {
   const globPattern = `${flags['config-root']}/**/*.{yml,yaml}`
   const configFiles = await fastGlob(globPattern)
 
-  if (!configFiles.length) {
+  if (configFiles.length === 0) {
     failSpinner(`Found no config files in '${globPattern}'.\n`, new Error())
     process.exit(1)
   }
@@ -45,6 +46,7 @@ export const checkOneConfigFile = (path: string, flags: Flags): boolean => {
       // FIXME: Remove need to pass an error object to failSpinner()
       new Error()
     )
+
     return false
   }
 
@@ -54,16 +56,17 @@ export const checkOneConfigFile = (path: string, flags: Flags): boolean => {
     succeedSpinner(
       `Secrets in ${path} are safely encrypted${
         flags.verbose
-          ? `:\n${JSON.stringify(configFile.contents, null, 2)}`
+          ? `:\n${JSON.stringify(configFile.contents, undefined, 2)}`
           : ''
       }`
     )
+
     return true
   } else {
     failSpinner(
       `Secrets in ${path} are NOT encrypted${
         flags.verbose
-          ? `:\n${JSON.stringify(configFile.contents, null, 2)}`
+          ? `:\n${JSON.stringify(configFile.contents, undefined, 2)}`
           : ''
       }`,
       new Error(),
@@ -86,17 +89,17 @@ export default class CheckEncryption extends Command {
   static strict = true
 
   static flags = {
-    help: flags.help({
+    help: Flags.help({
       char: 'h',
       description: 'show help',
     }),
-    'config-root': flags.string({
+    'config-root': Flags.string({
       char: 'c',
       description:
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: flags.boolean({
+    verbose: Flags.boolean({
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,

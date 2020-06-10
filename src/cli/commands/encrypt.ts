@@ -1,4 +1,5 @@
-import { Command, flags } from '@oclif/command'
+#!/usr/bin/env node
+import { Command, flags as Flags } from '@oclif/command'
 
 import {
   startSpinner,
@@ -15,10 +16,9 @@ const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']
 
 const encrypt = (
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  args: Record<string, any>,
+  args: Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flags: Record<string, any>
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 ): void => {
   startSpinner('Encrypting...')
 
@@ -33,14 +33,21 @@ const encrypt = (
       getVerbosityLevel(flags.verbose)
     )
 
-    if (error.exitCode === 203) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
+    if (error.exitCode && error.exitCode === 203) {
       console.log(
         `🤔 It looks like ${args.config_file} is already encrypted!\n`
       )
     }
 
-    if (error.stderr?.includes('GCP')) {
-      console.log(`🌩 Google Cloud KMS Error:\n${error.stderr}`)
+    if (
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- i don't know how to make this any safer for typescript */
+      error.stderr &&
+      typeof error.stderr === 'string' &&
+      error.stderr?.includes('GCP')
+    ) {
+      console.log(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
     }
 
     process.exit(1)
@@ -55,42 +62,42 @@ export default class Encrypt extends Command {
   static strict = true
 
   static flags = {
-    help: flags.help({
+    help: Flags.help({
       char: 'h',
       description: 'show help',
     }),
-    'config-root': flags.string({
+    'config-root': Flags.string({
       char: 'c',
       description:
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: flags.boolean({
+    verbose: Flags.boolean({
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
     }),
-    'key-provider': flags.string({
+    'key-provider': Flags.string({
       char: 'p',
       description: 'key provider to use to encrypt secrets',
       required: true,
       options: SUPPORTED_KEY_PROVIDERS,
       dependsOn: ['key-id'],
     }),
-    'key-id': flags.string({
+    'key-id': Flags.string({
       char: 'k',
       description: 'reference to a unique key managed by the key provider',
       required: true,
       dependsOn: ['key-provider'],
     }),
-    'encrypted-key-suffix': flags.string({
+    'encrypted-key-suffix': Flags.string({
       char: 'e',
       description: 'key suffix determining the values to be encrypted',
       required: false,
       default: DEFAULT_ENCRYPTED_KEY_SUFFIX,
       exclusive: ['unencrypted-key-suffix'],
     }),
-    'unencrypted-key-suffix': flags.string({
+    'unencrypted-key-suffix': Flags.string({
       char: 'u',
       description: 'key suffix determining the values to be NOT encrypted',
       required: false,
@@ -122,7 +129,7 @@ export default class Encrypt extends Command {
     '$ encrypt --help',
   ]
 
-  async run(): Promise<void> {
+  run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
 
     if (readSchemaFile(flags['config-root'])) {

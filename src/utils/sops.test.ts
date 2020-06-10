@@ -1,9 +1,9 @@
-import execa from 'execa'
+import execa, { ExecaSyncReturnValue } from 'execa'
 import yaml from 'js-yaml'
 import { dissoc } from 'ramda'
-import { EncryptedConfig, DecryptedConfig } from '../types'
-import { ExecaSyncReturnValue } from 'execa'
-import { decryptToObject, decryptInPlace } from './sops'
+import { DecryptedConfig, EncryptedConfig } from '../types'
+
+import { decryptInPlace, decryptToObject } from './sops'
 
 describe('utils :: sops', () => {
   const configFilePathMock = './config/development.yaml'
@@ -56,7 +56,7 @@ describe('utils :: sops', () => {
     it('calls the sops binary to decrypt when SOPS metadata is present', () => {
       decryptToObject(configFilePathMock, encryptedConfigMock)
 
-      expect(execa.sync).toHaveBeenCalledWith('sops', [
+      expect(execaSyncMock).toHaveBeenCalledWith('sops', [
         '--decrypt',
         configFilePathMock,
       ])
@@ -91,7 +91,7 @@ describe('utils :: sops', () => {
     it('calls the SOPS binary with the flag "--in-place"', () => {
       decryptInPlace(configFilePathMock)
 
-      expect(execa.sync).toHaveBeenCalledWith(
+      expect(execaSyncMock).toHaveBeenCalledWith(
         'sops',
         expect.arrayContaining(['--in-place'])
       )

@@ -4,7 +4,7 @@ jest.mock('./get-file-from-path')
 import fs from 'fs'
 import { findConfigFilesAtPath, isJson } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
-import { readConfigFile, readSchemaFile, File } from './read-file'
+import { File, readConfigFile, readSchemaFile } from './read-file'
 
 // Mocks
 const mockedFsExistsSync = fs.existsSync as jest.MockedFunction<
@@ -79,7 +79,7 @@ describe('readSchemaFile()', () => {
     it('returns null when input is not a JSON file', () => {
       mockedIsJson.mockReturnValueOnce(false)
 
-      expect(readSchemaFile('not-a-json-file.yaml')).toBeNull()
+      expect(readSchemaFile('not-a-json-file.yaml')).toBeUndefined()
     })
   })
 

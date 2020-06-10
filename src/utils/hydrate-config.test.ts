@@ -1,6 +1,6 @@
 jest.mock('./substitute-with-env')
-import { substituteWithEnv } from './substitute-with-env'
 import { defaultOptions } from '../options'
+import { substituteWithEnv } from './substitute-with-env'
 
 const mockedSubstituteWithEnv = substituteWithEnv as jest.MockedFunction<
   typeof substituteWithEnv

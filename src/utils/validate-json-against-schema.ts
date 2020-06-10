@@ -16,5 +16,3 @@ export const validateJsonAgainstSchema = (
 
   return true
 }
-
-export default validateJsonAgainstSchema

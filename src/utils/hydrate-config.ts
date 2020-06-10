@@ -1,8 +1,8 @@
-import { compose, assoc, unary } from 'ramda'
-import { substituteWithEnv } from './substitute-with-env'
+import { assoc, compose, unary } from 'ramda'
 
 import { DecryptedConfig, HydratedConfig } from '../types'
 import { Options } from '../options'
+import { substituteWithEnv } from './substitute-with-env'
 
 export type InnerHydrateFunction = (
   decryptedConfig: DecryptedConfig

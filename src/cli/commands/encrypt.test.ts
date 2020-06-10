@@ -64,8 +64,18 @@ describe('strong-config encrypt', () => {
       try {
         stdout.start()
         await Encrypt.run(['--help'])
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+      } catch (error) {
         stdout.stop()
-      } catch (e) {}
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')
@@ -81,8 +91,18 @@ describe('strong-config encrypt', () => {
           '--help',
           ...requiredKeyFlags,
         ])
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+      } catch (error) {
         stdout.stop()
-      } catch (error) {}
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')

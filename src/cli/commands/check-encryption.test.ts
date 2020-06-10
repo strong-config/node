@@ -4,7 +4,7 @@ import { stdout } from 'stdout-stderr'
 import * as x from '../../utils/get-file-from-path'
 import { getFileFromPath } from './../../utils/get-file-from-path'
 import * as spinner from '../spinner'
-import CheckEncryption, * as y from './check-encryption'
+import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {
   // Fixtures
@@ -72,6 +72,7 @@ describe('strong-config check-encryption', () => {
 
     describe('when in verbose mode', () => {
       const stringifySpy = jest.spyOn(JSON, 'stringify')
+
       beforeEach(() => {
         stringifySpy.mockReset()
       })
@@ -85,18 +86,17 @@ describe('strong-config check-encryption', () => {
         await CheckEncryption.run([encryptedConfigPath, '-v'])
         expect(stringifySpy).toHaveBeenCalledWith(
           encryptedConfigFile.contents,
-          null,
+          undefined,
           2
         )
       })
 
       it('should print out the contents of unencrypted config files to the terminal', async () => {
-        const stringifySpy = jest.spyOn(JSON, 'stringify')
         const unencryptedConfigFile = getFileFromPath(unencryptedConfigPath)
         await CheckEncryption.run([unencryptedConfigPath, '-v'])
         expect(stringifySpy).toHaveBeenCalledWith(
           unencryptedConfigFile.contents,
-          null,
+          undefined,
           2
         )
       })
@@ -132,8 +132,7 @@ describe('strong-config check-encryption', () => {
         expect(failSpinnerSpy).toHaveBeenNthCalledWith(
           1,
           'Secrets in ./example/unencrypted.yml are NOT encrypted',
-          new Error(),
-          undefined
+          new Error()
         )
         expect(failSpinnerSpy).toHaveBeenNthCalledWith(
           2,

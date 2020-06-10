@@ -45,7 +45,18 @@ describe('strong-config validate', () => {
         stdout.start()
         await Validate.run(['--help'])
         stdout.stop()
-      } catch (error) {}
+      } catch (error) {
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+        stdout.stop()
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')
@@ -58,7 +69,18 @@ describe('strong-config validate', () => {
         stdout.start()
         await Validate.run([configFile, '--help'])
         stdout.stop()
-      } catch (error) {}
+      } catch (error) {
+        /*
+         * NOTE: For some reason oclif throws when running the help command
+         * so we need to catch the (non-)error for the test to pass
+         */
+        stdout.stop()
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
+        if (error.oclif?.exit !== 0) {
+          console.error(error)
+        }
+      }
 
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('ARGUMENTS')

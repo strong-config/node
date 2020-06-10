@@ -1,13 +1,14 @@
-import { Command, flags } from '@oclif/command'
+#!/usr/bin/env node
+import { Command, flags as Flags } from '@oclif/command'
 
-import validate from '../../validate'
 import {
   startSpinner,
   failSpinner,
   succeedSpinner,
   VerbosityLevel,
 } from '../spinner'
-import { defaultOptions } from './../../options/index'
+import { validate } from '../../validate'
+import { defaultOptions } from './../../options'
 
 export const validateCliWrapper = (
   configFile: string,
@@ -37,17 +38,17 @@ export default class Validate extends Command {
   static strict = true
 
   static flags = {
-    'config-root': flags.string({
+    'config-root': Flags.string({
       char: 'c',
       description:
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    help: flags.help({
+    help: Flags.help({
       char: 'h',
       description: 'show help',
     }),
-    verbose: flags.boolean({
+    verbose: Flags.boolean({
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
@@ -67,7 +68,7 @@ export default class Validate extends Command {
 
   static examples = ['$ validate config/development.yaml', '$ validate --help']
 
-  async run(): Promise<void> {
+  run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
     const verbosityLevel = flags.verbose ? 2 : 1
 

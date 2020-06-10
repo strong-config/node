@@ -4,7 +4,7 @@ import { load } from 'js-yaml'
 import { has, isNil } from 'ramda'
 import which from 'which'
 
-import type { EncryptedConfig, DecryptedConfig } from '../types'
+import type { DecryptedConfig, EncryptedConfig } from '../types'
 
 function getSopsBinary(): string | undefined {
   if (which.sync('sops', { nothrow: true })) {
@@ -15,7 +15,7 @@ function getSopsBinary(): string | undefined {
     return './sops'
   }
 
-  return undefined
+  return
 }
 
 const sopsErrors = {
@@ -57,7 +57,8 @@ export const decryptToObject = (
 
   const sopsResult = runSopsWithOptions(['--decrypt', filePath])
 
-  return load(sopsResult)
+  // We should be able to safely typecast this because runSopsWithOptions() should have already failed if it couldn't decrypt the config
+  return load(sopsResult) as DecryptedConfig
 }
 
 export const decryptInPlace = (filePath: string): void =>
@@ -69,7 +70,7 @@ export const getSopsOptions = (
   flags: Record<string, any>
   /* eslint-enable @typescript-eslint/no-explicit-any */
 ): string[] => {
-  const options = []
+  const options: string[] = []
 
   if (args['output_path']) {
     options.push('--output', args['output_path'])
@@ -77,7 +78,11 @@ export const getSopsOptions = (
     options.push('--in-place')
   }
 
-  if (flags['key-provider'] && flags['key-id']) {
+  if (
+    flags['key-provider'] &&
+    typeof flags['key-provider'] === 'string' &&
+    flags['key-id']
+  ) {
     switch (flags['key-provider']) {
       case 'pgp':
         options.push('--pgp')
@@ -95,11 +100,14 @@ export const getSopsOptions = (
         // Should not be reached as we define possible options in Encrypt.flags (commands/encrypt.ts)
         throw new Error(`Unsupported key provider ${flags['key-provider']}`)
     }
+
     options.push(flags['key-id'])
   }
 
-  // Note that --unencrypted-key-suffix and --encrypted-key-suffix
-  // are mutual exclusive in both strong-config and SOPS.
+  /*
+   * Note that --unencrypted-key-suffix and --encrypted-key-suffix
+   * are mutual exclusive in both strong-config and SOPS.
+   */
   if (flags['unencrypted-key-suffix'] !== undefined) {
     options.push('--unencrypted-suffix', flags['unencrypted-key-suffix'])
   } else if (flags['encrypted-key-suffix'] !== undefined) {

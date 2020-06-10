@@ -1,8 +1,8 @@
 jest.mock('glob')
 jest.mock('path')
 jest.mock('./read-file')
-import glob from 'glob'
 import path from 'path'
+import glob from 'glob'
 import { getFileExtensionPattern } from './read-file'
 const mockedGlob = glob as jest.Mocked<typeof glob>
 const mockedPath = path as jest.Mocked<typeof path>

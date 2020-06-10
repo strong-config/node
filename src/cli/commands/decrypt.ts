@@ -1,4 +1,5 @@
-import { Command, flags } from '@oclif/command'
+#!/usr/bin/env node
+import { Command, flags as Flags } from '@oclif/command'
 
 import {
   startSpinner,
@@ -12,10 +13,9 @@ import { readSchemaFile } from '../../utils/read-file'
 import defaultOptions from '../../options'
 
 const decrypt = (
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  args: Record<string, any>,
+  args: Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flags: Record<string, any>
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 ): void => {
   startSpinner('Decrypting...')
 
@@ -30,7 +30,8 @@ const decrypt = (
       getVerbosityLevel(flags.verbose)
     )
 
-    if (error.exitCode === 1) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
+    if (error.exitCode && error.exitCode === 1) {
       console.log(`🤔 It looks like ${args.config_file} is already decrypted`)
     }
 
@@ -46,17 +47,17 @@ export default class Decrypt extends Command {
   static strict = true
 
   static flags = {
-    help: flags.help({
+    help: Flags.help({
       char: 'h',
       description: 'show help',
     }),
-    'config-root': flags.string({
+    'config-root': Flags.string({
       char: 'c',
       description:
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: flags.boolean({
+    verbose: Flags.boolean({
       char: 'v',
       description: 'print stack traces in case of errors',
       default: false,
@@ -86,7 +87,7 @@ export default class Decrypt extends Command {
     '$ decrypt --help',
   ]
 
-  async run(): Promise<void> {
+  run(): Promise<void> {
     const { args, flags } = this.parse(Decrypt)
 
     decrypt(args, flags)

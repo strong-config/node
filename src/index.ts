@@ -1,10 +1,10 @@
 import { isNil } from 'ramda'
+import type { JSONObject, MemoizedConfig } from './types'
 import { load } from './load'
 import { validate } from './validate'
-import validateOptions from './options/validate-options'
-
-import { MemoizedConfig } from './types'
 import { defaultOptions, Options } from './options'
+import optionsSchema from './options/schema.json'
+import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 
 export = class StrongConfig {
   public readonly options: Options
@@ -24,7 +24,7 @@ export = class StrongConfig {
     this.runtimeEnv = process.env[this.options.runtimeEnvName]
   }
 
-  private checkRuntimeEnv(): void {
+  private checkRuntimeEnv = (): void => {
     if (isNil(this.runtimeEnv)) {
       throw new Error(
         `[💪 strong-config] Can't load config: process.env.${this.options.runtimeEnvName} is undefined.
@@ -34,24 +34,24 @@ export = class StrongConfig {
     }
   }
 
-  public load(): ReturnType<typeof load> {
+  public load = (): ReturnType<typeof load> => {
     this.checkRuntimeEnv()
 
     if (this.config) {
       return this.config
     }
 
-    /* eslint-disable-next-line */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because we're checking for 'undefined' in this.checkRuntimeEnv() already
     this.config = load(this.runtimeEnv, this.options)
 
     return this.config
   }
 
-  public validate(): ReturnType<typeof validate> {
+  public validate = (): ReturnType<typeof validate> => {
     this.checkRuntimeEnv()
 
-    /* eslint-disable-next-line */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because we're checking for 'undefined' in this.checkRuntimeEnv() already
     return validate(this.runtimeEnv, this.options.configRoot)
   }

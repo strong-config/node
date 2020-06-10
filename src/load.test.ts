@@ -7,11 +7,8 @@ import { load } from './load'
 import { defaultOptions } from './options'
 import { generateTypeFromSchema } from './utils/generate-type-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
-import validate from './validate'
+import { validate } from './validate'
 import * as readFile from './utils/read-file'
-import { decryptToObject } from './utils/sops'
-
-import { HydratedConfig } from './types'
 
 const runtimeEnv = process.env[defaultOptions.runtimeEnvName] || 'test'
 
@@ -47,6 +44,9 @@ const innerHydrateFunction = jest
   .fn()
   .mockReturnValue(mockedHydratedConfig) as jest.Mock<InnerHydrateFunction>
 mockedHydrateConfig.mockReturnValue(innerHydrateFunction)
+import * as sops from './utils/sops'
+
+import type { HydratedConfig } from './types'
 
 describe('load()', () => {
   const OLD_ENV = process.env
@@ -119,7 +119,8 @@ describe('load()', () => {
 
       expect(generateTypeFromSchema).toHaveBeenCalledWith(
         defaultOptions.configRoot,
-        defaultOptions.types
+        defaultOptions.types,
+        expect.any(Function)
       )
     })
 
