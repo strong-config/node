@@ -18,7 +18,7 @@ export const validateCliWrapper = (
 
   try {
     validate(configFile, configRoot)
-  } catch  {
+  } catch (error) {
     spinner.fail(`Config validation against schema failed`)
     debug(error)
 
