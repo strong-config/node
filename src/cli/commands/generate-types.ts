@@ -1,17 +1,12 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 
-import {
-  startSpinner,
-  failSpinner,
-  succeedSpinner,
-  getVerbosityLevel,
-} from '../spinner'
+import ora from 'ora'
 import { generateTypesFromSchema } from '../../utils/generate-types-from-schema'
 import { readSchemaFile } from '../../utils/read-file'
 import { defaultOptions } from '../../options'
 
-export default class GenerateTypes extends Command {
+export class GenerateTypes extends Command {
   static description = 'generate typescript types based on schema.json'
 
   static strict = true
@@ -41,39 +36,30 @@ export default class GenerateTypes extends Command {
     '$ generate-types -c ./some/sub/folder/config',
   ]
 
-  run(): Promise<void> {
+  async run(): Promise<void> {
     const { flags } = this.parse(GenerateTypes)
-    startSpinner('Generating types...')
+    const spinner = ora('Generating types...').start()
 
     if (!readSchemaFile(flags['config-root'])) {
-      failSpinner(
-        "Didn't find schema file. Without a schema.json file inside your config directory we can't generate types.",
-        new Error('Schema file not found'),
-        getVerbosityLevel(flags.verbose)
+      spinner.fail(
+        "Didn't find schema file. Without a schema.json file inside your config directory we can't generate types."
       )
 
       process.exit(1)
     } else {
-      if (defaultOptions.types) {
-        generateTypeFromSchema(
+      try {
+        await generateTypesFromSchema(
           flags['config-root'],
-          defaultOptions.types,
-          (error) => {
-            if (error) {
-              failSpinner(
-                "Couldn't generate types from schema",
-                error,
-                getVerbosityLevel(flags.verbose)
-              )
-            }
-
-            succeedSpinner(
-              `Successfully generated types to '${flags['config-root']}/${defaultOptions.types.fileName}'`
-            )
-          }
+          defaultOptions.types
         )
+      } catch (error) {
+        spinner.fail("Couldn't generate types from schema")
+        debug(error)
       }
 
+      spinner.succeed(
+        `Successfully generated types to '${flags['config-root']}/${defaultOptions.types.fileName}' 💪`
+      )
       process.exit(0)
     }
   }

@@ -1,60 +1,39 @@
-jest.mock('./validate')
 jest.mock('./utils/hydrate-config')
-jest.mock('./utils/generate-type-from-schema')
+jest.mock('./utils/generate-types-from-schema')
 jest.mock('./utils/sops')
+jest.mock('./validate')
 
 import { load } from './load'
 import { defaultOptions } from './options'
-import { generateTypeFromSchema } from './utils/generate-type-from-schema'
+import { generateTypesFromSchemaCallback } from './utils/generate-types-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
 import { validate } from './validate'
 import * as readFile from './utils/read-file'
-
-const runtimeEnv = process.env[defaultOptions.runtimeEnvName] || 'test'
-
-// Mocks
-const mockedConfigFile = {
-  filePath: './config/test.yaml',
-  contents: {
-    key: 'config',
-    sops: { some: 'sopsdetails' },
-  },
-}
-const mockedDecryptedConfigFile = {
-  key: 'value',
-}
-const mockedSchemaFile = {
-  contents: { key: 'schema' },
-  filePath: './config/schema.json',
-}
-const mockedHydratedConfig: HydratedConfig = {
-  some: 'config',
-  runtimeEnv,
-}
-
-const mockedDecryptToObject = decryptToObject as jest.MockedFunction<
-  typeof decryptToObject
->
-const mockedHydrateConfig = hydrateConfig as jest.MockedFunction<
-  typeof hydrateConfig & jest.Mock
->
-
-mockedDecryptToObject.mockReturnValue(mockedDecryptedConfigFile)
-const innerHydrateFunction = jest
-  .fn()
-  .mockReturnValue(mockedHydratedConfig) as jest.Mock<InnerHydrateFunction>
-mockedHydrateConfig.mockReturnValue(innerHydrateFunction)
 import * as sops from './utils/sops'
 
 import type { HydratedConfig } from './types'
 
 describe('load()', () => {
   const OLD_ENV = process.env
-  let readConfigFileSpy: jest.SpyInstance, consoleDebugSpy: jest.SpyInstance
+  let readConfigFileSpy: jest.SpyInstance
 
-  beforeAll(() => {
-    consoleDebugSpy = jest.spyOn(console, 'debug').mockReturnValue()
-  })
+  const runtimeEnv = process.env[defaultOptions.runtimeEnvName] || 'test'
+  const configFileMock = {
+    filePath: './config/test.yaml',
+    contents: {
+      key: 'config',
+      sops: { some: 'sopsdetails' },
+    },
+  }
+  const decryptedConfigFileMock = { key: 'value' }
+  const hydratedConfigMock: HydratedConfig = { some: 'config', runtimeEnv }
+  const hydrateConfigMock = hydrateConfig as jest.MockedFunction<
+    typeof hydrateConfig & jest.Mock
+  >
+  const innerHydrateFunction = jest
+    .fn()
+    .mockReturnValue(hydratedConfigMock) as jest.Mock<InnerHydrateFunction>
+  hydrateConfigMock.mockReturnValue(innerHydrateFunction)
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -64,12 +43,11 @@ describe('load()', () => {
     })
 
     readConfigFileSpy = jest.spyOn(readFile, 'readConfigFile')
-    readConfigFileSpy.mockReturnValue(mockedConfigFile)
+    readConfigFileSpy.mockReturnValue(configFileMock)
   })
 
   afterAll(() => {
     process.env = OLD_ENV
-    consoleDebugSpy.mockRestore()
   })
 
   it('reads the config based on process.env[runtimeEnv]', () => {
@@ -82,27 +60,35 @@ describe('load()', () => {
   })
 
   it('decrypts the config with SOPS', () => {
+    const decryptToObjectMock = jest
+      .spyOn(sops, 'decryptToObject')
+      .mockReturnValue(decryptedConfigFileMock)
     load(runtimeEnv, defaultOptions)
 
-    expect(mockedDecryptToObject).toHaveBeenCalledWith(
-      mockedConfigFile.filePath,
-      mockedConfigFile.contents
+    expect(decryptToObjectMock).toHaveBeenCalledWith(
+      configFileMock.filePath,
+      configFileMock.contents
     )
+    decryptToObjectMock.mockClear()
   })
 
   it('hydrates the config object', () => {
     load(runtimeEnv, defaultOptions)
 
-    expect(mockedHydrateConfig).toHaveBeenCalledWith(runtimeEnv, defaultOptions)
-    expect(innerHydrateFunction).toHaveBeenCalledWith(mockedDecryptedConfigFile)
+    expect(hydrateConfigMock).toHaveBeenCalledWith(runtimeEnv, defaultOptions)
+    expect(innerHydrateFunction).toHaveBeenCalledWith(decryptedConfigFileMock)
   })
 
   describe('given a configRoot folder with an existing schema.json file', () => {
     let readSchemaFileSpy
+    const schemaFileMock = {
+      contents: { key: 'schema' },
+      filePath: './config/schema.json',
+    }
 
     beforeEach(() => {
       readSchemaFileSpy = jest.spyOn(readFile, 'readSchemaFile')
-      readSchemaFileSpy.mockReturnValue(mockedSchemaFile)
+      readSchemaFileSpy.mockReturnValue(schemaFileMock)
     })
 
     it('validates config against schema if schema was found', () => {
@@ -117,7 +103,7 @@ describe('load()', () => {
     it('generates types if options.types is not false', () => {
       load(runtimeEnv, defaultOptions)
 
-      expect(generateTypeFromSchema).toHaveBeenCalledWith(
+      expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
         defaultOptions.configRoot,
         defaultOptions.types,
         expect.any(Function)
@@ -130,13 +116,13 @@ describe('load()', () => {
         types: false,
       })
 
-      expect(generateTypeFromSchema).toHaveBeenCalledTimes(0)
+      expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(0)
     })
   })
 
   it('returns a config object', () => {
     const loadedConfig = load(runtimeEnv, defaultOptions)
 
-    expect(loadedConfig).toStrictEqual(mockedHydratedConfig)
+    expect(loadedConfig).toStrictEqual(hydratedConfigMock)
   })
 })

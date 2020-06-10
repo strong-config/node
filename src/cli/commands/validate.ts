@@ -1,38 +1,29 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
+import ora from 'ora'
 
-import {
-  startSpinner,
-  failSpinner,
-  succeedSpinner,
-  VerbosityLevel,
-} from '../spinner'
 import { validate } from '../../validate'
 import { defaultOptions } from './../../options'
 
 export const validateCliWrapper = (
   configFile: string,
   configRoot: string,
-  verbosityLevel: VerbosityLevel = 1
+  verbose = false
 ): void => {
-  startSpinner('Validating...')
+  const spinner = ora('Validating...').start()
 
   try {
     validate(configFile, configRoot)
   } catch (error) {
-    failSpinner(
-      'Config validation against schema failed',
-      error,
-      verbosityLevel
-    )
+    spinner.fail(`Config validation against schema failed`)
 
     process.exit(1)
   }
 
-  succeedSpinner('Config is valid!')
+  spinner.succeed('Config is valid!')
 }
 
-export default class Validate extends Command {
+export class Validate extends Command {
   static description = 'validate config files against a schema'
 
   static strict = true
@@ -70,13 +61,8 @@ export default class Validate extends Command {
 
   run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
-    const verbosityLevel = flags.verbose ? 2 : 1
 
-    validateCliWrapper(
-      args['config_file'],
-      flags['config-root'],
-      verbosityLevel
-    )
+    validateCliWrapper(args['config_file'], flags['config-root'], flags.verbose)
 
     process.exit(0)
   }

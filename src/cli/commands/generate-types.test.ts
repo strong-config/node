@@ -1,28 +1,27 @@
 jest.mock('./validate')
-jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
-import { stdout } from 'stdout-stderr'
 import fs from 'fs'
-import * as x from '../../utils/generate-type-from-schema'
-import * as y from '../../utils/read-file'
+import { stderr, stdout } from 'stdout-stderr'
 import * as x from '../../utils/generate-types-from-schema' // hacky syntax to allow for easy mocking
+import * as y from '../../utils/read-file' // hacky syntax to allow for easy mocking
 import { defaultOptions } from './../../options'
-import GenerateTypes from './generate-types'
-import { getVerbosityLevel, VerbosityLevel } from '../spinner'
-
-// Mocks
-const mockedGetVerbosityLevel = getVerbosityLevel as jest.MockedFunction<
-  typeof getVerbosityLevel
->
-
-mockedGetVerbosityLevel.mockReturnValue(VerbosityLevel.Verbose)
+import { GenerateTypes } from './generate-types'
 
 describe('strong-config generate-types', () => {
+  beforeEach(() => {
+    stdout.start()
+    stderr.start()
+  })
+
+  afterAll(() => {
+    stdout.stop()
+    stderr.stop()
+  })
+
   describe('shows help', () => {
     it('prints the help with --help', async () => {
       try {
-        stdout.start()
         await GenerateTypes.run(['--help'])
       } catch (error) {
         /*
@@ -44,7 +43,6 @@ describe('strong-config generate-types', () => {
 
     it('always prints help with any command having --help', async () => {
       try {
-        stdout.start()
         await GenerateTypes.run(['some/config/file.yaml', '--help'])
         /*
          * NOTE: For some reason oclif throws when running the help command
@@ -66,18 +64,17 @@ describe('strong-config generate-types', () => {
   })
 
   describe('type generation', () => {
-    let mockedExit: jest.SpyInstance
-    let mockedWriteFileSync: jest.SpyInstance
+    let processExitMock: jest.SpyInstance
+    let writeFileSyncMock: jest.SpyInstance
 
     beforeEach(() => {
-      jest.clearAllMocks()
-      mockedExit = jest.spyOn(process, 'exit').mockImplementation()
-      mockedWriteFileSync = jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      processExitMock = jest.spyOn(process, 'exit').mockImplementation()
+      writeFileSyncMock = jest.spyOn(fs, 'writeFileSync').mockImplementation()
     })
 
     afterEach(() => {
-      mockedExit.mockRestore()
-      mockedWriteFileSync.mockRestore()
+      processExitMock.mockRestore()
+      writeFileSyncMock.mockRestore()
     })
 
     it('checks if a valid schema file exists', async () => {
@@ -95,8 +92,7 @@ describe('strong-config generate-types', () => {
 
       expect(generateTypeFromSchemaSpy).toHaveBeenCalledWith(
         configRoot,
-        defaultOptions.types,
-        expect.any(Function)
+        defaultOptions.types
       )
     })
 
@@ -104,13 +100,13 @@ describe('strong-config generate-types', () => {
       const configRoot = 'example'
       await GenerateTypes.run(['--config-root', configRoot])
 
-      expect(mockedExit).toHaveBeenCalledWith(0)
+      expect(processExitMock).toHaveBeenCalledWith(0)
     })
 
     it('exits with code 1 when type generation failed', async () => {
       await GenerateTypes.run(['--config-root', '/i/dont/exist'])
 
-      expect(mockedExit).toHaveBeenCalledWith(1)
+      expect(processExitMock).toHaveBeenCalledWith(1)
     })
   })
 })

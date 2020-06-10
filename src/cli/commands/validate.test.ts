@@ -1,48 +1,31 @@
-import { stdout } from 'stdout-stderr'
-jest.mock('../../validate')
-jest.mock('../spinner')
-
+import { stderr, stdout } from 'stdout-stderr'
 import { validate as validateUtil } from '../../validate'
-import {
-  startSpinner,
-  failSpinner,
-  succeedSpinner,
-  getVerbosityLevel,
-  VerbosityLevel,
-} from '../spinner'
-import Validate from './validate'
+import { Validate } from './validate'
+jest.mock('../../validate')
 
-const mockedValidateUtil = validateUtil as jest.MockedFunction<
+const validateUtilMock = validateUtil as jest.MockedFunction<
   typeof validateUtil
 >
-const mockedStartSpinner = startSpinner as jest.MockedFunction<
-  typeof startSpinner
->
-const mockedFailSpinner = failSpinner as jest.MockedFunction<typeof failSpinner>
-const mockedSuceedSpinner = succeedSpinner as jest.MockedFunction<
-  typeof succeedSpinner
->
-const mockedGetVerbosityLevel = getVerbosityLevel as jest.MockedFunction<
-  typeof getVerbosityLevel
->
-
-mockedGetVerbosityLevel.mockReturnValue(VerbosityLevel.Verbose)
 
 const configFile = 'example/development.yaml'
-
 const validationError = new Error('some validation error')
-
-const mockedExit = jest.spyOn(process, 'exit').mockImplementation()
+const processExitMock = jest.spyOn(process, 'exit').mockImplementation()
 
 describe('strong-config validate', () => {
+  beforeEach(() => {
+    stdout.start()
+    stderr.start()
+  })
+
   afterAll(() => {
-    mockedExit.mockRestore()
+    stdout.stop()
+    stderr.stop()
+    processExitMock.mockRestore()
   })
 
   describe('shows help', () => {
     it('prints the help with --help', async () => {
       try {
-        stdout.start()
         await Validate.run(['--help'])
         stdout.stop()
       } catch (error) {
@@ -66,7 +49,6 @@ describe('strong-config validate', () => {
 
     it('always prints help with any command having --help', async () => {
       try {
-        stdout.start()
         await Validate.run([configFile, '--help'])
         stdout.stop()
       } catch (error) {
@@ -97,23 +79,23 @@ describe('strong-config validate', () => {
     it('exits with code 0 when successful', async () => {
       await Validate.run([configFile])
 
-      expect(mockedExit).toHaveBeenCalledWith(0)
+      expect(processExitMock).toHaveBeenCalledWith(0)
     })
 
     it('exits with code 1 when validation fails', async () => {
-      mockedValidateUtil.mockImplementationOnce(() => {
+      validateUtilMock.mockImplementationOnce(() => {
         throw validationError
       })
 
       await Validate.run([configFile])
 
-      expect(mockedExit).toHaveBeenCalledWith(1)
+      expect(processExitMock).toHaveBeenCalledWith(1)
     })
 
     it('validates against schema', async () => {
       await Validate.run([configFile])
 
-      expect(mockedValidateUtil).toHaveBeenCalledTimes(1)
+      expect(validateUtilMock).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -124,28 +106,27 @@ describe('strong-config validate', () => {
 
     it('informs user about the validation process', async () => {
       await Validate.run([configFile])
+      stderr.stop()
 
-      expect(mockedStartSpinner).toHaveBeenCalledWith('Validating...')
+      expect(stderr.output).toMatch('Validating...')
     })
 
     it('informs user about the validation result', async () => {
       await Validate.run([configFile])
+      stderr.stop()
 
-      expect(mockedSuceedSpinner).toHaveBeenCalledWith('Config is valid!')
+      expect(stderr.output).toMatch('Config is valid!')
     })
 
     it('informs user about validation errors', async () => {
-      mockedValidateUtil.mockImplementationOnce(() => {
+      validateUtilMock.mockImplementationOnce(() => {
         throw validationError
       })
 
       await Validate.run([configFile])
+      stderr.stop()
 
-      expect(mockedFailSpinner).toHaveBeenCalledWith(
-        'Config validation against schema failed',
-        expect.any(Error),
-        VerbosityLevel.Verbose
-      )
+      expect(stderr.output).toMatch('Config validation against schema failed')
     })
   })
 })
