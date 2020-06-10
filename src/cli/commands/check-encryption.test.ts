@@ -1,9 +1,6 @@
-jest.mock('../spinner')
-
-import { stdout } from 'stdout-stderr'
+import { stderr } from 'stdout-stderr'
 import * as x from '../../utils/get-file-from-path'
 import { getFileFromPath } from './../../utils/get-file-from-path'
-import * as spinner from '../spinner'
 import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {
@@ -13,25 +10,15 @@ describe('strong-config check-encryption', () => {
   const allConfigFiles = [encryptedConfigPath, unencryptedConfigPath]
 
   // Mocks
-  const mockedExit = jest.spyOn(process, 'exit').mockImplementation()
-  const failSpinnerSpy = jest.spyOn(spinner, 'failSpinner')
-  const succeedSpinnerSpy = jest.spyOn(spinner, 'succeedSpinner')
-
-  beforeAll(() => {
-    stdout.start()
-  })
+  const processExitMock = jest.spyOn(process, 'exit').mockImplementation()
 
   beforeEach(() => {
-    mockedExit.mockReset()
-    succeedSpinnerSpy.mockReset()
-    failSpinnerSpy.mockReset()
+    stderr.start()
+    processExitMock.mockReset()
   })
 
   afterAll(() => {
-    mockedExit.mockRestore()
-    failSpinnerSpy.mockRestore()
-    succeedSpinnerSpy.mockRestore()
-    stdout.stop()
+    processExitMock.mockRestore()
   })
 
   describe('for ONE file', () => {
@@ -46,27 +33,40 @@ describe('strong-config check-encryption', () => {
     describe('given a path to an ENCRYPTED config file', () => {
       it('should exit with code 0 and success message', async () => {
         await CheckEncryption.run([encryptedConfigPath])
+        stderr.stop()
 
-        expect(succeedSpinnerSpy).toHaveBeenCalledTimes(1)
-        expect(mockedExit).toHaveBeenCalledWith(0)
+        expect(stderr.output).toMatch(
+          new RegExp(`Checking ${encryptedConfigPath} for encryption`)
+        )
+        expect(stderr.output).toMatch(
+          new RegExp(`✔.*${encryptedConfigPath}.*safely encrypted`)
+        )
+        expect(processExitMock).toHaveBeenCalledWith(0)
       })
     })
 
     describe('given a path to an UNENCRYPTED config file', () => {
       it('should exit with code 1 and error message', async () => {
         await CheckEncryption.run([unencryptedConfigPath])
+        stderr.stop()
 
-        expect(failSpinnerSpy).toHaveBeenCalledTimes(1)
-        expect(mockedExit).toHaveBeenCalledWith(0)
+        expect(stderr.output).toMatch(
+          new RegExp(`✖.*${unencryptedConfigPath}.*NOT encrypted`)
+        )
+        expect(processExitMock).toHaveBeenCalledWith(0)
       })
     })
 
     describe('given an invalid path', () => {
       it('should exit with code 1 and error message', async () => {
-        await CheckEncryption.run(['non/existant/path'])
+        const invalidPath = 'non/existant/path'
+        await CheckEncryption.run([invalidPath])
+        stderr.stop()
 
-        expect(failSpinnerSpy).toHaveBeenCalledTimes(1)
-        expect(mockedExit).toHaveBeenCalledWith(1)
+        expect(stderr.output).toMatch(
+          new RegExp(`✖.*${invalidPath}.*doesn't exist`)
+        )
+        expect(processExitMock).toHaveBeenCalledWith(1)
       })
     })
 
@@ -84,6 +84,7 @@ describe('strong-config check-encryption', () => {
       it('should print out the contents of encrypted config files to the terminal', async () => {
         const encryptedConfigFile = getFileFromPath(encryptedConfigPath)
         await CheckEncryption.run([encryptedConfigPath, '-v'])
+
         expect(stringifySpy).toHaveBeenCalledWith(
           encryptedConfigFile.contents,
           undefined,
@@ -94,6 +95,7 @@ describe('strong-config check-encryption', () => {
       it('should print out the contents of unencrypted config files to the terminal', async () => {
         const unencryptedConfigFile = getFileFromPath(unencryptedConfigPath)
         await CheckEncryption.run([unencryptedConfigPath, '-v'])
+
         expect(stringifySpy).toHaveBeenCalledWith(
           unencryptedConfigFile.contents,
           undefined,
@@ -106,7 +108,10 @@ describe('strong-config check-encryption', () => {
   describe('for ALL files', () => {
     describe('given a folder with multiple config files', () => {
       it('should find all *.yaml and *.yml files in the configRoot dir', async () => {
-        const checkOneConfigFileSpy = jest.spyOn(y, 'checkOneConfigFile')
+        const checkOneConfigFileSpy = jest.spyOn(
+          CheckEncryption.prototype,
+          'checkOneConfigFile'
+        )
         const flags = { 'config-root': 'example', verbose: false }
         await CheckEncryption.run(['--config-root', flags['config-root']])
 
@@ -115,13 +120,11 @@ describe('strong-config check-encryption', () => {
         )
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           1,
-          allConfigFiles[0],
-          flags
+          allConfigFiles[0]
         )
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           2,
-          allConfigFiles[1],
-          flags
+          allConfigFiles[1]
         )
 
         checkOneConfigFileSpy.mockRestore()
@@ -129,26 +132,26 @@ describe('strong-config check-encryption', () => {
 
       it('should exit with code 1 and error message when not all config files are encrypted', async () => {
         await CheckEncryption.run(['--config-root', './example'])
-        expect(failSpinnerSpy).toHaveBeenNthCalledWith(
-          1,
-          'Secrets in ./example/unencrypted.yml are NOT encrypted',
-          new Error()
+        stderr.stop()
+
+        expect(stderr.output).toMatch(
+          '✖ Secrets in ./example/unencrypted.yml are NOT encrypted'
         )
-        expect(failSpinnerSpy).toHaveBeenNthCalledWith(
-          2,
-          'Not all secrets are encrypted',
-          new Error()
-        )
-        expect(mockedExit).toHaveBeenCalledWith(1)
+        expect(stderr.output).toMatch('✖ Not all secrets are encrypted')
+        expect(processExitMock).toHaveBeenCalledWith(1)
       })
     })
 
     describe('given a folder with NO config files', () => {
       it('should exit with code 1 and error message', async () => {
-        await CheckEncryption.run(['--config-root', './i/dont/exist'])
+        const invalidConfigRoot = './i/dont/exist'
+        await CheckEncryption.run(['--config-root', invalidConfigRoot])
+        stderr.stop()
 
-        expect(failSpinnerSpy).toHaveBeenCalledTimes(1)
-        expect(mockedExit).toHaveBeenCalledWith(1)
+        expect(stderr.output).toMatch(
+          new RegExp(`✖.*Found no config files in.*${invalidConfigRoot}`)
+        )
+        expect(processExitMock).toHaveBeenCalledWith(1)
       })
     })
   })
