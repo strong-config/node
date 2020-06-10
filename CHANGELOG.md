@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.32](https://github.com/strong-config/node/compare/v0.2.31...v0.2.32) (2020-06-10)
+
+
+### Features
+
+* **debug:** added ‘debug’ package and some debugging output ([d5e7add](https://github.com/strong-config/node/commit/d5e7add6aaa26222e5f90d7878167676f46368ba))
+
+
+### Bug Fixes
+
+* **validate:** re-add accidentally deleted error to catch statement ([a85a8b4](https://github.com/strong-config/node/commit/a85a8b492f2203a5a3dda2132f64ca784f14b54e))
+
 ### [0.2.31](https://github.com/strong-config/node/compare/v0.2.30...v0.2.31) (2020-06-02)
 
 
