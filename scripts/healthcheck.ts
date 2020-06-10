@@ -114,10 +114,15 @@ async function printTodos(): Promise<void> {
 
   try {
     todos = (await run('yarn report:todo')) as string
-    spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))
     throw new Error(error)
+  }
+
+  if (todos.match(/No todos\/fixmes found/g)) {
+    spinner.succeed(chalk.bold('No TODOs or FIXMEs'))
+  } else {
+    spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
   }
 }
 
