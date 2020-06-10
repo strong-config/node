@@ -15,7 +15,7 @@ import type { HydratedConfig } from './types'
 
 describe('load()', () => {
   const OLD_ENV = process.env
-  let readConfigFileSpy: jest.SpyInstance
+  let readConfigFileSpy: jest.SpyInstance, consoleDebugMock: jest.SpyInstance
 
   const runtimeEnv = process.env[defaultOptions.runtimeEnvName] || 'test'
   const configFileMock = {
@@ -35,6 +35,10 @@ describe('load()', () => {
     .mockReturnValue(hydratedConfigMock) as jest.Mock<InnerHydrateFunction>
   hydrateConfigMock.mockReturnValue(innerHydrateFunction)
 
+  beforeAll(() => {
+    consoleDebugMock = jest.spyOn(console, 'info').mockReturnValue()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
     jest.resetModules()
@@ -48,6 +52,7 @@ describe('load()', () => {
 
   afterAll(() => {
     process.env = OLD_ENV
+    consoleDebugMock.mockRestore()
   })
 
   it('reads the config based on process.env[runtimeEnv]', () => {

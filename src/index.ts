@@ -1,10 +1,12 @@
 import { isNil } from 'ramda'
+import Debug from 'debug'
 import type { JSONObject, MemoizedConfig } from './types'
 import { load } from './load'
 import { validate } from './validate'
 import { defaultOptions, Options } from './options'
 import optionsSchema from './options/schema.json'
 import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
+const debug = Debug('strong-config:main')
 
 export = class StrongConfig {
   public readonly options: Options
@@ -15,10 +17,14 @@ export = class StrongConfig {
     const mergedOptions = options
       ? { ...defaultOptions, ...options }
       : defaultOptions
+
+    debug('Validating options:\n%O', mergedOptions)
     validateJsonAgainstSchema(
       (mergedOptions as unknown) as JSONObject,
       optionsSchema
     )
+    debug('Options are valid')
+
     this.options = mergedOptions
 
     this.runtimeEnv = process.env[this.options.runtimeEnvName]
@@ -38,9 +44,12 @@ export = class StrongConfig {
     this.checkRuntimeEnv()
 
     if (this.config) {
+      debug('Returning memoized config')
+
       return this.config
     }
 
+    debug('💰 Loading config from file (expensive operation!)')
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because we're checking for 'undefined' in this.checkRuntimeEnv() already
     this.config = load(this.runtimeEnv, this.options)

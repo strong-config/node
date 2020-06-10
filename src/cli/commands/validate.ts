@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
+import Debug from 'debug'
+const debug = Debug('strong-config:validate')
 
 import { validate } from '../../validate'
 import { defaultOptions } from './../../options'
@@ -10,12 +12,15 @@ export const validateCliWrapper = (
   configRoot: string,
   verbose = false
 ): void => {
+  if (verbose) Debug.enable('strong-config:validate')
+
   const spinner = ora('Validating...').start()
 
   try {
     validate(configFile, configRoot)
-  } catch (error) {
+  } catch  {
     spinner.fail(`Config validation against schema failed`)
+    debug(error)
 
     process.exit(1)
   }
