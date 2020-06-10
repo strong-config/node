@@ -12,14 +12,14 @@ export = class StrongConfig {
   private config: MemoizedConfig
 
   constructor(options?: Partial<Options>) {
-    this.options = validateOptions(
-      options
-        ? {
-            ...defaultOptions,
-            ...options,
-          }
-        : defaultOptions
+    const mergedOptions = options
+      ? { ...defaultOptions, ...options }
+      : defaultOptions
+    validateJsonAgainstSchema(
+      (mergedOptions as unknown) as JSONObject,
+      optionsSchema
     )
+    this.options = mergedOptions
 
     this.runtimeEnv = process.env[this.options.runtimeEnvName]
   }

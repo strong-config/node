@@ -5,50 +5,15 @@ import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 import optionsSchema from './options/schema.json'
 import StrongConfig = require('.')
 
-const mockedLoad = load as jest.MockedFunction<typeof load>
-const mockedValidate = validate as jest.MockedFunction<typeof validate>
-const mockedValidateOptions = validateOptions as jest.MockedFunction<
-  typeof validateOptions
->
 jest.mock('./load')
 jest.mock('./validate')
 jest.mock('./utils/validate-json-against-schema')
 
 const runtimeEnv = process.env.NODE_ENV || 'test'
-const mockedConfig = { some: 'config', runtimeEnv }
-const mockedOptions = defaultOptions
-const mockedValidationResult = true
-mockedLoad.mockReturnValue(mockedConfig)
-mockedValidate.mockReturnValue(mockedValidationResult)
-mockedValidateOptions.mockReturnValue(mockedOptions)
-
-import StrongConfig from '.'
 
 describe('StrongConfig class', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-  })
-
-  describe('instantiation', () => {
-    it('can be instantiated without constructor arguments', () => {
-      expect(new StrongConfig()).toBeDefined()
-    })
-
-    it('can be instantiated with a options object', () => {
-      expect(new StrongConfig(mockedOptions)).toBeDefined()
-    })
-
-    it('validates the options object', () => {
-      new StrongConfig(mockedOptions)
-
-      expect(mockedValidateOptions).toHaveBeenCalledWith(mockedOptions)
-    })
-
-    it('stores the validated options object', () => {
-      const strongConfig = new StrongConfig(mockedOptions)
-
-      expect(strongConfig.options).toStrictEqual(mockedOptions)
-    })
   })
 
   it('strongConfig instance exposes "load()"', () => {
@@ -59,22 +24,51 @@ describe('StrongConfig class', () => {
     expect(new StrongConfig().validate).toBeInstanceOf(Function)
   })
 
-  describe('strongConfig.load()', () => {
+  describe('constructor()', () => {
+    it('can be instantiated without constructor arguments', () => {
+      expect(new StrongConfig()).toBeDefined()
+    })
+
+    it('can be instantiated with a options object', () => {
+      expect(new StrongConfig(defaultOptions)).toBeDefined()
+    })
+
+    it('validates the options object', () => {
+      new StrongConfig(defaultOptions)
+
+      expect(validateJsonAgainstSchema).toHaveBeenCalledWith(
+        defaultOptions,
+        optionsSchema
+      )
+    })
+
+    it('stores the validated options object', () => {
+      const strongConfig = new StrongConfig(defaultOptions)
+
+      expect(strongConfig.options).toStrictEqual(defaultOptions)
+    })
+  })
+
+  describe('load()', () => {
+    const configMock = { some: 'config', runtimeEnv }
+    const loadMock = load as jest.MockedFunction<typeof load>
+    loadMock.mockReturnValue(configMock)
+
     it('calls imported load() and returns its result', () => {
       const strongConfig = new StrongConfig()
 
       const result = strongConfig.load()
 
-      expect(mockedLoad).toHaveBeenCalledTimes(1)
-      expect(result).toStrictEqual(mockedConfig)
+      expect(loadMock).toHaveBeenCalledTimes(1)
+      expect(result).toStrictEqual(configMock)
     })
 
     it('calls imported load() with initialized options', () => {
-      const strongConfig = new StrongConfig(mockedOptions)
+      const strongConfig = new StrongConfig(defaultOptions)
 
       strongConfig.load()
 
-      expect(mockedLoad).toHaveBeenCalledWith(runtimeEnv, mockedOptions)
+      expect(loadMock).toHaveBeenCalledWith(runtimeEnv, defaultOptions)
     })
 
     it('memoizes previously loaded config', () => {
@@ -83,9 +77,9 @@ describe('StrongConfig class', () => {
       const firstLoadResult = strongConfig.load()
       const secondLoadResult = strongConfig.load()
 
-      expect(mockedLoad).toHaveBeenCalledTimes(1)
-      expect(firstLoadResult).toStrictEqual(mockedConfig)
-      expect(secondLoadResult).toStrictEqual(mockedConfig)
+      expect(loadMock).toHaveBeenCalledTimes(1)
+      expect(firstLoadResult).toStrictEqual(configMock)
+      expect(secondLoadResult).toStrictEqual(configMock)
     })
 
     describe('when process.env.NODE_ENV is undefined', () => {
@@ -99,7 +93,7 @@ describe('StrongConfig class', () => {
           runtimeEnvName: undefined,
         })
         expect(() => strongConfig.load()).toThrow(
-          /Can't load config.*.is undefined/
+          /Can't load config.+is undefined/
         )
       })
 
@@ -109,18 +103,21 @@ describe('StrongConfig class', () => {
     })
   })
 
-  describe('strongConfig.validate()', () => {
+  describe('validate()', () => {
+    const validateMock = validate as jest.MockedFunction<typeof validate>
+    validateMock.mockReturnValue(true)
+
     it('calls imported validate() and returns its result', () => {
       const strongConfig = new StrongConfig()
 
       const result = strongConfig.validate()
 
-      expect(mockedValidate).toHaveBeenCalledTimes(1)
-      expect(mockedValidate).toHaveBeenCalledWith(
+      expect(validateMock).toHaveBeenCalledTimes(1)
+      expect(validateMock).toHaveBeenCalledWith(
         runtimeEnv,
-        mockedOptions.configRoot
+        defaultOptions.configRoot
       )
-      expect(result).toStrictEqual(mockedValidationResult)
+      expect(result).toStrictEqual(true)
     })
   })
 })
