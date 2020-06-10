@@ -1,62 +1,19 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
+import ora from 'ora'
+import Debug from 'debug'
+const debugNamespace = 'strong-config:encrypt'
+const debug = Debug(debugNamespace)
 
-import {
-  startSpinner,
-  failSpinner,
-  succeedSpinner,
-  getVerbosityLevel,
-} from '../spinner'
 import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
+import { defaultOptions } from '../../options'
 import { readSchemaFile } from './../../utils/read-file'
 import { validateCliWrapper } from './validate'
-import defaultOptions from '../../options'
 
 const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']
 
-const encrypt = (
-  args: Record<string, string>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  flags: Record<string, any>
-): void => {
-  startSpinner('Encrypting...')
-
-  const sopsOptions = ['--encrypt', ...getSopsOptions(args, flags)]
-
-  try {
-    runSopsWithOptions(sopsOptions)
-  } catch (error) {
-    failSpinner(
-      'Failed to encrypt config file',
-      error,
-      getVerbosityLevel(flags.verbose)
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
-    if (error.exitCode && error.exitCode === 203) {
-      console.log(
-        `🤔 It looks like ${args.config_file} is already encrypted!\n`
-      )
-    }
-
-    if (
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- i don't know how to make this any safer for typescript */
-      error.stderr &&
-      typeof error.stderr === 'string' &&
-      error.stderr?.includes('GCP')
-    ) {
-      console.log(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
-    }
-
-    process.exit(1)
-  }
-
-  succeedSpinner(`Successfully encrypted ${args.config_file}!`)
-}
-
-export default class Encrypt extends Command {
+export class Encrypt extends Command {
   static description = 'encrypt config files'
 
   static strict = true
@@ -129,6 +86,45 @@ export default class Encrypt extends Command {
     '$ encrypt --help',
   ]
 
+  encrypt = (): void => {
+    const { args, flags } = this.parse(Encrypt)
+
+    if (flags.verbose) Debug.enable(debugNamespace)
+
+    const spinner = ora('Encrypting...').start()
+
+    const sopsOptions = ['--encrypt', ...getSopsOptions(args, flags)]
+
+    try {
+      runSopsWithOptions(sopsOptions)
+    } catch (error) {
+      spinner.fail('Failed to encrypt config file')
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
+      if (error.exitCode && error.exitCode === 203) {
+        console.log(
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is always required
+          `🤔 It looks like ${args.config_file} is already encrypted!\n`
+        )
+      }
+
+      if (
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- i don't know how to make this any safer for typescript */
+        error.stderr &&
+        typeof error.stderr === 'string' &&
+        error.stderr?.includes('GCP')
+      ) {
+        console.log(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+      }
+
+      debug(error)
+      process.exit(1)
+    }
+
+    spinner.succeed(`Successfully encrypted ${args.config_file as string}!`)
+  }
+
   run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
 
@@ -136,11 +132,11 @@ export default class Encrypt extends Command {
       validateCliWrapper(
         args['config_file'],
         flags['config-root'],
-        getVerbosityLevel(flags.verbose)
+        flags.verbose
       )
     }
 
-    encrypt(args, flags)
+    this.encrypt()
 
     process.exit(0)
   }

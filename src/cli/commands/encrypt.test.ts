@@ -1,47 +1,26 @@
 jest.mock('./validate')
-jest.mock('../spinner')
 jest.mock('../../utils/sops')
 
-import Encrypt from './encrypt'
-import { stdout } from 'stdout-stderr'
+import { stderr, stdout } from 'stdout-stderr'
+import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
+import { Encrypt } from './encrypt'
 
 import { validateCliWrapper } from './validate'
-import {
-  startSpinner,
-  failSpinner,
-  succeedSpinner,
-  getVerbosityLevel,
-  VerbosityLevel,
-} from '../spinner'
-import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
 
 // Mocks
-const mockedRunSopsWithOptions = runSopsWithOptions as jest.MockedFunction<
+const runSopsWithOptionsMock = runSopsWithOptions as jest.MockedFunction<
   typeof runSopsWithOptions
 >
-const mockedGetSopsOptions = getSopsOptions as jest.MockedFunction<
+const getSopsWithOptionsMock = getSopsOptions as jest.MockedFunction<
   typeof getSopsOptions
 >
-
-const mockedValidate = validateCliWrapper as jest.MockedFunction<
+const validateCliWrapperMock = validateCliWrapper as jest.MockedFunction<
   typeof validateCliWrapper
 >
+const processExitMock = jest.spyOn(process, 'exit').mockImplementation()
 
-const mockedStartSpinner = startSpinner as jest.MockedFunction<
-  typeof startSpinner
->
-const mockedFailSpinner = failSpinner as jest.MockedFunction<typeof failSpinner>
-const mockedSuceedSpinner = succeedSpinner as jest.MockedFunction<
-  typeof succeedSpinner
->
-const mockedGetVerbosityLevel = getVerbosityLevel as jest.MockedFunction<
-  typeof getVerbosityLevel
->
-
-mockedGetVerbosityLevel.mockReturnValue(VerbosityLevel.Verbose)
-
-const mockedSopsOptions = ['--some', '--flags']
-mockedGetSopsOptions.mockReturnValue(mockedSopsOptions)
+const sopsOptionsMock = ['--some', '--flags']
+getSopsWithOptionsMock.mockReturnValue(sopsOptionsMock)
 const sopsError = new Error('some sops error')
 
 // This file is created in the beforeAll handler
@@ -52,17 +31,21 @@ const keyId = '2E9644A658379349EFB77E895351CE7FC0AC6E94' // example/pgp/example-
 const keyProvider = 'pgp'
 const requiredKeyFlags = ['-k', keyId, '-p', keyProvider]
 
-const mockedExit = jest.spyOn(process, 'exit').mockImplementation()
-
 describe('strong-config encrypt', () => {
+  beforeEach(() => {
+    stdout.start()
+    stderr.start()
+  })
+
   afterAll(() => {
-    mockedExit.mockRestore()
+    processExitMock.mockRestore()
+    stdout.stop()
+    stderr.stop()
   })
 
   describe('--help', () => {
     it('prints the help', async () => {
       try {
-        stdout.start()
         await Encrypt.run(['--help'])
         /*
          * NOTE: For some reason oclif throws when running the help command
@@ -85,7 +68,6 @@ describe('strong-config encrypt', () => {
 
     it('always prints help with any command having --help', async () => {
       try {
-        stdout.start()
         await Encrypt.run([
           'some/config/file.yml',
           '--help',
@@ -119,25 +101,25 @@ describe('strong-config encrypt', () => {
     it('exits with code 0 when successful', async () => {
       await Encrypt.run([configFile, ...requiredKeyFlags])
 
-      expect(mockedExit).toHaveBeenCalledWith(0)
+      expect(processExitMock).toHaveBeenCalledWith(0)
     })
 
     it('exits with code 1 when encryption fails', async () => {
-      mockedRunSopsWithOptions.mockImplementationOnce(() => {
+      runSopsWithOptionsMock.mockImplementationOnce(() => {
         throw sopsError
       })
 
       await Encrypt.run([configFile, ...requiredKeyFlags])
 
-      expect(mockedExit).toHaveBeenCalledWith(1)
+      expect(processExitMock).toHaveBeenCalledWith(1)
     })
 
     it('encrypts by using sops', async () => {
       await Encrypt.run([configFile, ...requiredKeyFlags])
 
-      expect(mockedRunSopsWithOptions).toHaveBeenCalledWith([
+      expect(runSopsWithOptionsMock).toHaveBeenCalledWith([
         '--encrypt',
-        ...mockedSopsOptions,
+        ...sopsOptionsMock,
       ])
     })
 
@@ -149,10 +131,10 @@ describe('strong-config encrypt', () => {
         configRoot,
       ])
 
-      expect(mockedValidate).toHaveBeenCalledWith(
+      expect(validateCliWrapperMock).toHaveBeenCalledWith(
         configFile,
         configRoot,
-        VerbosityLevel.Verbose
+        false
       )
     })
 
@@ -182,30 +164,27 @@ describe('strong-config encrypt', () => {
 
     it('informs user about the encryption process', async () => {
       await Encrypt.run([configFile, ...requiredKeyFlags])
+      stderr.stop()
 
-      expect(mockedStartSpinner).toHaveBeenCalledWith('Encrypting...')
+      expect(stderr.output).toMatch('Encrypting...')
     })
 
     it('informs user about the encryption result', async () => {
       await Encrypt.run([configFile, ...requiredKeyFlags])
+      stderr.stop()
 
-      expect(mockedSuceedSpinner).toHaveBeenCalledWith(
-        `Successfully encrypted ${configFile}!`
-      )
+      expect(stderr.output).toMatch(`Successfully encrypted ${configFile}!`)
     })
 
     it('informs user about encryption errors', async () => {
-      mockedRunSopsWithOptions.mockImplementationOnce(() => {
+      runSopsWithOptionsMock.mockImplementationOnce(() => {
         throw sopsError
       })
 
       await Encrypt.run([configFile, ...requiredKeyFlags])
+      stderr.stop()
 
-      expect(mockedFailSpinner).toHaveBeenCalledWith(
-        'Failed to encrypt config file',
-        expect.any(Error),
-        VerbosityLevel.Verbose
-      )
+      expect(stderr.output).toMatch('Failed to encrypt config file')
     })
   })
 })
