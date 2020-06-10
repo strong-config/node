@@ -6,6 +6,7 @@ import { stdout } from 'stdout-stderr'
 import fs from 'fs'
 import * as x from '../../utils/generate-type-from-schema'
 import * as y from '../../utils/read-file'
+import * as x from '../../utils/generate-types-from-schema' // hacky syntax to allow for easy mocking
 import { defaultOptions } from './../../options'
 import GenerateTypes from './generate-types'
 import { getVerbosityLevel, VerbosityLevel } from '../spinner'
@@ -89,7 +90,7 @@ describe('strong-config generate-types', () => {
 
     it('calls `generateTypeFromSchema()` to generate types', async () => {
       const configRoot = 'example'
-      const generateTypeFromSchemaSpy = jest.spyOn(x, 'generateTypeFromSchema')
+      const generateTypeFromSchemaSpy = jest.spyOn(x, 'generateTypesFromSchema')
       await GenerateTypes.run(['--config-root', configRoot])
 
       expect(generateTypeFromSchemaSpy).toHaveBeenCalledWith(

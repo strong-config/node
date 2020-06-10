@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { generateTypeFromSchema } from './../../utils/generate-type-from-schema'
 import { Command, flags as Flags } from '@oclif/command'
 
 import {
@@ -8,6 +7,7 @@ import {
   succeedSpinner,
   getVerbosityLevel,
 } from '../spinner'
+import { generateTypesFromSchema } from '../../utils/generate-types-from-schema'
 import { readSchemaFile } from '../../utils/read-file'
 import { defaultOptions } from '../../options'
 

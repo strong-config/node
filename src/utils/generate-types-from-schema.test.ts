@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
-import { pascalCase, generateTypeFromSchema } from './generate-type-from-schema'
 import { defaultOptions } from '../options'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 
 /*
  * MOCKS
@@ -9,19 +9,7 @@ import { defaultOptions } from '../options'
 jest.mock('fs')
 jest.mock('json-schema-to-typescript')
 
-describe('pascalCase()', () => {
-  test.each([
-    ['name', 'Name'],
-    ['some-name', 'SomeName'],
-    ['some name', 'SomeName'],
-    ['some name----asdf', 'SomeNameAsdf'],
-    ['some name----asdf !@#($@^!)#% camelCase', 'SomeNameAsdfCamelCase'],
-  ])('given %s, it correctly pascalCases to %s', (input, expectedOutput) => {
-    expect(pascalCase(input)).toBe(expectedOutput)
-  })
-})
-
-describe('generateTypeFromSchema()', () => {
+describe('generateTypesFromSchema()', () => {
   const mockedSchemaString = `
 {
   "title": "the top-level-interface"
@@ -63,7 +51,7 @@ export interface Config extends TheTopLevelInterface {
 }`
       const expectedTypes = `${mockedCompiledTypes}${expectedRootType}`
 
-      generateTypeFromSchema(
+      generateTypesFromSchemaCallback(
         defaultOptions.configRoot,
         defaultOptions.types,
         callback
@@ -83,7 +71,7 @@ export interface Config extends TheTopLevelInterface {
     }`
     mockedFs.readFileSync.mockReturnValueOnce(mockedSchemaStringWithoutTitle)
 
-    generateTypeFromSchema(
+    generateTypesFromSchemaCallback(
       defaultOptions.configRoot,
       defaultOptions.types,
       callback
@@ -103,7 +91,7 @@ export interface Config extends TheTopLevelInterface {
     mockedFs.readFileSync.mockReturnValueOnce(
       mockedSchemaStringWithInvalidTitle
     )
-    generateTypeFromSchema(
+    generateTypesFromSchemaCallback(
       defaultOptions.configRoot,
       defaultOptions.types,
       callback
