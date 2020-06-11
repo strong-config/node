@@ -1,17 +1,50 @@
 {
   "compilerOptions": {
+    // Base directory to resolve non-absolute module names
+    // https://www.typescriptlang.org/v2/en/tsconfig#baseUrl
     "baseUrl": ".",
+
+    // Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports.
+    // https://www.typescriptlang.org/v2/en/tsconfig#esModuleInterop
     "esModuleInterop": true,
+
+    // Specify module code generation: 'commonjs', 'amd', 'system', 'umd' or 'es2015'.
+    // https://www.typescriptlang.org/v2/en/tsconfig#module
     "module": "commonjs",
+
+    // When this option is set, TypeScript will issue an error if a program tries to include a file by a casing different from the casing on disk.
+    // https://www.typescriptlang.org/v2/en/tsconfig#forceConsistentCasingInFileNames
     "forceConsistentCasingInFileNames": true,
+
+    // Report error when not all code paths in function return a value. */
+    // https://www.typescriptlang.org/v2/en/tsconfig#noImplicitReturns
     "noImplicitReturns": true,
+
+    // Report errors on unused locals. */
+    // https://www.typescriptlang.org/v2/en/tsconfig#noUnusedLocals
     "noUnusedLocals": true,
+
+    // Report errors on unused parameters. */
+    // https://www.typescriptlang.org/v2/en/tsconfig#noUnusedParameters
     "noUnusedParameters": true,
-    "noImplicitAny": true,
+
+    // Allows importing modules with a ‘.json’ extension, which is a common practice in node projects
+    // https://www.typescriptlang.org/v2/en/tsconfig#resolveJsonModule
     "resolveJsonModule": true,
+
+    // Enable all strict type-checking options. */
+    // https://www.typescriptlang.org/v2/en/tsconfig#strict
     "strict": true,
+
+    // Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
+    // https://www.typescriptlang.org/v2/en/tsconfig#target
     "target": "es6",
+
+    // Specify library files to be included in the compilation:  */
+    // https://www.typescriptlang.org/v2/en/tsconfig#lib
     "lib": ["es6"]
   },
+  // Specifies an array of filenames or patterns to include in the program. These filenames are resolved relative to the directory containing the tsconfig.json file.
+  // https://www.typescriptlang.org/v2/en/tsconfig#include
   "include": ["src", "scripts", "example"]
 }
