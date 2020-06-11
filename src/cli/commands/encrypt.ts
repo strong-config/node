@@ -5,10 +5,10 @@ import Debug from 'debug'
 const debugNamespace = 'strong-config:encrypt'
 const debug = Debug(debugNamespace)
 
-import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
-import { defaultOptions } from '../../options'
-import { readSchemaFile } from './../../utils/read-file'
 import { validateCliWrapper } from './validate'
+import { getSopsOptions, runSopsWithOptions } from 'utils/sops'
+import { defaultOptions } from 'options'
+import { readSchemaFile } from 'utils/read-file'
 
 const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']

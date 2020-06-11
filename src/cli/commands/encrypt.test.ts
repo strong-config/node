@@ -2,10 +2,10 @@ jest.mock('./validate')
 jest.mock('../../utils/sops')
 
 import { stderr, stdout } from 'stdout-stderr'
-import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
 import { Encrypt } from './encrypt'
 
 import { validateCliWrapper } from './validate'
+import { getSopsOptions, runSopsWithOptions } from 'utils/sops'
 
 // Mocks
 const runSopsWithOptionsMock = runSopsWithOptions as jest.MockedFunction<

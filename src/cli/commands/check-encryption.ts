@@ -3,9 +3,9 @@ import { Command, flags as Flags } from '@oclif/command'
 import { pathExistsSync } from 'fs-extra'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
-import { getFileFromPath } from '../../utils/get-file-from-path'
-import { defaultOptions } from '../../options'
-import type { EncryptedConfig, JSONObject } from './../../types'
+import { defaultOptions } from 'options'
+import type { EncryptedConfig, JSONObject } from 'types'
+import { getFileFromPath } from 'utils/get-file-from-path'
 
 export class CheckEncryption extends Command {
   static description = 'check that secrets in config files are safely encrypted'

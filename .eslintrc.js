@@ -12,6 +12,13 @@ module.exports = {
     'tsconfig.eslint.json',
     'example/types.d.ts',
   ],
+  settings: {
+    'import/resolver': {
+      node: {
+        paths: ['./src'],
+      },
+    },
+  },
   plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn'],
   extends: [
     // https://eslint.org/docs/rules/
@@ -147,6 +154,7 @@ module.exports = {
       },
     ],
     'import/order': 'error',
+    'import/no-unresolved': ['error', {}],
 
     // Read this for the rationale: https://basarat.gitbook.io/typescript/main-1/defaultisbad
     'import/no-default-export': 'error',

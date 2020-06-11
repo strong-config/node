@@ -2,12 +2,12 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
-const debug = Debug('strong-config:decrypt')
-
-import { getSopsOptions, runSopsWithOptions } from '../../utils/sops'
-import { readSchemaFile } from '../../utils/read-file'
-import { defaultOptions } from '../../options'
 import { validateCliWrapper } from './validate'
+import { getSopsOptions, runSopsWithOptions } from 'utils/sops'
+import { readSchemaFile } from 'utils/read-file'
+import { defaultOptions } from 'options'
+
+const debug = Debug('strong-config:decrypt')
 
 export class Decrypt extends Command {
   static description = 'decrypt config files'

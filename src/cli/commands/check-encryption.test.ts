@@ -1,7 +1,7 @@
 import { stderr } from 'stdout-stderr'
-import * as x from '../../utils/get-file-from-path'
-import { getFileFromPath } from './../../utils/get-file-from-path'
 import { CheckEncryption } from './check-encryption'
+import * as x from 'utils/get-file-from-path'
+import { getFileFromPath } from 'utils/get-file-from-path'
 
 describe('strong-config check-encryption', () => {
   // Fixtures
