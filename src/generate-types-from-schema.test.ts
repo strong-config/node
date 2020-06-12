@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
-import { defaultOptions } from '../options'
+import { defaultOptions } from './options'
 import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 
 /*

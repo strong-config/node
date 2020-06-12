@@ -3,8 +3,9 @@ import { readFileSync, writeFileSync } from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
 import { prop } from 'ramda'
 import Debug from 'debug'
-import { TypeOptions } from '../options'
-import { pascalCase } from './pascal-case'
+import type { TypeOptions } from './options'
+import { pascalCase } from './utils/pascal-case'
+
 const debug = Debug('strong-config:generate-types')
 
 export const generateTypesFromSchema = async (
