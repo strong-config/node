@@ -1,11 +1,11 @@
 jest.mock('./utils/hydrate-config')
-jest.mock('./utils/generate-types-from-schema')
 jest.mock('./utils/sops')
+jest.mock('./generate-types-from-schema')
 jest.mock('./validate')
 
 import { load } from './load'
 import { defaultOptions } from './options'
-import { generateTypesFromSchemaCallback } from './utils/generate-types-from-schema'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
 import { validate } from './validate'
 import * as readFile from './utils/read-file'

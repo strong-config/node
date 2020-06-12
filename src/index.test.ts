@@ -1,13 +1,18 @@
 import { load } from './load'
 import { validate } from './validate'
 import { defaultOptions } from './options'
-import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 import optionsSchema from './options-schema.json'
 import StrongConfig = require('.')
 
+const ajvValidateSpy = jest.fn(() => true)
+jest.mock('ajv', () => {
+  return function () {
+    return { validate: ajvValidateSpy }
+  }
+})
+
 jest.mock('./load')
 jest.mock('./validate')
-jest.mock('./utils/validate-json-against-schema')
 
 const runtimeEnv = process.env.NODE_ENV || 'test'
 
@@ -36,10 +41,7 @@ describe('StrongConfig class', () => {
     it('validates the options object', () => {
       new StrongConfig(defaultOptions)
 
-      expect(validateJsonAgainstSchema).toHaveBeenCalledWith(
-        defaultOptions,
-        optionsSchema
-      )
+      expect(ajvValidateSpy).toHaveBeenCalledWith(optionsSchema, defaultOptions)
     })
 
     it('stores the validated options object', () => {

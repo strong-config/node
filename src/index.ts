@@ -1,10 +1,10 @@
+import Ajv from 'ajv'
 import { isNil } from 'ramda'
 import Debug from 'debug'
-import type { JSONObject, MemoizedConfig } from './types'
 import type { Options } from './options'
+import type { MemoizedConfig } from './types'
 import { load } from './load'
 import { validate } from './validate'
-import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 import { defaultOptions } from './options'
 import optionsSchema from './options-schema.json'
 
@@ -21,10 +21,11 @@ export = class StrongConfig {
       : defaultOptions
 
     debug('Validating options:\n%O', mergedOptions)
-    validateJsonAgainstSchema(
-      (mergedOptions as unknown) as JSONObject,
-      optionsSchema
-    )
+    const ajv = new Ajv({ allErrors: true, useDefaults: true })
+
+    if (!ajv.validate(optionsSchema, mergedOptions))
+      throw new Error(ajv.errorsText())
+
     debug('Options are valid')
 
     this.options = mergedOptions

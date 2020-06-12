@@ -1,14 +1,13 @@
 import { normalize } from 'path'
+import Ajv from 'ajv'
 import { isNil } from 'ramda'
 import { JSONSchema4 } from 'json-schema'
-
 import * as sops from './utils/sops'
 import { defaultOptions } from './options'
 import { ConfigFileExtensions } from './types'
 import { findConfigFilesAtPath } from './utils/find-files'
 import { readSchemaFile } from './utils/read-file'
 import { getFileFromPath } from './utils/get-file-from-path'
-import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
 
 export const validate = (
   fileName: string,
@@ -40,8 +39,8 @@ export const validate = (
 
   if (schemaFile.contents.title !== 'Schema for strong-config options') {
     /*
-     * Here we add the 'runtimeEnv' prop to the user's schema because we also
-     * hydrate every config object with a 'runtimeEnv' prop automatically.
+     * We auto-add the 'runtimeEnv' prop to the user's schema because we
+     * hydrate every config object with a 'runtimeEnv' prop.
      *
      * So if the user were to strictly define their schema and forbid arbitrary
      * properties via the json-schema attribute 'additionalProperties: false',
@@ -58,5 +57,11 @@ export const validate = (
     schema = schemaFile.contents
   }
 
-  return validateJsonAgainstSchema(decryptedConfig, schema)
+  const ajv = new Ajv({ allErrors: true, useDefaults: true })
+
+  if (!ajv.validate(schema, decryptedConfig)) {
+    throw new Error(ajv.errorsText())
+  }
+
+  return true
 }

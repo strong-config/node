@@ -1,6 +1,6 @@
 import { normalize } from 'path'
 import Debug from 'debug'
-import { generateTypesFromSchemaCallback } from './utils/generate-types-from-schema'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 import { hydrateConfig } from './utils/hydrate-config'
 import { readConfigFile, readSchemaFile } from './utils/read-file'
 import * as sops from './utils/sops'
