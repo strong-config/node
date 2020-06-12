@@ -3,9 +3,8 @@ import { isNil } from 'ramda'
 import { JSONSchema4 } from 'json-schema'
 
 import * as sops from './utils/sops'
-import { ConfigFileExtensions, defaultOptions } from './options'
-
-// Utils
+import { defaultOptions } from './options'
+import { ConfigFileExtensions } from './types'
 import { findConfigFilesAtPath } from './utils/find-files'
 import { readSchemaFile } from './utils/read-file'
 import { getFileFromPath } from './utils/get-file-from-path'

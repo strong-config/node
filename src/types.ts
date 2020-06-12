@@ -24,3 +24,9 @@ export type DecryptedConfig = Omit<BaseConfig, 'sops'>
 export type HydratedConfig = { runtimeEnv: string } & DecryptedConfig
 
 export type MemoizedConfig = HydratedConfig | undefined
+
+export enum ConfigFileExtensions {
+  JSON = 'json',
+  YAML = 'yaml',
+  YML = 'yml',
+}

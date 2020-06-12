@@ -1,7 +1,8 @@
 import { existsSync } from 'fs'
 import { isEmpty } from 'ramda'
-import { defaultOptions, ConfigFileExtensions } from '../options'
-import { EncryptedConfig, Schema } from '../types'
+import { defaultOptions } from '../options'
+import { EncryptedConfig, Schema, ConfigFileExtensions } from '../types'
+
 import { findConfigFilesAtPath } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 

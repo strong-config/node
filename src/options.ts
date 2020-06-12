@@ -10,12 +10,6 @@ export interface Options {
   configRoot: string
 }
 
-export enum ConfigFileExtensions {
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-}
-
 // For defaultOptions, we know that the types-property will never be false because we control it
 export type DefaultOptions = Pick<
   Options,

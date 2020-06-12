@@ -2,7 +2,7 @@ import { load } from './load'
 import { validate } from './validate'
 import { defaultOptions } from './options'
 import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
-import optionsSchema from './options/schema.json'
+import optionsSchema from './options-schema.json'
 import StrongConfig = require('.')
 
 jest.mock('./load')

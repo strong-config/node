@@ -1,11 +1,13 @@
 import { isNil } from 'ramda'
 import Debug from 'debug'
 import type { JSONObject, MemoizedConfig } from './types'
+import type { Options } from './options'
 import { load } from './load'
 import { validate } from './validate'
-import { defaultOptions, Options } from './options'
-import optionsSchema from './options/schema.json'
 import { validateJsonAgainstSchema } from './utils/validate-json-against-schema'
+import { defaultOptions } from './options'
+import optionsSchema from './options-schema.json'
+
 const debug = Debug('strong-config:main')
 
 export = class StrongConfig {

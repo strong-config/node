@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { compose, last, reject, split } from 'ramda'
 import { sync } from 'glob'
-import { ConfigFileExtensions } from '../options'
+import { ConfigFileExtensions } from '../types'
 import { getFileExtensionPattern } from './read-file'
 
 export const isSchema = (filePath: string): boolean =>
