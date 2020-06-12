@@ -1,20 +1,18 @@
 import { existsSync } from 'fs'
 import { isEmpty } from 'ramda'
 import { defaultOptions } from '../options'
-import { EncryptedConfig, Schema, ConfigFileExtensions } from '../types'
+import { ConfigFile, ConfigFileExtensions } from '../types'
 
 import { findConfigFilesAtPath } from './find-files'
 import { getFileFromPath } from './get-file-from-path'
 
-export type File = {
-  contents: EncryptedConfig | Schema
-  filePath: string
-}
-
 export const getFileExtensionPattern = (): string =>
   `{${Object.values(ConfigFileExtensions).join(',')}}`
 
-export const readConfigFile = (basePath: string, fileName: string): File => {
+export const readConfigFile = (
+  basePath: string,
+  fileName: string
+): ConfigFile => {
   const filePaths = findConfigFilesAtPath(basePath, fileName)
 
   if (isEmpty(filePaths)) {
@@ -32,7 +30,7 @@ export const readConfigFile = (basePath: string, fileName: string): File => {
 
 export const readSchemaFile = (
   configRoot: string = defaultOptions.configRoot
-): File | undefined => {
+): ConfigFile | undefined => {
   const schemaPath = `${configRoot}/schema.json`
 
   return existsSync(schemaPath) ? getFileFromPath(schemaPath) : undefined

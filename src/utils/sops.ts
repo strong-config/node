@@ -64,10 +64,10 @@ export const decryptInPlace = (filePath: string): void =>
   (runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown) as void
 
 export const getSopsOptions = (
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: Record<string, any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flags: Record<string, any>
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 ): string[] => {
   const options: string[] = []
 
@@ -103,14 +103,17 @@ export const getSopsOptions = (
     options.push(flags['key-id'])
   }
 
-  /*
-   * Note that --unencrypted-key-suffix and --encrypted-key-suffix
-   * are mutual exclusive in both strong-config and SOPS.
-   */
-  if (flags['unencrypted-key-suffix'] !== undefined) {
+  if (flags['unencrypted-key-suffix'] && !flags['encrypted-key-suffix']) {
     options.push('--unencrypted-suffix', flags['unencrypted-key-suffix'])
-  } else if (flags['encrypted-key-suffix'] !== undefined) {
+  } else if (
+    flags['encrypted-key-suffix'] &&
+    !flags['unencrypted-key-suffix']
+  ) {
     options.push('--encrypted-suffix', flags['encrypted-key-suffix'])
+  } else if (flags['encrypted-key-suffix'] && flags['unencrypted-key-suffix']) {
+    throw new Error(
+      `'--unencrypted-key-suffix' and '--encrypted-key-suffix' are mutually exclusive, pick one or the other`
+    )
   }
 
   if (flags.verbose) {

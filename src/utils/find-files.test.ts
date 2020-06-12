@@ -1,22 +1,19 @@
-jest.mock('glob')
-jest.mock('path')
-jest.mock('./read-file')
-import path from 'path'
 import glob from 'glob'
-import { getFileExtensionPattern } from './read-file'
-const mockedGlob = glob as jest.Mocked<typeof glob>
-const mockedPath = path as jest.Mocked<typeof path>
-const mockedGetFileExtensionPattern = getFileExtensionPattern as jest.MockedFunction<
-  typeof getFileExtensionPattern
->
-
-const mockedFileNames = ['/dev/config/development.yml', 'schema.json']
-const mockedResolvedPath = '/dev'
-mockedGlob.sync = jest.fn().mockReturnValue(mockedFileNames)
-mockedPath.resolve = jest.fn().mockReturnValue(mockedResolvedPath)
-mockedGetFileExtensionPattern.mockReturnValue('json')
-
 import { findConfigFilesAtPath, findFiles, isSchema } from './find-files'
+
+const resolvedPathMock = '/dev'
+jest.mock('path', () => ({
+  resolve: jest.fn(() => resolvedPathMock),
+}))
+
+const fileNamesMock = ['/dev/config/development.yml', 'schema.json']
+jest.mock('glob', () => ({
+  sync: jest.fn(() => fileNamesMock),
+}))
+
+jest.mock('./read-file', () => ({
+  getFileExtensionPattern: jest.fn(() => 'json'),
+}))
 
 describe('findFiles()', () => {
   beforeEach(() => {
@@ -26,33 +23,30 @@ describe('findFiles()', () => {
   it('invokes glob.sync', () => {
     findFiles('some/path')
 
-    expect(mockedGlob.sync).toHaveBeenCalledTimes(1)
+    expect(glob.sync).toHaveBeenCalledTimes(1)
   })
 
   it('returns result of glob.sync', () => {
-    expect(findFiles('some/path')).toEqual(mockedFileNames)
+    expect(findFiles('some/path')).toEqual(fileNamesMock)
   })
 
   it('invokes glob.sync with correct default glob', () => {
     findFiles('some/path')
 
-    expect(mockedGlob.sync).toHaveBeenCalledWith('**/*.*', expect.any(Object))
+    expect(glob.sync).toHaveBeenCalledWith('**/*.*', expect.any(Object))
   })
 
   it('builds non-default glob correctly', () => {
     findFiles('some/path', 'schema', 'json')
 
-    expect(mockedGlob.sync).toHaveBeenCalledWith(
-      'schema.json',
-      expect.any(Object)
-    )
+    expect(glob.sync).toHaveBeenCalledWith('schema.json', expect.any(Object))
   })
 
   it('invokes glob.sync with correct options', () => {
     findFiles('some/path')
 
-    expect(mockedGlob.sync).toHaveBeenCalledWith(expect.any(String), {
-      cwd: mockedResolvedPath,
+    expect(glob.sync).toHaveBeenCalledWith(expect.any(String), {
+      cwd: resolvedPathMock,
       absolute: true,
     })
   })
@@ -76,28 +70,22 @@ describe('findConfigFilesAtPath()', () => {
   it('invokes glob.sync', () => {
     findConfigFilesAtPath('some/path')
 
-    expect(mockedGlob.sync).toHaveBeenCalledTimes(1)
+    expect(glob.sync).toHaveBeenCalledTimes(1)
   })
 
   it('returns result of glob.sync but filters out files named schema', () => {
-    expect(findConfigFilesAtPath('some/path')).toEqual([mockedFileNames[0]])
+    expect(findConfigFilesAtPath('some/path')).toEqual([fileNamesMock[0]])
   })
 
   it('invokes glob.sync with correct default glob', () => {
     findConfigFilesAtPath('some/path')
 
-    expect(mockedGlob.sync).toHaveBeenCalledWith(
-      '**/*.json',
-      expect.any(Object)
-    )
+    expect(glob.sync).toHaveBeenCalledWith('**/*.json', expect.any(Object))
   })
 
   it('builds glob correctly when fileName is passed', () => {
     findConfigFilesAtPath('some/path', 'schema')
 
-    expect(mockedGlob.sync).toHaveBeenCalledWith(
-      'schema.json',
-      expect.any(Object)
-    )
+    expect(glob.sync).toHaveBeenCalledWith('schema.json', expect.any(Object))
   })
 })

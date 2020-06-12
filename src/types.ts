@@ -30,3 +30,13 @@ export enum ConfigFileExtensions {
   YAML = 'yaml',
   YML = 'yml',
 }
+
+export type ConfigFile = {
+  contents: EncryptedConfig
+  filePath: string
+}
+
+export type SchemaFile = {
+  contents: Schema
+  filePath: string
+}

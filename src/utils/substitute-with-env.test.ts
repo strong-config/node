@@ -1,23 +1,21 @@
 import { defaultOptions } from '../options'
+import { substituteWithEnv } from './substitute-with-env'
 
-const mockedProcessEnv = {
+const processEnvMock = {
   replace: 'REPLACED',
   ABC: 'SOME_ENV_VAR_VALUE',
   '0INVALID': 'INVALID KEY',
 }
-const mockedOptions = defaultOptions
-const mockedSubstitutionPattern = mockedOptions.substitutionPattern
 
-import { substituteWithEnv } from './substitute-with-env'
 const substituteWithEnvInitialized = substituteWithEnv(
-  mockedSubstitutionPattern
+  defaultOptions.substitutionPattern
 )
 
 describe('substituteWithEnv()', () => {
   const OLD_PROCESS_ENV = process.env
 
   beforeAll(() => {
-    process.env = mockedProcessEnv
+    process.env = processEnvMock
   })
 
   afterAll(() => {

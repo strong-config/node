@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import { compose, last, reject, split } from 'ramda'
-import { sync } from 'glob'
+import glob from 'glob'
 import { ConfigFileExtensions } from '../types'
 import { getFileExtensionPattern } from './read-file'
 
@@ -11,26 +11,18 @@ export const isSchema = (filePath: string): boolean =>
     split('/')
   )(filePath)
 
-export const isJson = (filePath: string): boolean => filePath.endsWith('.json')
-
 export const findFiles = (
   basePath: string,
   globFileName = '**/*',
   globFileExtension = '*'
 ): string[] => {
-  let globPattern
+  const globPattern = Object.values(ConfigFileExtensions).find((extension) =>
+    globFileName.endsWith(extension)
+  )
+    ? globFileName
+    : `${globFileName}.${globFileExtension}`
 
-  if (
-    Object.values(ConfigFileExtensions).find((extension) =>
-      globFileName.endsWith(extension)
-    )
-  ) {
-    globPattern = globFileName
-  } else {
-    globPattern = `${globFileName}.${globFileExtension}`
-  }
-
-  return sync(globPattern, { cwd: resolve(basePath), absolute: true })
+  return glob.sync(globPattern, { cwd: resolve(basePath), absolute: true })
 }
 
 export const findConfigFilesAtPath = (

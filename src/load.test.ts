@@ -6,7 +6,7 @@ jest.mock('./validate')
 import { load } from './load'
 import { defaultOptions } from './options'
 import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
-import { hydrateConfig, InnerHydrateFunction } from './utils/hydrate-config'
+import { hydrateConfig, HydrateConfig } from './utils/hydrate-config'
 import { validate } from './validate'
 import * as readFile from './utils/read-file'
 import * as sops from './utils/sops'
@@ -32,7 +32,7 @@ describe('load()', () => {
   >
   const innerHydrateFunction = jest
     .fn()
-    .mockReturnValue(hydratedConfigMock) as jest.Mock<InnerHydrateFunction>
+    .mockReturnValue(hydratedConfigMock) as jest.Mock<HydrateConfig>
   hydrateConfigMock.mockReturnValue(innerHydrateFunction)
 
   beforeAll(() => {

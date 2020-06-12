@@ -1,33 +1,27 @@
-jest.mock('./substitute-with-env')
 import { defaultOptions } from '../options'
+import { hydrateConfig } from './hydrate-config'
 import { substituteWithEnv } from './substitute-with-env'
 
-const mockedSubstituteWithEnv = substituteWithEnv as jest.MockedFunction<
-  typeof substituteWithEnv
->
-const mockedOptions = defaultOptions
+jest.mock('./substitute-with-env', () => ({
+  substituteWithEnv: jest
+    .fn()
+    .mockReturnValue(() => '{"field":"value","replaceMe":"PASTE"}'),
+}))
+
 const runtimeEnv = 'test'
 const mockedConfig = {
   field: 'value',
   replaceMe: '${asdf}',
 }
-const mockedSubstitutedConfig = '{"field":"value","replaceMe":"PASTE"}'
-const mockedHydratedConfig = {
-  ...mockedConfig,
-  replaceMe: 'PASTE',
-  runtimeEnv,
-}
-mockedSubstituteWithEnv.mockReturnValue(() => mockedSubstitutedConfig)
 
-import { hydrateConfig } from './hydrate-config'
-const hydrateConfigInited = hydrateConfig(runtimeEnv, mockedOptions)
+const hydrateConfigInited = hydrateConfig(runtimeEnv, defaultOptions)
 
 describe('hydrateConfig()', () => {
   it('calls substituteWithEnv with substitutionPattern', () => {
     hydrateConfigInited(mockedConfig)
 
-    expect(mockedSubstituteWithEnv).toHaveBeenCalledWith(
-      mockedOptions.substitutionPattern
+    expect(substituteWithEnv).toHaveBeenCalledWith(
+      defaultOptions.substitutionPattern
     )
   })
 
@@ -40,6 +34,12 @@ describe('hydrateConfig()', () => {
   })
 
   it('returns the expected result', () => {
-    expect(hydrateConfigInited(mockedConfig)).toEqual(mockedHydratedConfig)
+    const hydratedConfigMock = {
+      ...mockedConfig,
+      replaceMe: 'PASTE',
+      runtimeEnv,
+    }
+
+    expect(hydrateConfigInited(mockedConfig)).toEqual(hydratedConfigMock)
   })
 })

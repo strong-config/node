@@ -10,6 +10,10 @@ import optionsSchema from './options-schema.json'
 
 const debug = Debug('strong-config:main')
 
+/*
+ * Using `export =` syntax for better CommonJS compatibility
+ * See: https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
+ */
 export = class StrongConfig {
   public readonly options: Options
   private readonly runtimeEnv: string | undefined
@@ -30,7 +34,7 @@ export = class StrongConfig {
 
     this.options = mergedOptions
 
-    this.runtimeEnv = process.env[this.options.runtimeEnvName]
+    this.runtimeEnv = process.env[mergedOptions.runtimeEnvName]
   }
 
   private checkRuntimeEnv = (): void => {

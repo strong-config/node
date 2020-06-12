@@ -3,13 +3,7 @@ jest.mock('js-yaml')
 
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
-
-/*
- * NOTE: Need to import this way because I couldn't figure out how to
- * mock named imports (e.g. `import { blubb } from './dubb'`) with jest.
- * Jest's `spyOn()` function can't be applied to individual functions
- */
-import * as x from './get-file-from-path'
+import * as getFileFromPathModule from './get-file-from-path'
 
 describe('readFileToString()', () => {
   const pathToFile = 'some/path/to/file.yaml'
@@ -18,7 +12,7 @@ describe('readFileToString()', () => {
       .spyOn(fs, 'readFileSync')
       .mockReturnValueOnce('parsed config in json or yaml format')
 
-    x.readFileToString(pathToFile)
+    getFileFromPathModule.readFileToString(pathToFile)
 
     expect(fs.readFileSync).toHaveBeenCalledWith(pathToFile)
   })
@@ -28,17 +22,9 @@ describe('readFileToString()', () => {
       .spyOn(fs, 'readFileSync')
       .mockReturnValueOnce(Buffer.from('some buffer'))
 
-    expect(x.readFileToString(pathToFile)).toBe('some buffer')
-  })
-})
-
-describe('isJson()', () => {
-  it('returns true when passed filePath ends with .json', () => {
-    expect(x.isJson('/dev/path/to/some/json/file.json')).toBe(true)
-  })
-
-  it('returns false when passed filePath does not end with .json', () => {
-    expect(x.isJson('/dev/path/to/some/json/file.yml')).toBe(false)
+    expect(getFileFromPathModule.readFileToString(pathToFile)).toBe(
+      'some buffer'
+    )
   })
 })
 
@@ -49,13 +35,13 @@ describe('parseToJson()', () => {
   })
 
   it('parses YAML if YAML file is passed', () => {
-    x.parseToJson('/path/to/json/file.yml')('file: "yaml"')
+    getFileFromPathModule.parseToJson('/path/to/json/file.yml')('file: "yaml"')
 
     expect(yaml.load).toHaveBeenCalledTimes(1)
   })
 
   it('parses not YAML if JSON file is passed', () => {
-    x.parseToJson('/path/to/json/file.json')('{}')
+    getFileFromPathModule.parseToJson('/path/to/json/file.json')('{}')
 
     expect(yaml.load).toHaveBeenCalledTimes(0)
   })
@@ -66,25 +52,35 @@ describe('getFileFromPath()', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    jest.spyOn(x, 'readFileToString').mockReturnValue('string')
-    jest.spyOn(x, 'parseToJson').mockImplementation(() => innerParse)
+    jest
+      .spyOn(getFileFromPathModule, 'readFileToString')
+      .mockReturnValue('string')
+    jest
+      .spyOn(getFileFromPathModule, 'parseToJson')
+      .mockImplementation(() => innerParse)
   })
 
   it('reads the file to string', () => {
-    x.getFileFromPath('some/path/config.yaml')
+    getFileFromPathModule.getFileFromPath('some/path/config.yaml')
 
-    expect(x.readFileToString).toHaveBeenCalledWith('some/path/config.yaml')
+    expect(getFileFromPathModule.readFileToString).toHaveBeenCalledWith(
+      'some/path/config.yaml'
+    )
   })
 
   it('parses the string to json', () => {
-    x.getFileFromPath('some/path/config.yaml')
+    getFileFromPathModule.getFileFromPath('some/path/config.yaml')
 
-    expect(x.parseToJson).toHaveBeenCalledWith('some/path/config.yaml')
+    expect(getFileFromPathModule.parseToJson).toHaveBeenCalledWith(
+      'some/path/config.yaml'
+    )
     expect(innerParse).toHaveBeenCalledWith('string')
   })
 
   it('returns the expected file', () => {
-    const result = x.getFileFromPath('some/path/config.yaml')
+    const result = getFileFromPathModule.getFileFromPath(
+      'some/path/config.yaml'
+    )
 
     expect(result).toStrictEqual({
       filePath: 'some/path/config.yaml',

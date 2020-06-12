@@ -3,14 +3,12 @@ import { DecryptedConfig, HydratedConfig } from '../types'
 import type { Options } from '../options'
 import { substituteWithEnv } from './substitute-with-env'
 
-export type InnerHydrateFunction = (
-  decryptedConfig: DecryptedConfig
-) => HydratedConfig
+export type HydrateConfig = (decryptedConfig: DecryptedConfig) => HydratedConfig
 
 export const hydrateConfig = (
   runtimeEnv: string,
   { substitutionPattern }: Options
-): InnerHydrateFunction =>
+): HydrateConfig =>
   compose(
     assoc('runtimeEnv', runtimeEnv),
     unary(JSON.parse),
