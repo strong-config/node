@@ -2,13 +2,13 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
+import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
+import { defaultOptions } from '../options'
+import { readSchemaFile } from '../utils/read-file'
+import { validateCliWrapper } from './validate'
+
 const debugNamespace = 'strong-config:encrypt'
 const debug = Debug(debugNamespace)
-
-import { validateCliWrapper } from './validate'
-import { getSopsOptions, runSopsWithOptions } from 'utils/sops'
-import { defaultOptions } from 'options'
-import { readSchemaFile } from 'utils/read-file'
 
 const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']

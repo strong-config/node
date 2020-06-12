@@ -4,8 +4,8 @@ import ora from 'ora'
 import Debug from 'debug'
 const debug = Debug('strong-config:validate')
 
-import { validate } from 'validate'
-import { defaultOptions } from 'options'
+import { validate } from '../validate'
+import { defaultOptions } from '../options'
 
 export const validateCliWrapper = (
   configFile: string,

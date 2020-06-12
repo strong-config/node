@@ -1,30 +1,36 @@
 jest.mock('./validate')
-jest.mock('../../utils/sops')
+jest.mock('../utils/sops')
 
 import { stderr, stdout } from 'stdout-stderr'
-import { Decrypt } from './decrypt'
-
+import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
+import { Encrypt } from './encrypt'
 import { validateCliWrapper } from './validate'
-import { getSopsOptions, runSopsWithOptions } from 'utils/sops'
 
 // Mocks
 const runSopsWithOptionsMock = runSopsWithOptions as jest.MockedFunction<
   typeof runSopsWithOptions
 >
-const getSopsOptionsMock = getSopsOptions as jest.MockedFunction<
+const getSopsWithOptionsMock = getSopsOptions as jest.MockedFunction<
   typeof getSopsOptions
 >
 const validateCliWrapperMock = validateCliWrapper as jest.MockedFunction<
   typeof validateCliWrapper
 >
-const sopsOptionsMock = ['--some', '--flags']
-getSopsOptionsMock.mockReturnValue(sopsOptionsMock)
-const sopsError = new Error('some sops error')
-const configRoot = 'example'
-const configFile = 'example/development.yaml'
 const processExitMock = jest.spyOn(process, 'exit').mockImplementation()
 
-describe('strong-config decrypt', () => {
+const sopsOptionsMock = ['--some', '--flags']
+getSopsWithOptionsMock.mockReturnValue(sopsOptionsMock)
+const sopsError = new Error('some sops error')
+
+// This file is created in the beforeAll handler
+const configRoot = 'example'
+const configFile = 'example/development.decrypted.yaml'
+
+const keyId = '2E9644A658379349EFB77E895351CE7FC0AC6E94' // example/pgp/example-keypair.pgp
+const keyProvider = 'pgp'
+const requiredKeyFlags = ['-k', keyId, '-p', keyProvider]
+
+describe('strong-config encrypt', () => {
   beforeEach(() => {
     stdout.start()
     stderr.start()
@@ -32,14 +38,14 @@ describe('strong-config decrypt', () => {
 
   afterAll(() => {
     processExitMock.mockRestore()
-    stderr.stop()
     stdout.stop()
+    stderr.stop()
   })
 
-  describe('shows help', () => {
-    it('prints the help with --help', async () => {
+  describe('--help', () => {
+    it('prints the help', async () => {
       try {
-        await Decrypt.run(['--help'])
+        await Encrypt.run(['--help'])
         /*
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
@@ -61,7 +67,11 @@ describe('strong-config decrypt', () => {
 
     it('always prints help with any command having --help', async () => {
       try {
-        await Decrypt.run(['some/config/file.yaml', '--help'])
+        await Encrypt.run([
+          'some/config/file.yml',
+          '--help',
+          ...requiredKeyFlags,
+        ])
         /*
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
@@ -82,38 +92,43 @@ describe('strong-config decrypt', () => {
     })
   })
 
-  describe('handles decryption', () => {
+  describe('handles encryption', () => {
     beforeEach(() => {
       jest.clearAllMocks()
     })
 
     it('exits with code 0 when successful', async () => {
-      await Decrypt.run([configFile])
+      await Encrypt.run([configFile, ...requiredKeyFlags])
 
       expect(processExitMock).toHaveBeenCalledWith(0)
     })
 
-    it('exits with code 1 when decryption fails', async () => {
+    it('exits with code 1 when encryption fails', async () => {
       runSopsWithOptionsMock.mockImplementationOnce(() => {
         throw sopsError
       })
 
-      await Decrypt.run([configFile])
+      await Encrypt.run([configFile, ...requiredKeyFlags])
 
       expect(processExitMock).toHaveBeenCalledWith(1)
     })
 
-    it('decrypts by using sops', async () => {
-      await Decrypt.run([configFile])
+    it('encrypts by using sops', async () => {
+      await Encrypt.run([configFile, ...requiredKeyFlags])
 
       expect(runSopsWithOptionsMock).toHaveBeenCalledWith([
-        '--decrypt',
+        '--encrypt',
         ...sopsOptionsMock,
       ])
     })
 
-    it('decrypts and validates when configRoot contains schema.json', async () => {
-      await Decrypt.run([configFile, '--config-root', configRoot])
+    it('encrypts and validates when schema path is passed', async () => {
+      await Encrypt.run([
+        configFile,
+        ...requiredKeyFlags,
+        '--config-root',
+        configRoot,
+      ])
 
       expect(validateCliWrapperMock).toHaveBeenCalledWith(
         configFile,
@@ -123,9 +138,21 @@ describe('strong-config decrypt', () => {
     })
 
     it('fails when no arguments are passed', async () => {
-      await expect(Decrypt.run([])).rejects.toThrowError(
-        /Missing 1 required arg/
+      await expect(Encrypt.run([configFile])).rejects.toThrowError(
+        /--key-provider KEY-PROVIDER/
       )
+    })
+
+    it('fails when no key provider is passed with --key-provider/-p', async () => {
+      await expect(Encrypt.run([configFile, '-k', keyId])).rejects.toThrowError(
+        /--key-provider KEY-PROVIDER/
+      )
+    })
+
+    it('fails when no key id is passed with --key-id/-k', async () => {
+      await expect(
+        Encrypt.run([configFile, '-p', keyProvider])
+      ).rejects.toThrowError(/--key-id= must also be provided/)
     })
   })
 
@@ -134,29 +161,29 @@ describe('strong-config decrypt', () => {
       jest.clearAllMocks()
     })
 
-    it('informs user about the decryption process', async () => {
-      await Decrypt.run([configFile])
+    it('informs user about the encryption process', async () => {
+      await Encrypt.run([configFile, ...requiredKeyFlags])
       stderr.stop()
 
-      expect(stderr.output).toMatch('Decrypting...')
+      expect(stderr.output).toMatch('Encrypting...')
     })
 
-    it('informs user about the decryption result', async () => {
-      await Decrypt.run([configFile])
+    it('informs user about the encryption result', async () => {
+      await Encrypt.run([configFile, ...requiredKeyFlags])
       stderr.stop()
 
-      expect(stderr.output).toMatch(`Successfully decrypted ${configFile}!`)
+      expect(stderr.output).toMatch(`Successfully encrypted ${configFile}!`)
     })
 
-    it('informs user about decryption errors', async () => {
+    it('informs user about encryption errors', async () => {
       runSopsWithOptionsMock.mockImplementationOnce(() => {
         throw sopsError
       })
 
-      await Decrypt.run([configFile])
+      await Encrypt.run([configFile, ...requiredKeyFlags])
       stderr.stop()
 
-      expect(stderr.output).toMatch('Failed to decrypt config file')
+      expect(stderr.output).toMatch('Failed to encrypt config file')
     })
   })
 })

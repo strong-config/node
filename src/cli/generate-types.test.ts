@@ -1,12 +1,12 @@
 jest.mock('./validate')
-jest.mock('../../utils/sops')
+jest.mock('../utils/sops')
 
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
+import * as x from '../utils/generate-types-from-schema' // hacky syntax to allow for easy mocking
+import * as y from '../utils/read-file' // hacky syntax to allow for easy mocking
+import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
-import * as x from 'utils/generate-types-from-schema' // hacky syntax to allow for easy mocking
-import * as y from 'utils/read-file' // hacky syntax to allow for easy mocking
-import { defaultOptions } from 'options'
 
 describe('strong-config generate-types', () => {
   beforeEach(() => {

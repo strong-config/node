@@ -1,7 +1,7 @@
 import { stderr, stdout } from 'stdout-stderr'
-import { validate as validateUtil } from '../../validate'
+import { validate as validateUtil } from '../validate'
 import { Validate } from './validate'
-jest.mock('../../validate')
+jest.mock('../validate')
 
 const validateUtilMock = validateUtil as jest.MockedFunction<
   typeof validateUtil

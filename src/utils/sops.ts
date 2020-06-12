@@ -4,7 +4,7 @@ import { load } from 'js-yaml'
 import { has, isNil } from 'ramda'
 import which from 'which'
 
-import type { DecryptedConfig, EncryptedConfig } from '../types'
+import type { DecryptedConfig, EncryptedConfig } from 'types'
 
 function getSopsBinary(): string | undefined {
   if (which.sync('sops', { nothrow: true })) {
@@ -97,7 +97,7 @@ export const getSopsOptions = (
         options.push('--azure-kv')
         break
       default:
-        // Should not be reached as we define possible options in Encrypt.flags (commands/encrypt.ts)
+        // Should not be reached as we define possible options in Encrypt.flags (../cli/encrypt.ts)
         throw new Error(`Unsupported key provider ${flags['key-provider']}`)
     }
 
