@@ -11,16 +11,6 @@ import type { HydratedConfig } from './types'
 
 const debug = Debug('strong-config:load')
 
-/*
- * NOTE: We have made a conscious decision to keep the load() function synchronous (e.g. no 'async' keyword)
- *
- * Why? Because making load() async would be very invasive for consumers of this package.
- * It would mean that wherever they use strong-config, they'd have to make the context from which
- * they call it asynchronous.
- *
- * Also, the type generation is a dev-only feature that can safely fail without impacting the core
- * functionality of strong-config.
- */
 export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
   const normalizedConfigRoot = normalize(options.configRoot)
 
@@ -39,6 +29,15 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
     debug(`${runtimeEnv} config is valid`)
 
     if (options.types !== false) {
+      /*
+       * Why a callback?
+       * Because making load() return a promise would be cumbersome for consumers of this package.
+       * It would mean that wherever they use strong-config, they'd have to make the context from which
+       * they call it asynchronous.
+       *
+       * Additionally, the type generation is a dev-only feature that can safely fail without impacting
+       * the core functionality of strong-config.
+       */
       generateTypesFromSchemaCallback(
         normalizedConfigRoot,
         options.types,

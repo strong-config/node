@@ -72,16 +72,6 @@ export interface ${typeOptions.rootTypeName} extends ${pascalCase(title)} {
   )
 }
 
-/*
- * Why callbackify this?
- * This is a necessary tradeoff to keep the load() function synchronous.
- * We are making this tradeoff in order to keep the burden on consumers
- * of this package minimal with regards to changing their code for strong-config.
- *
- * If we kept this as promise-only, then load() would become asynchronous which
- * would mean consuming applications would have to wrap all their code that uses
- * strong-config in 'async' blocks, which we shouldn't force them to do.
- */
 export const generateTypesFromSchemaCallback = callbackify(
   generateTypesFromSchema
 )
