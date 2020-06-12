@@ -1,5 +1,4 @@
 import Ajv from 'ajv'
-
 import { JSONObject, Schema } from '../types'
 
 const ajv = new Ajv({ allErrors: true, useDefaults: true })

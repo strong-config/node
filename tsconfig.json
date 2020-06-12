@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    // Base directory to resolve non-absolute module names
-    // https://www.typescriptlang.org/v2/en/tsconfig#baseUrl
-    "baseUrl": "./src/",
-
     // Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports.
     // https://www.typescriptlang.org/v2/en/tsconfig#esModuleInterop
     "esModuleInterop": true,

@@ -1,8 +1,7 @@
 import execa, { ExecaSyncReturnValue } from 'execa'
 import yaml from 'js-yaml'
 import { dissoc } from 'ramda'
-import { DecryptedConfig, EncryptedConfig } from '../types'
-
+import type { DecryptedConfig, EncryptedConfig } from '../types'
 import { decryptInPlace, decryptToObject } from './sops'
 
 describe('utils :: sops', () => {

@@ -1,5 +1,4 @@
 import { assoc, compose, unary } from 'ramda'
-
 import { DecryptedConfig, HydratedConfig } from '../types'
 import { Options } from '../options'
 import { substituteWithEnv } from './substitute-with-env'

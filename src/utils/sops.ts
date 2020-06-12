@@ -3,8 +3,7 @@ import { sync } from 'execa'
 import { load } from 'js-yaml'
 import { has, isNil } from 'ramda'
 import which from 'which'
-
-import type { DecryptedConfig, EncryptedConfig } from 'types'
+import type { DecryptedConfig, EncryptedConfig } from '../types'
 
 function getSopsBinary(): string | undefined {
   if (which.sync('sops', { nothrow: true })) {

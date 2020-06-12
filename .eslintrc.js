@@ -12,13 +12,6 @@ module.exports = {
     'tsconfig.eslint.json',
     'example/types.d.ts',
   ],
-  settings: {
-    'import/resolver': {
-      node: {
-        paths: ['./src'],
-      },
-    },
-  },
   plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn'],
   extends: [
     // https://eslint.org/docs/rules/
