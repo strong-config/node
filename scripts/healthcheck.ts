@@ -138,7 +138,7 @@ async function main(): Promise<void> {
 
 main()
   .then(() => {
-    console.log(`\n${chalk.bold('🙌 Project looks healthy 🙌')}\n`)
+    console.log(`\n${chalk.bold('💪 Project looks healthy 💪')}\n`)
 
     return
   })
