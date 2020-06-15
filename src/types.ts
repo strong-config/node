@@ -25,11 +25,7 @@ export type HydratedConfig = { runtimeEnv: string } & DecryptedConfig
 
 export type MemoizedConfig = HydratedConfig | undefined
 
-export enum ConfigFileExtensions {
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-}
+export const ConfigFileExtensions = ['json', 'yaml', 'yml']
 
 export type ConfigFile = {
   contents: EncryptedConfig

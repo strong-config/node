@@ -2,7 +2,6 @@ import { resolve } from 'path'
 import { compose, last, reject, split } from 'ramda'
 import glob from 'glob'
 import { ConfigFileExtensions } from '../types'
-import { getFileExtensionPattern } from './read-file'
 
 export const isSchema = (filePath: string): boolean =>
   compose<string, string[], string, boolean>(
@@ -16,7 +15,7 @@ export const findFiles = (
   globFileName = '**/*',
   globFileExtension = '*'
 ): string[] => {
-  const globPattern = Object.values(ConfigFileExtensions).find((extension) =>
+  const globPattern = ConfigFileExtensions.find((extension) =>
     globFileName.endsWith(extension)
   )
     ? globFileName
@@ -29,4 +28,7 @@ export const findConfigFilesAtPath = (
   basePath: string,
   fileName?: string
 ): string[] =>
-  reject(isSchema, findFiles(basePath, fileName, getFileExtensionPattern()))
+  reject(
+    isSchema,
+    findFiles(basePath, fileName, `{${ConfigFileExtensions.join(',')}}`)
+  )

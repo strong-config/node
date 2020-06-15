@@ -15,9 +15,9 @@ export const validate = (
 ): true => {
   /* istanbul ignore next: no need to test that a node built-in works correctly */
   const normalizedConfigRoot = normalize(configRoot)
-  const normalizedFileName = Object.values(
-    ConfigFileExtensions
-  ).find((extension) => fileName.endsWith(extension))
+  const normalizedFileName = ConfigFileExtensions.find((extension) =>
+    fileName.endsWith(extension)
+  )
     ? fileName
     : findConfigFilesAtPath(normalizedConfigRoot, fileName)[0]
 

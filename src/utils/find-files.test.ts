@@ -20,14 +20,9 @@ describe('findFiles()', () => {
     jest.clearAllMocks()
   })
 
-  it('invokes glob.sync', () => {
-    findFiles('some/path')
-
-    expect(glob.sync).toHaveBeenCalledTimes(1)
-  })
-
   it('returns result of glob.sync', () => {
     expect(findFiles('some/path')).toEqual(fileNamesMock)
+    expect(glob.sync).toHaveBeenCalledTimes(1)
   })
 
   it('invokes glob.sync with correct default glob', () => {
@@ -36,8 +31,14 @@ describe('findFiles()', () => {
     expect(glob.sync).toHaveBeenCalledWith('**/*.*', expect.any(Object))
   })
 
-  it('builds non-default glob correctly', () => {
+  it('appends file extensions to glob if globFileName arg does not end in .{json,yaml,yml)', () => {
     findFiles('some/path', 'schema', 'json')
+
+    expect(glob.sync).toHaveBeenCalledWith('schema.json', expect.any(Object))
+  })
+
+  it('does NOT append file extensions to glob if globFileName arg ends in .{json,yaml,yml)', () => {
+    findFiles('some/path', 'schema.json')
 
     expect(glob.sync).toHaveBeenCalledWith('schema.json', expect.any(Object))
   })
@@ -80,12 +81,18 @@ describe('findConfigFilesAtPath()', () => {
   it('invokes glob.sync with correct default glob', () => {
     findConfigFilesAtPath('some/path')
 
-    expect(glob.sync).toHaveBeenCalledWith('**/*.json', expect.any(Object))
+    expect(glob.sync).toHaveBeenCalledWith(
+      '**/*.{json,yaml,yml}',
+      expect.any(Object)
+    )
   })
 
   it('builds glob correctly when fileName is passed', () => {
-    findConfigFilesAtPath('some/path', 'schema')
+    findConfigFilesAtPath('some/path', 'config')
 
-    expect(glob.sync).toHaveBeenCalledWith('schema.json', expect.any(Object))
+    expect(glob.sync).toHaveBeenCalledWith(
+      'config.{json,yaml,yml}',
+      expect.any(Object)
+    )
   })
 })
