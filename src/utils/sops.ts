@@ -5,7 +5,13 @@ import { has, isNil } from 'ramda'
 import which from 'which'
 import type { DecryptedConfig, EncryptedConfig } from '../types'
 
-function getSopsBinary(): string | undefined {
+export const sopsErrors = {
+  SOPS_NOT_FOUND: `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`,
+  DECRYPTION_ERROR: `Sops failed to retrieve the decryption key. This is often a permission error with your KMS provider.`,
+  UNSUPPORTED_KEY_PROVIDER: 'Unsupported key provider:',
+}
+
+export function getSopsBinary(): string {
   if (which.sync('sops', { nothrow: true })) {
     return 'sops'
   }
@@ -14,20 +20,11 @@ function getSopsBinary(): string | undefined {
     return './sops'
   }
 
-  return
-}
-
-const sopsErrors = {
-  SOPS_NOT_FOUND: `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`,
-  DECRYPTION_ERROR: `Sops failed to retrieve the decryption key. This is often a permission error with your KMS provider.`,
+  throw new Error(sopsErrors['SOPS_NOT_FOUND'])
 }
 
 export const runSopsWithOptions = (options: string[]): string => {
   const sopsBinary = getSopsBinary()
-
-  if (!sopsBinary) {
-    throw new Error(sopsErrors['SOPS_NOT_FOUND'])
-  }
 
   const sopsResult = sync(sopsBinary, options)
 
@@ -97,7 +94,11 @@ export const getSopsOptions = (
         break
       default:
         // Should not be reached as we define possible options in Encrypt.flags (../cli/encrypt.ts)
-        throw new Error(`Unsupported key provider ${flags['key-provider']}`)
+        throw new Error(
+          sopsErrors['UNSUPPORTED_KEY_PROVIDER'].concat(
+            `\n${flags['key-provider']}`
+          )
+        )
     }
 
     options.push(flags['key-id'])

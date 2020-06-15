@@ -1,8 +1,17 @@
+import fs from 'fs'
+import which from 'which'
 import execa, { ExecaSyncReturnValue } from 'execa'
 import yaml from 'js-yaml'
 import { dissoc } from 'ramda'
 import type { DecryptedConfig, EncryptedConfig } from '../types'
-import { decryptInPlace, decryptToObject } from './sops'
+import {
+  getSopsBinary,
+  getSopsOptions,
+  decryptInPlace,
+  decryptToObject,
+  runSopsWithOptions,
+  sopsErrors,
+} from './sops'
 
 describe('utils :: sops', () => {
   const configFilePathMock = './config/development.yaml'
@@ -43,6 +52,68 @@ describe('utils :: sops', () => {
 
   afterAll(() => {
     execaSyncMock.mockRestore()
+  })
+
+  describe('getSopsBinary()', () => {
+    it('should return `sops` if binary is available in $PATH', () => {
+      jest.spyOn(which, 'sync').mockImplementationOnce(() => 'sops')
+      const sopsBinary = getSopsBinary()
+
+      expect(sopsBinary).toBe('sops')
+    })
+
+    it('should return `./sops` if binary is NOT available in $PATH but has been downloaded to current directory', () => {
+      jest.spyOn(which, 'sync').mockImplementationOnce(() => '')
+      jest.spyOn(fs, 'existsSync').mockImplementationOnce(() => true)
+      const sopsBinary = getSopsBinary()
+
+      expect(sopsBinary).toBe('./sops')
+    })
+
+    it('should throw if binary is neither available in $PATH nor in current directory', () => {
+      jest.spyOn(which, 'sync').mockImplementationOnce(() => '')
+      jest.spyOn(fs, 'existsSync').mockImplementationOnce(() => false)
+
+      expect(getSopsBinary).toThrowError(sopsErrors['SOPS_NOT_FOUND'])
+    })
+  })
+
+  describe('getSopsOptions()', () => {
+    it('should pass the correct key-provider options', () => {
+      const pgp = getSopsOptions(
+        {},
+        { 'key-provider': 'pgp', 'key-id': '123abc' }
+      )
+      const gcp = getSopsOptions(
+        {},
+        { 'key-provider': 'gcp', 'key-id': '123abc' }
+      )
+      const aws = getSopsOptions(
+        {},
+        { 'key-provider': 'aws', 'key-id': '123abc' }
+      )
+      const azr = getSopsOptions(
+        {},
+        { 'key-provider': 'azr', 'key-id': '123abc' }
+      )
+      expect(pgp).toContain('--pgp')
+      expect(gcp).toContain('--gcp-kms')
+      expect(aws).toContain('--kms')
+      expect(azr).toContain('--azure-kv')
+
+      expect(() =>
+        getSopsOptions({}, { 'key-provider': 'your-mama', 'key-id': '123abc' })
+      ).toThrowError(sopsErrors['UNSUPPORTED_KEY_PROVIDER'])
+    })
+  })
+
+  describe('runSopsWithOptions()', () => {
+    it('should pass options to underlying sops binary', () => {
+      jest.spyOn(which, 'sync').mockImplementationOnce(() => 'sops')
+      const execaSyncSpy = jest.spyOn(execa, 'sync')
+      runSopsWithOptions(['--help'])
+      expect(execaSyncSpy).toHaveBeenCalledWith('sops', ['--help'])
+    })
   })
 
   describe('decryptToObject()', () => {
