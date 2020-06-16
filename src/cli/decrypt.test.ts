@@ -1,38 +1,109 @@
-jest.mock('./validate')
-jest.mock('../utils/sops')
-
 import { stderr, stdout } from 'stdout-stderr'
-import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
+import { runSopsWithOptions } from '../utils/sops'
 import { Decrypt } from './decrypt'
 import { validateCliWrapper } from './validate'
 
-// Mocks
+jest.mock('./validate')
+jest.mock('../utils/sops', () => {
+  return {
+    runSopsWithOptions: jest.fn(),
+    getSopsOptions: jest.fn(() => ['--some', '--flags']),
+  }
+})
+
 const runSopsWithOptionsMock = runSopsWithOptions as jest.MockedFunction<
   typeof runSopsWithOptions
 >
-const getSopsOptionsMock = getSopsOptions as jest.MockedFunction<
-  typeof getSopsOptions
->
-const validateCliWrapperMock = validateCliWrapper as jest.MockedFunction<
-  typeof validateCliWrapper
->
-const sopsOptionsMock = ['--some', '--flags']
-getSopsOptionsMock.mockReturnValue(sopsOptionsMock)
 const sopsError = new Error('some sops error')
 const configRoot = 'example'
 const configFile = 'example/development.yaml'
-const processExitMock = jest.spyOn(process, 'exit').mockImplementation()
 
 describe('strong-config decrypt', () => {
+  beforeAll(() => {
+    jest.spyOn(process, 'exit').mockImplementation()
+  })
+
   beforeEach(() => {
+    jest.clearAllMocks()
+    // Mocking stdout/stderr also for tests that don't check it to not pollute the jest output with status messages
     stdout.start()
     stderr.start()
   })
 
-  afterAll(() => {
-    processExitMock.mockRestore()
+  afterEach(() => {
     stderr.stop()
     stdout.stop()
+  })
+
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('exits with code 0 when successful', async () => {
+    await Decrypt.run([configFile])
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(process.exit).toHaveBeenCalledWith(0)
+  })
+
+  it('exits with code 1 when decryption fails', async () => {
+    runSopsWithOptionsMock.mockImplementationOnce(() => {
+      throw sopsError
+    })
+
+    await Decrypt.run([configFile])
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(process.exit).toHaveBeenCalledWith(1)
+  })
+
+  it('decrypts by using sops', async () => {
+    await Decrypt.run([configFile])
+
+    expect(runSopsWithOptionsMock).toHaveBeenCalledWith([
+      '--decrypt',
+      '--some',
+      '--flags',
+    ])
+  })
+
+  it('decrypts and validates when configRoot contains schema.json', async () => {
+    await Decrypt.run([configFile, '--config-root', configRoot])
+
+    expect(validateCliWrapper).toHaveBeenCalledWith(
+      configFile,
+      configRoot,
+      false
+    )
+  })
+
+  it('fails when no arguments are passed', async () => {
+    await expect(Decrypt.run([])).rejects.toThrowError(/Missing 1 required arg/)
+  })
+
+  it('displays the decryption process', async () => {
+    await Decrypt.run([configFile])
+    stderr.stop()
+
+    expect(stderr.output).toMatch('Decrypting...')
+  })
+
+  it('displays the decryption result', async () => {
+    await Decrypt.run([configFile])
+    stderr.stop()
+
+    expect(stderr.output).toMatch(`Successfully decrypted ${configFile}!`)
+  })
+
+  it('displays decryption errors', async () => {
+    runSopsWithOptionsMock.mockImplementationOnce(() => {
+      throw sopsError
+    })
+
+    await Decrypt.run([configFile])
+    stderr.stop()
+
+    expect(stderr.output).toMatch('Failed to decrypt config file')
   })
 
   describe('shows help', () => {
@@ -78,84 +149,6 @@ describe('strong-config decrypt', () => {
       expect(stdout.output).toContain('ARGUMENTS')
       expect(stdout.output).toContain('OPTIONS')
       expect(stdout.output).toContain('EXAMPLES')
-    })
-  })
-
-  describe('handles decryption', () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-
-    it('exits with code 0 when successful', async () => {
-      await Decrypt.run([configFile])
-
-      expect(processExitMock).toHaveBeenCalledWith(0)
-    })
-
-    it('exits with code 1 when decryption fails', async () => {
-      runSopsWithOptionsMock.mockImplementationOnce(() => {
-        throw sopsError
-      })
-
-      await Decrypt.run([configFile])
-
-      expect(processExitMock).toHaveBeenCalledWith(1)
-    })
-
-    it('decrypts by using sops', async () => {
-      await Decrypt.run([configFile])
-
-      expect(runSopsWithOptionsMock).toHaveBeenCalledWith([
-        '--decrypt',
-        ...sopsOptionsMock,
-      ])
-    })
-
-    it('decrypts and validates when configRoot contains schema.json', async () => {
-      await Decrypt.run([configFile, '--config-root', configRoot])
-
-      expect(validateCliWrapperMock).toHaveBeenCalledWith(
-        configFile,
-        configRoot,
-        false
-      )
-    })
-
-    it('fails when no arguments are passed', async () => {
-      await expect(Decrypt.run([])).rejects.toThrowError(
-        /Missing 1 required arg/
-      )
-    })
-  })
-
-  describe('informs the user', () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-
-    it('informs user about the decryption process', async () => {
-      await Decrypt.run([configFile])
-      stderr.stop()
-
-      expect(stderr.output).toMatch('Decrypting...')
-    })
-
-    it('informs user about the decryption result', async () => {
-      await Decrypt.run([configFile])
-      stderr.stop()
-
-      expect(stderr.output).toMatch(`Successfully decrypted ${configFile}!`)
-    })
-
-    it('informs user about decryption errors', async () => {
-      runSopsWithOptionsMock.mockImplementationOnce(() => {
-        throw sopsError
-      })
-
-      await Decrypt.run([configFile])
-      stderr.stop()
-
-      expect(stderr.output).toMatch('Failed to decrypt config file')
     })
   })
 })

@@ -5,86 +5,90 @@ import * as fs from 'fs'
 import * as yaml from 'js-yaml'
 import * as getFileFromPathModule from './get-file-from-path'
 
-describe('readFileToString()', () => {
-  const pathToFile = 'some/path/to/file.yaml'
-  it('reads correct path', () => {
-    jest
-      .spyOn(fs, 'readFileSync')
-      .mockReturnValueOnce('parsed config in json or yaml format')
+describe('utils :: get-file-from-path', () => {
+  describe('readFileToString()', () => {
+    const pathToFile = 'some/path/to/file.yaml'
+    it('reads correct path', () => {
+      jest
+        .spyOn(fs, 'readFileSync')
+        .mockReturnValueOnce('parsed config in json or yaml format')
 
-    getFileFromPathModule.readFileToString(pathToFile)
+      getFileFromPathModule.readFileToString(pathToFile)
 
-    expect(fs.readFileSync).toHaveBeenCalledWith(pathToFile)
+      expect(fs.readFileSync).toHaveBeenCalledWith(pathToFile)
+    })
+
+    it('always returns string', () => {
+      jest
+        .spyOn(fs, 'readFileSync')
+        .mockReturnValueOnce(Buffer.from('some buffer'))
+
+      expect(getFileFromPathModule.readFileToString(pathToFile)).toBe(
+        'some buffer'
+      )
+    })
   })
 
-  it('always returns string', () => {
-    jest
-      .spyOn(fs, 'readFileSync')
-      .mockReturnValueOnce(Buffer.from('some buffer'))
+  describe('parseToJson()', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(yaml, 'load').mockReturnValue({ parsed: 'yaml' })
+    })
 
-    expect(getFileFromPathModule.readFileToString(pathToFile)).toBe(
-      'some buffer'
-    )
-  })
-})
+    it('parses YAML if YAML file is passed', () => {
+      getFileFromPathModule.parseToJson('/path/to/json/file.yml')(
+        'file: "yaml"'
+      )
 
-describe('parseToJson()', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(yaml, 'load').mockReturnValue({ parsed: 'yaml' })
-  })
+      expect(yaml.load).toHaveBeenCalledTimes(1)
+    })
 
-  it('parses YAML if YAML file is passed', () => {
-    getFileFromPathModule.parseToJson('/path/to/json/file.yml')('file: "yaml"')
+    it('parses not YAML if JSON file is passed', () => {
+      getFileFromPathModule.parseToJson('/path/to/json/file.json')('{}')
 
-    expect(yaml.load).toHaveBeenCalledTimes(1)
+      expect(yaml.load).toHaveBeenCalledTimes(0)
+    })
   })
 
-  it('parses not YAML if JSON file is passed', () => {
-    getFileFromPathModule.parseToJson('/path/to/json/file.json')('{}')
+  describe('getFileFromPath()', () => {
+    const innerParse = jest.fn().mockReturnValue({ parsed: 'tojson' })
 
-    expect(yaml.load).toHaveBeenCalledTimes(0)
-  })
-})
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest
+        .spyOn(getFileFromPathModule, 'readFileToString')
+        .mockReturnValue('string')
+      jest
+        .spyOn(getFileFromPathModule, 'parseToJson')
+        .mockReturnValue(innerParse)
+    })
 
-describe('getFileFromPath()', () => {
-  const innerParse = jest.fn().mockReturnValue({ parsed: 'tojson' })
+    it('reads the file to string', () => {
+      getFileFromPathModule.getFileFromPath('some/path/config.yaml')
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-    jest
-      .spyOn(getFileFromPathModule, 'readFileToString')
-      .mockReturnValue('string')
-    jest
-      .spyOn(getFileFromPathModule, 'parseToJson')
-      .mockImplementation(() => innerParse)
-  })
+      expect(getFileFromPathModule.readFileToString).toHaveBeenCalledWith(
+        'some/path/config.yaml'
+      )
+    })
 
-  it('reads the file to string', () => {
-    getFileFromPathModule.getFileFromPath('some/path/config.yaml')
+    it('parses the string to json', () => {
+      getFileFromPathModule.getFileFromPath('some/path/config.yaml')
 
-    expect(getFileFromPathModule.readFileToString).toHaveBeenCalledWith(
-      'some/path/config.yaml'
-    )
-  })
+      expect(getFileFromPathModule.parseToJson).toHaveBeenCalledWith(
+        'some/path/config.yaml'
+      )
+      expect(innerParse).toHaveBeenCalledWith('string')
+    })
 
-  it('parses the string to json', () => {
-    getFileFromPathModule.getFileFromPath('some/path/config.yaml')
+    it('returns the expected file', () => {
+      const result = getFileFromPathModule.getFileFromPath(
+        'some/path/config.yaml'
+      )
 
-    expect(getFileFromPathModule.parseToJson).toHaveBeenCalledWith(
-      'some/path/config.yaml'
-    )
-    expect(innerParse).toHaveBeenCalledWith('string')
-  })
-
-  it('returns the expected file', () => {
-    const result = getFileFromPathModule.getFileFromPath(
-      'some/path/config.yaml'
-    )
-
-    expect(result).toStrictEqual({
-      filePath: 'some/path/config.yaml',
-      contents: { parsed: 'tojson' },
+      expect(result).toStrictEqual({
+        filePath: 'some/path/config.yaml',
+        contents: { parsed: 'tojson' },
+      })
     })
   })
 })

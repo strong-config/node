@@ -1,22 +1,68 @@
 jest.mock('./validate')
-jest.mock('../utils/sops')
 
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
-import * as x from '../generate-types-from-schema' // hacky syntax to allow for easy mocking
-import * as y from '../utils/read-file' // hacky syntax to allow for easy mocking
+import * as generateTypesFromSchemaModule from '../generate-types-from-schema'
+import * as readFileModule from '../utils/read-file'
 import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
 
 describe('strong-config generate-types', () => {
+  beforeAll(() => {
+    jest.spyOn(fs, 'writeFileSync').mockImplementation()
+    jest.spyOn(process, 'exit').mockImplementation()
+  })
+
   beforeEach(() => {
+    jest.clearAllMocks()
+    // Mocking stdout/stderr also for tests that don't check it to not pollute the jest output with status messages
     stdout.start()
     stderr.start()
   })
 
-  afterAll(() => {
+  afterEach(() => {
     stdout.stop()
     stderr.stop()
+  })
+
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('checks if a valid schema file exists', async () => {
+    jest.spyOn(readFileModule, 'readSchemaFile')
+    const configRoot = '/i/dont/exist'
+
+    await GenerateTypes.run(['--config-root', configRoot])
+
+    expect(readFileModule.readSchemaFile).toHaveBeenCalledWith(configRoot)
+  })
+
+  it('generates types', async () => {
+    const configRoot = 'example'
+    jest.spyOn(generateTypesFromSchemaModule, 'generateTypesFromSchema')
+
+    await GenerateTypes.run(['--config-root', configRoot])
+
+    expect(
+      generateTypesFromSchemaModule.generateTypesFromSchema
+    ).toHaveBeenCalledWith(configRoot, defaultOptions.types)
+  })
+
+  it('exits with code 0 when type generation was successful', async () => {
+    const configRoot = 'example'
+
+    await GenerateTypes.run(['--config-root', configRoot])
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(process.exit).toHaveBeenCalledWith(0)
+  })
+
+  it('exits with code 1 when type generation failed', async () => {
+    await GenerateTypes.run(['--config-root', '/i/dont/exist'])
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(process.exit).toHaveBeenCalledWith(1)
   })
 
   describe('shows help', () => {
@@ -60,53 +106,6 @@ describe('strong-config generate-types', () => {
       expect(stdout.output).toContain('USAGE')
       expect(stdout.output).toContain('OPTIONS')
       expect(stdout.output).toContain('EXAMPLES')
-    })
-  })
-
-  describe('type generation', () => {
-    let processExitMock: jest.SpyInstance
-    let writeFileSyncMock: jest.SpyInstance
-
-    beforeEach(() => {
-      processExitMock = jest.spyOn(process, 'exit').mockImplementation()
-      writeFileSyncMock = jest.spyOn(fs, 'writeFileSync').mockImplementation()
-    })
-
-    afterEach(() => {
-      processExitMock.mockRestore()
-      writeFileSyncMock.mockRestore()
-    })
-
-    it('checks if a valid schema file exists', async () => {
-      const configRoot = '/i/dont/exist'
-      const readSchemaFileSpy = jest.spyOn(y, 'readSchemaFile')
-      await GenerateTypes.run(['--config-root', configRoot])
-
-      expect(readSchemaFileSpy).toHaveBeenCalledWith(configRoot)
-    })
-
-    it('calls `generateTypeFromSchema()` to generate types', async () => {
-      const configRoot = 'example'
-      const generateTypeFromSchemaSpy = jest.spyOn(x, 'generateTypesFromSchema')
-      await GenerateTypes.run(['--config-root', configRoot])
-
-      expect(generateTypeFromSchemaSpy).toHaveBeenCalledWith(
-        configRoot,
-        defaultOptions.types
-      )
-    })
-
-    it('exits with code 0 when type generation was successful', async () => {
-      const configRoot = 'example'
-      await GenerateTypes.run(['--config-root', configRoot])
-
-      expect(processExitMock).toHaveBeenCalledWith(0)
-    })
-
-    it('exits with code 1 when type generation failed', async () => {
-      await GenerateTypes.run(['--config-root', '/i/dont/exist'])
-
-      expect(processExitMock).toHaveBeenCalledWith(1)
     })
   })
 })
