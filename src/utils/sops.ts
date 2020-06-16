@@ -9,6 +9,7 @@ export const sopsErrors = {
   SOPS_NOT_FOUND: `Couldn't find 'sops' binary. Please make sure it's available in your runtime environment`,
   DECRYPTION_ERROR: `Sops failed to retrieve the decryption key. This is often a permission error with your KMS provider.`,
   UNSUPPORTED_KEY_PROVIDER: 'Unsupported key provider:',
+  KEY_SUFFIX_CONFLICT: `'--unencrypted-key-suffix' and '--encrypted-key-suffix' are mutually exclusive, pick one or the other`,
 }
 
 export function getSopsBinary(): string {
@@ -112,9 +113,7 @@ export const getSopsOptions = (
   ) {
     options.push('--encrypted-suffix', flags['encrypted-key-suffix'])
   } else if (flags['encrypted-key-suffix'] && flags['unencrypted-key-suffix']) {
-    throw new Error(
-      `'--unencrypted-key-suffix' and '--encrypted-key-suffix' are mutually exclusive, pick one or the other`
-    )
+    throw new Error(sopsErrors['KEY_SUFFIX_CONFLICT'])
   }
 
   if (flags.verbose) {

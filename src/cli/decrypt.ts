@@ -14,6 +14,21 @@ export class Decrypt extends Command {
 
   static strict = true
 
+  static args = [
+    {
+      name: 'config_file',
+      description:
+        'path to a decrypted config file, for example: `strong-config decrypt config/production.yml`',
+      required: true,
+    },
+    {
+      name: 'output_path',
+      description:
+        'output file of the decrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
+      required: false,
+    },
+  ]
+
   static flags = {
     help: Flags.help({
       char: 'h',
@@ -31,21 +46,6 @@ export class Decrypt extends Command {
       default: false,
     }),
   }
-
-  static args = [
-    {
-      name: 'config_file',
-      description:
-        'path to a decrypted config file, for example: `strong-config decrypt config/production.yml`',
-      required: true,
-    },
-    {
-      name: 'output_path',
-      description:
-        'output file of the decrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
-      required: false,
-    },
-  ]
 
   static usage = 'decrypt CONFIG_FILE OUTPUT_PATH [--help]'
 

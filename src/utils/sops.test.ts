@@ -1,6 +1,6 @@
 import fs from 'fs'
 import which from 'which'
-import execa, { ExecaSyncReturnValue } from 'execa'
+import execa from 'execa'
 import yaml from 'js-yaml'
 import { dissoc } from 'ramda'
 import type { DecryptedConfig, EncryptedConfig } from '../types'
@@ -14,65 +14,30 @@ import {
 } from './sops'
 
 describe('utils :: sops', () => {
-  const configFilePathMock = './config/development.yaml'
+  const configFilePath = './config/development.yaml'
 
-  const decryptedConfigMock: DecryptedConfig = {
+  const decryptedConfig: DecryptedConfig = {
     field: 'asdf',
     fieldSecret: 'PLAIN TEXT',
   }
 
-  const encryptedConfigMock: EncryptedConfig = {
-    field: decryptedConfigMock.field,
-    fieldSecret: 'ENC[some encrypted value]',
-    sops: {
-      kms: 'data',
-      gcp_kms: 'data',
-      azure_kv: 'data',
-      pgp: 'data',
-      lastmodified: 'timestamp',
-      mac: 'data',
-      version: 'version',
-    },
-  }
-
-  const encryptedConfigNoSopsMock: EncryptedConfig = dissoc(
-    'sops',
-    encryptedConfigMock
-  )
-
-  let execaSyncMock: jest.SpyInstance
-  beforeAll(() => {
-    execaSyncMock = jest.spyOn(execa, 'sync')
-    execaSyncMock.mockImplementation(() => ({
-      exitCode: 0,
-      stdout: Buffer.from(JSON.stringify(decryptedConfigMock)),
-      stderr: Buffer.from(''),
-    }))
-  })
-
-  afterAll(() => {
-    execaSyncMock.mockRestore()
-  })
-
   describe('getSopsBinary()', () => {
     it('should return `sops` if binary is available in $PATH', () => {
-      jest.spyOn(which, 'sync').mockImplementationOnce(() => 'sops')
-      const sopsBinary = getSopsBinary()
+      jest.spyOn(which, 'sync').mockReturnValueOnce('sops')
 
-      expect(sopsBinary).toBe('sops')
+      expect(getSopsBinary()).toBe('sops')
     })
 
     it('should return `./sops` if binary is NOT available in $PATH but has been downloaded to current directory', () => {
-      jest.spyOn(which, 'sync').mockImplementationOnce(() => '')
-      jest.spyOn(fs, 'existsSync').mockImplementationOnce(() => true)
-      const sopsBinary = getSopsBinary()
+      jest.spyOn(which, 'sync').mockReturnValueOnce('')
+      jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
 
-      expect(sopsBinary).toBe('./sops')
+      expect(getSopsBinary()).toBe('./sops')
     })
 
     it('should throw if binary is neither available in $PATH nor in current directory', () => {
-      jest.spyOn(which, 'sync').mockImplementationOnce(() => '')
-      jest.spyOn(fs, 'existsSync').mockImplementationOnce(() => false)
+      jest.spyOn(which, 'sync').mockReturnValueOnce('')
+      jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
 
       expect(getSopsBinary).toThrowError(sopsErrors['SOPS_NOT_FOUND'])
     })
@@ -105,66 +70,206 @@ describe('utils :: sops', () => {
         getSopsOptions({}, { 'key-provider': 'your-mama', 'key-id': '123abc' })
       ).toThrowError(sopsErrors['UNSUPPORTED_KEY_PROVIDER'])
     })
+
+    describe('given an output_path', () => {
+      it('should pass an --output param to sops', () => {
+        const output_path = './config/development.yml'
+        const options = getSopsOptions({ output_path }, {})
+        expect(options).toContain('--output')
+        expect(options).toContain(output_path)
+      })
+    })
+
+    describe('given NO output_path', () => {
+      it('should pass an --in-place param to sops', () => {
+        const options = getSopsOptions({}, {})
+        expect(options).toContain('--in-place')
+      })
+    })
+
+    describe('given an unencrypted-key-suffix and NO encrypted-key-suffix', () => {
+      it('should pass the unencrypted-key-suffix to sops', () => {
+        const unencryptedSuffix = 'NotASecret'
+        const options = getSopsOptions(
+          {},
+          { 'key-provider': 'pgp', 'unencrypted-key-suffix': unencryptedSuffix }
+        )
+        expect(options).toContain('--unencrypted-suffix')
+        expect(options).toContain(unencryptedSuffix)
+        expect(options).not.toContain('--encrypted-suffix')
+      })
+    })
+
+    describe('given an encrypted-key-suffix and NO unencrypted-key-suffix', () => {
+      it('should pass the encrypted-key-suffix to sops', () => {
+        const encryptedSuffix = 'TopSecret'
+        const options = getSopsOptions(
+          {},
+          { 'key-provider': 'pgp', 'encrypted-key-suffix': encryptedSuffix }
+        )
+        expect(options).toContain('--encrypted-suffix')
+        expect(options).toContain(encryptedSuffix)
+        expect(options).not.toContain('--unencrypted-suffix')
+      })
+    })
+
+    describe('given an encrypted-key-suffix AND an unencrypted-key-suffix', () => {
+      it('should throw an error because these options are mutually exclusive', () => {
+        expect(() =>
+          getSopsOptions(
+            {},
+            {
+              'key-provider': 'aws',
+              'encrypted-key-suffix': 'Secret',
+              'unencrypted-key-suffix': 'NotSoSecret',
+            }
+          )
+        ).toThrowError(sopsErrors['KEY_SUFFIX_CONFLICT'])
+      })
+    })
+
+    describe('given a verbose flag', () => {
+      it('runs sops in verbose mode', () => {
+        const options = getSopsOptions(
+          {},
+          { 'key-provider': 'aws', verbose: true }
+        )
+
+        expect(options).toContain('--verbose')
+      })
+    })
   })
 
   describe('runSopsWithOptions()', () => {
     it('should pass options to underlying sops binary', () => {
-      jest.spyOn(which, 'sync').mockImplementationOnce(() => 'sops')
-      const execaSyncSpy = jest.spyOn(execa, 'sync')
+      jest.spyOn(which, 'sync').mockReturnValueOnce('sops')
+      jest.spyOn(execa, 'sync')
+
       runSopsWithOptions(['--help'])
-      expect(execaSyncSpy).toHaveBeenCalledWith('sops', ['--help'])
-    })
-  })
 
-  describe('decryptToObject()', () => {
-    it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
-      expect(
-        decryptToObject(configFilePathMock, encryptedConfigNoSopsMock)
-      ).toEqual(encryptedConfigNoSopsMock)
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(execa.sync).toHaveBeenCalledWith('sops', ['--help'])
     })
 
-    it('calls the sops binary to decrypt when SOPS metadata is present', () => {
-      decryptToObject(configFilePathMock, encryptedConfigMock)
+    it('should handle decryption errors', () => {
+      const execaSyncDecryptFail = {
+        exitCode: 128,
+        stdout: Buffer.from(''),
+        stderr: Buffer.from(JSON.stringify(decryptedConfig)),
+        command: 'sops',
+        failed: true,
+        timedOut: false,
+        killed: false,
+      }
 
-      expect(execaSyncMock).toHaveBeenCalledWith('sops', [
-        '--decrypt',
-        configFilePathMock,
-      ])
-    })
+      jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncDecryptFail)
 
-    it('throws when SOPS binary encounters an error while decrypting the config', () => {
-      execaSyncMock.mockImplementationOnce(
-        () =>
-          ({
-            exitCode: 1,
-            stdout: Buffer.from('some stdout'),
-            stderr: Buffer.from('non-empty stderr'),
-          } as ExecaSyncReturnValue<Buffer>)
-      )
-
-      expect(() =>
-        decryptToObject(configFilePathMock, encryptedConfigMock)
-      ).toThrow(Error)
-    })
-
-    it('parses the output of SOPS to YAML', () => {
-      jest.spyOn(yaml, 'load')
-      decryptToObject(configFilePathMock, encryptedConfigMock)
-
-      expect(yaml.load).toHaveBeenCalledWith(
-        JSON.stringify(decryptedConfigMock)
+      expect(() => runSopsWithOptions(['decrypt'])).toThrow(
+        sopsErrors['DECRYPTION_ERROR']
       )
     })
   })
 
-  describe('decryptInPlace()', () => {
-    it('calls the SOPS binary with the flag "--in-place"', () => {
-      decryptInPlace(configFilePathMock)
+  describe('decrypt', () => {
+    const execaSyncSuccess = {
+      exitCode: 0,
+      stdout: Buffer.from(JSON.stringify(decryptedConfig)),
+      stderr: Buffer.from(''),
+      command: 'sops',
+      failed: false,
+      timedOut: false,
+      killed: false,
+    }
 
-      expect(execaSyncMock).toHaveBeenCalledWith(
+    const execaSyncFail = {
+      exitCode: 1,
+      stdout: Buffer.from(''),
+      stderr: Buffer.from(JSON.stringify(decryptedConfig)),
+      command: 'sops',
+      failed: true,
+      timedOut: false,
+      killed: false,
+    }
+
+    describe('decryptToObject()', () => {
+      const encryptedConfig: EncryptedConfig = {
+        field: decryptedConfig.field,
+        fieldSecret: 'ENC[some encrypted value]',
+        sops: {
+          kms: 'data',
+          gcp_kms: 'data',
+          azure_kv: 'data',
+          pgp: 'data',
+          lastmodified: 'timestamp',
+          mac: 'data',
+          version: 'version',
+        },
+      }
+
+      const encryptedConfigNoSops: EncryptedConfig = dissoc(
         'sops',
-        expect.arrayContaining(['--in-place'])
+        encryptedConfig
       )
+
+      it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
+        expect(decryptToObject(configFilePath, encryptedConfigNoSops)).toEqual(
+          encryptedConfigNoSops
+        )
+      })
+
+      it('calls the sops binary to decrypt when SOPS metadata is present', () => {
+        jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncSuccess)
+        decryptToObject(configFilePath, encryptedConfig)
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(execa.sync).toHaveBeenCalledWith('sops', [
+          '--decrypt',
+          configFilePath,
+        ])
+      })
+
+      it('throws when SOPS binary encounters an error while decrypting the config', () => {
+        jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncFail)
+
+        expect(() => decryptToObject(configFilePath, encryptedConfig)).toThrow(
+          Error
+        )
+      })
+
+      /* eslint-disable @typescript-eslint/ban-ts-comment, unicorn/no-null, unicorn/no-useless-undefined -- explicitly testing an error case here */
+      it('throws when `parsedConfig` parameter is nil', () => {
+        // @ts-ignore
+        expect(() => decryptToObject(configFilePath, undefined)).toThrow(
+          'Config is nil and can not be decrytped'
+        )
+
+        // @ts-ignore
+        expect(() => decryptToObject(configFilePath, null)).toThrow(
+          'Config is nil and can not be decrytped'
+        )
+      })
+      /* eslint-enable @typescript-eslint/ban-ts-comment, unicorn/no-useless-undefined */
+
+      it('parses the output of SOPS to YAML', () => {
+        jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncSuccess)
+        jest.spyOn(yaml, 'load')
+        decryptToObject(configFilePath, encryptedConfig)
+
+        expect(yaml.load).toHaveBeenCalledWith(JSON.stringify(decryptedConfig))
+      })
+    })
+
+    describe('decryptInPlace()', () => {
+      it('calls sops with the "--in-place" flag', () => {
+        jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncSuccess)
+        decryptInPlace(configFilePath)
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(execa.sync).toHaveBeenCalledWith(
+          'sops',
+          expect.arrayContaining(['--in-place'])
+        )
+      })
     })
   })
 })
