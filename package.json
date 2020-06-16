@@ -58,7 +58,7 @@
     "report:health": "ts-node --transpile-only scripts/healthcheck.ts",
     "report:todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "start": "yarn dev",
-    "test": "jest --color"
+    "test": "jest --color --detectOpenHandles"
   },
   "dependencies": {
     "@oclif/command": "^1.5.19",
