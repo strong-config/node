@@ -2,7 +2,7 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
-import { generateTypesFromSchema } from '../generate-types-from-schema'
+import { generateTypesFromSchema } from '../core/generate-types-from-schema'
 import { readSchemaFromConfigRoot } from '../utils/read-file'
 import { defaultOptions } from '../options'
 

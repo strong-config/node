@@ -18,6 +18,21 @@ export class Encrypt extends Command {
 
   static strict = true
 
+  static args = [
+    {
+      name: 'config_file',
+      description:
+        'path to an unencrypted config file, for example: `strong-config encrypt config/production.yml`',
+      required: true,
+    },
+    {
+      name: 'output_path',
+      description:
+        'output file of the encrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
+      required: false,
+    },
+  ]
+
   static flags = {
     help: Flags.help({
       char: 'h',
@@ -62,21 +77,6 @@ export class Encrypt extends Command {
     }),
   }
 
-  static args = [
-    {
-      name: 'config_file',
-      description:
-        'path to an unencrypted config file, for example: `strong-config encrypt config/production.yml`',
-      required: true,
-    },
-    {
-      name: 'output_path',
-      description:
-        'output file of the encrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
-      required: false,
-    },
-  ]
-
   static usage =
     'encrypt CONFIG_FILE OUTPUT_PATH --key-provider=KEY_PROVIDER --key-id=KEY_ID [--[un]encrypted-key-suffix=SUFFIX] [--help]'
 
@@ -89,6 +89,7 @@ export class Encrypt extends Command {
   encrypt = (): void => {
     const { args, flags } = this.parse(Encrypt)
 
+    /* istanbul ignore next: we are actually testing that things get logged out in --verbose mode */
     if (flags.verbose) Debug.enable(debugNamespace)
 
     const spinner = ora('Encrypting...').start()
@@ -102,8 +103,8 @@ export class Encrypt extends Command {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
       if (error.exitCode && error.exitCode === 203) {
-        console.log(
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is always required
+        console.error(
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is required
           `🤔 It looks like ${args.config_file} is already encrypted!\n`
         )
       }
@@ -112,9 +113,9 @@ export class Encrypt extends Command {
         /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- i don't know how to make this any safer for typescript */
         error.stderr &&
         typeof error.stderr === 'string' &&
-        error.stderr?.includes('GCP')
+        error.stderr.includes('GCP')
       ) {
-        console.log(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
+        console.error(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
         /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
       }
 

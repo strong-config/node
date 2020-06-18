@@ -3,8 +3,9 @@ import { readFileSync, writeFileSync } from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
 import { prop } from 'ramda'
 import Debug from 'debug'
-import type { TypeOptions } from './options'
-import { pascalCase } from './utils/pascal-case'
+import type { JSONObject } from '../types'
+import type { TypeOptions } from '../options'
+import { pascalCase } from '../utils/pascal-case'
 
 const debug = Debug('strong-config:generate-types')
 
@@ -22,22 +23,8 @@ export const generateTypesFromSchema = async (
   const schemaString = readFileSync(schemaPath).toString()
   debug('Read schema file: %s', '\n'.concat(schemaString))
 
-  let parsedSchemaString
-
-  try {
-    parsedSchemaString = JSON.parse(schemaString) as Record<string, unknown>
-    debug('Parsed schema string to JSON:\n%O\n', parsedSchemaString)
-  } catch (error) {
-    if (error instanceof Error) {
-      const prettyError = new Error(
-        `Failed to JSON.parse(schemaString):\n${schemaString}`
-      )
-      prettyError.stack = error.stack
-      throw prettyError
-    } else {
-      throw error
-    }
-  }
+  const parsedSchemaString = JSON.parse(schemaString) as JSONObject
+  debug('Parsed schema string to JSON:\n%O\n', parsedSchemaString)
 
   const title = prop('title', parsedSchemaString)
 

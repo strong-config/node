@@ -1,17 +1,17 @@
-jest.mock('./utils/hydrate-config')
-jest.mock('./utils/sops')
+jest.mock('../utils/hydrate-config')
+jest.mock('../utils/sops')
 jest.mock('./generate-types-from-schema')
 jest.mock('./validate')
 
-import { load } from './load'
-import { defaultOptions } from './options'
-import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
-import { hydrateConfig, HydrateConfig } from './utils/hydrate-config'
-import { validate } from './validate'
-import * as readFiles from './utils/read-file'
-import * as sops from './utils/sops'
+import { defaultOptions } from '../options'
+import { hydrateConfig, HydrateConfig } from '../utils/hydrate-config'
+import * as readFiles from '../utils/read-file'
+import * as sops from '../utils/sops'
 
-import type { HydratedConfig } from './types'
+import type { HydratedConfig } from '../types'
+import { validate } from './validate'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
+import { load } from './load'
 
 describe('load()', () => {
   const OLD_ENV = process.env
@@ -109,9 +109,12 @@ describe('load()', () => {
       )
     })
 
-    describe("when process.env.NODE_ENV === 'development'", () => {
-      it('generates types if options.types is NOT false', () => {
+    describe("when process.env.NODE_ENV === 'development' and options.types is NOT false", () => {
+      beforeEach(() => {
         process.env.NODE_ENV = 'development'
+      })
+
+      it('generates types', () => {
         load(runtimeEnv, defaultOptions)
 
         expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
@@ -119,7 +122,20 @@ describe('load()', () => {
           defaultOptions.types,
           expect.any(Function)
         )
-        process.env.NODE_ENV = runtimeEnv
+      })
+
+      it('skips generating types if called from a dev script in watch mode', () => {
+        process.env.npm_config_argv = `cooked: { 'dev', 'load', 'watch' }`
+        load(runtimeEnv, defaultOptions)
+
+        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
+      })
+
+      it('does NOT skip generating types if called from tests in watch mode', () => {
+        process.env.npm_config_argv = `cooked: { 'test', '--watch' }`
+        load(runtimeEnv, defaultOptions)
+
+        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(1)
       })
     })
 
@@ -128,7 +144,7 @@ describe('load()', () => {
         process.env.NODE_ENV = 'production'
         load(runtimeEnv, defaultOptions)
 
-        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(0)
+        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
         process.env.NODE_ENV = runtimeEnv
       })
     })

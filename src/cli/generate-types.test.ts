@@ -1,11 +1,12 @@
-jest.mock('./validate')
-
+/* eslint-disable @typescript-eslint/unbound-method */
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
-import * as generateTypesFromSchemaModule from '../generate-types-from-schema'
+import * as generateTypesFromSchemaModule from '../core/generate-types-from-schema'
 import * as readFile from '../utils/read-file'
 import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
+
+jest.mock('./validate')
 
 describe('strong-config generate-types', () => {
   beforeAll(() => {
@@ -54,15 +55,30 @@ describe('strong-config generate-types', () => {
 
     await GenerateTypes.run(['--config-root', configRoot])
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(process.exit).toHaveBeenCalledWith(0)
   })
 
-  it('exits with code 1 when type generation failed', async () => {
-    await GenerateTypes.run(['--config-root', '/i/dont/exist'])
+  describe('when given a config-root without schema', () => {
+    it('fails and exits with code 1', async () => {
+      await GenerateTypes.run(['--config-root', '/i/dont/exist'])
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(process.exit).toHaveBeenCalledWith(1)
+      expect(process.exit).toHaveBeenCalledWith(1)
+    })
+  })
+
+  describe('when type generation fails for unknown reasons', () => {
+    it('displays human-readable error message when type generation fails', async () => {
+      jest
+        .spyOn(generateTypesFromSchemaModule, 'generateTypesFromSchema')
+        .mockImplementationOnce(() => {
+          throw new Error('something went wrong during type generation ')
+        })
+
+      await GenerateTypes.run(['--config-root', 'example'])
+      stderr.stop()
+
+      expect(stderr.output).toContain("Couldn't generate types from schema")
+    })
   })
 
   describe('shows help', () => {

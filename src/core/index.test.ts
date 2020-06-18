@@ -1,15 +1,9 @@
+import Ajv from 'ajv'
+import { defaultOptions } from '../options'
+import optionsSchema from '../options-schema.json'
 import { load } from './load'
-import { validate } from './validate'
-import { defaultOptions } from './options'
-import optionsSchema from './options-schema.json'
+import * as validateModule from './validate'
 import StrongConfig = require('.')
-
-const ajvValidateSpy = jest.fn(() => true)
-jest.mock('ajv', () => {
-  return function () {
-    return { validate: ajvValidateSpy }
-  }
-})
 
 jest.mock('./load')
 jest.mock('./validate')
@@ -21,27 +15,25 @@ describe('StrongConfig class', () => {
     jest.clearAllMocks()
   })
 
-  it('strongConfig instance exposes "load()"', () => {
-    expect(new StrongConfig().load).toBeInstanceOf(Function)
-  })
-
-  it('strongConfig instance exposes "validate()"', () => {
-    expect(new StrongConfig().validate).toBeInstanceOf(Function)
-  })
-
   describe('constructor()', () => {
     it('can be instantiated without constructor arguments', () => {
       expect(new StrongConfig()).toBeDefined()
     })
 
-    it('can be instantiated with a options object', () => {
+    it('can be instantiated with options', () => {
       expect(new StrongConfig(defaultOptions)).toBeDefined()
     })
 
     it('validates the options object', () => {
+      jest.spyOn(Ajv.prototype, 'validate')
+
       new StrongConfig(defaultOptions)
 
-      expect(ajvValidateSpy).toHaveBeenCalledWith(optionsSchema, defaultOptions)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(Ajv.prototype.validate).toHaveBeenCalledWith(
+        optionsSchema,
+        defaultOptions
+      )
     })
 
     it('stores the validated options object', () => {
@@ -51,31 +43,52 @@ describe('StrongConfig class', () => {
     })
   })
 
+  describe('validateOptions()', () => {
+    it('validates the options object', () => {
+      const strongConfig = new StrongConfig(defaultOptions)
+
+      jest.spyOn(Ajv.prototype, 'validate')
+      strongConfig.validateOptions(defaultOptions)
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(Ajv.prototype.validate).toHaveBeenCalledWith(
+        optionsSchema,
+        defaultOptions
+      )
+    })
+
+    it('throws if passed options are invalid against schema', () => {
+      const invalidOptions = {
+        ...defaultOptions,
+        superIllegalProperty: 'sneaky value',
+      }
+
+      expect(() => new StrongConfig(invalidOptions)).toThrowError(
+        'data should NOT have additional properties'
+      )
+    })
+  })
+
   describe('load()', () => {
     const configMock = { some: 'config', runtimeEnv }
     const loadMock = load as jest.MockedFunction<typeof load>
     loadMock.mockReturnValue(configMock)
 
     it('calls imported load() and returns its result', () => {
-      const strongConfig = new StrongConfig()
-
-      const result = strongConfig.load()
+      const result = new StrongConfig().load()
 
       expect(loadMock).toHaveBeenCalledTimes(1)
       expect(result).toStrictEqual(configMock)
     })
 
     it('calls imported load() with initialized options', () => {
-      const strongConfig = new StrongConfig(defaultOptions)
-
-      strongConfig.load()
+      new StrongConfig().load()
 
       expect(loadMock).toHaveBeenCalledWith(runtimeEnv, defaultOptions)
     })
 
     it('memoizes previously loaded config', () => {
       const strongConfig = new StrongConfig()
-
       const firstLoadResult = strongConfig.load()
       const secondLoadResult = strongConfig.load()
 
@@ -84,18 +97,14 @@ describe('StrongConfig class', () => {
       expect(secondLoadResult).toStrictEqual(configMock)
     })
 
-    describe('when process.env.NODE_ENV is undefined', () => {
+    describe('when process.env[runtimeEnv] is undefined', () => {
       beforeAll(() => {
         delete process.env[defaultOptions.runtimeEnvName]
       })
 
       it('throws if runtimeEnv is not set', () => {
-        const strongConfig = new StrongConfig({
-          ...defaultOptions,
-          runtimeEnvName: undefined,
-        })
-        expect(() => strongConfig.load()).toThrow(
-          /Can't load config.+is undefined/
+        expect(() => new StrongConfig(defaultOptions)).toThrow(
+          /process.env.*.is undefined/
         )
       })
 
@@ -106,16 +115,16 @@ describe('StrongConfig class', () => {
   })
 
   describe('validate()', () => {
-    const validateMock = validate as jest.MockedFunction<typeof validate>
-    validateMock.mockReturnValue(true)
-
     it('calls imported validate() and returns its result', () => {
+      const validateStub = jest
+        .spyOn(validateModule, 'validate')
+        .mockReturnValue(true)
       const strongConfig = new StrongConfig()
 
       const result = strongConfig.validate()
 
-      expect(validateMock).toHaveBeenCalledTimes(1)
-      expect(validateMock).toHaveBeenCalledWith(
+      expect(validateStub).toHaveBeenCalledTimes(1)
+      expect(validateStub).toHaveBeenCalledWith(
         runtimeEnv,
         defaultOptions.configRoot
       )

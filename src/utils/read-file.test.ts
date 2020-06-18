@@ -110,8 +110,8 @@ describe('utils :: read-file', () => {
         jest.clearAllMocks()
         jest.spyOn(yaml, 'load')
         jest.spyOn(JSON, 'parse')
-        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
       })
 
       afterAll(() => {
@@ -128,6 +128,21 @@ describe('utils :: read-file', () => {
           filePath: 'some/path/config.json',
           contents: { parsed: 'json' },
         })
+      })
+    })
+
+    describe('given a valid path to a file that is neither JSON nor YAML', () => {
+      afterAll(() => {
+        jest.restoreAllMocks()
+      })
+
+      it('should throw, because we only support JSON and YAML config files', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        const configPath = 'some/path/config.xml'
+
+        expect(() => readConfigFromPath(configPath)).toThrowError(
+          `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
+        )
       })
     })
   })

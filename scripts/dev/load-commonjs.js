@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { inspect } = require('util')
-const StrongConfig = require('../../lib')
+const StrongConfig = require('../../lib/core')
 
 const strongConfig = new StrongConfig({
   configRoot: 'example/',

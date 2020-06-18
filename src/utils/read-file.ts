@@ -37,14 +37,16 @@ export const readConfigFromPath = (configPathRaw: string): ConfigFile => {
     throw new Error(`Couldn't find config file ${configPath}`)
   }
 
-  const fileAsString = fs.readFileSync(configPath).toString()
   const fileExtension = configPath.split('.').pop()
 
-  let parsedFile
+  let fileAsString: string
+  let parsedFile: JSONObject
 
   if (fileExtension === 'json') {
+    fileAsString = fs.readFileSync(configPath).toString()
     parsedFile = JSON.parse(fileAsString) as JSONObject
   } else if (fileExtension === 'yml' || fileExtension === 'yaml') {
+    fileAsString = fs.readFileSync(configPath).toString()
     parsedFile = yaml.load(fileAsString) as JSONObject
   } else {
     throw new Error(

@@ -3,7 +3,9 @@ module.exports = {
   '*.json': ['eslint --fix'],
   'package.json': ['npx scriptlint'],
   '*.{yaml,yml}': ['eslint --fix'],
-  'example/*.{yaml,yml}': ['strong-config validate --config-root example'],
+  'example/*[^invalid].{yaml,yml}': [
+    'strong-config validate --config-root example',
+  ],
   '*.md': ['markdownlint --ignore CHANGELOG.md'],
   'example/development.yaml': ['strong-config check example/development.yaml'],
 }

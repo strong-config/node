@@ -58,6 +58,7 @@ export class Decrypt extends Command {
   decrypt = (): void => {
     const { args, flags } = this.parse(Decrypt)
 
+    /* istanbul ignore next: we are actually testing that things get logged out in --verbose mode */
     if (flags.verbose) Debug.enable('strong-config:decrypt')
 
     const spinner = ora('Decrypting...').start()
@@ -71,8 +72,10 @@ export class Decrypt extends Command {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
       if (error.exitCode && error.exitCode === 1) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is always required
-        console.log(`🤔 It looks like ${args.config_file} is already decrypted`)
+        console.error(
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is always required
+          `🤔 It looks like ${args.config_file} is already decrypted`
+        )
       }
 
       debug(error)

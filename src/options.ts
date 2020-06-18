@@ -10,13 +10,10 @@ export interface Options {
   configRoot: string
 }
 
-// For defaultOptions, we know that the types-property will never be false because we control it
-export type DefaultOptions = Pick<
+export const defaultOptions: Pick<
   Options,
   'runtimeEnvName' | 'substitutionPattern' | 'configRoot'
-> & { types: TypeOptions }
-
-export const defaultOptions: DefaultOptions = {
+> & { types: TypeOptions } = {
   configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
   types: {

@@ -1,10 +1,10 @@
 export const substituteWithEnv = (substitutionPattern: string) => (
-  stringContent: string
+  config: string
 ): string =>
-  stringContent.replace(
+  config.replace(
     new RegExp(substitutionPattern, 'g'),
     (original, key: string) => {
-      if (!process.env?.[key]) {
+      if (!process.env[key]) {
         throw new Error(`process.env is missing key "${key}"`)
       }
 

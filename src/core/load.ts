@@ -1,11 +1,11 @@
 import Debug from 'debug'
-import type { HydratedConfig } from './types'
-import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
-import { hydrateConfig } from './utils/hydrate-config'
-import { readConfigForEnv, readSchemaFromConfigRoot } from './utils/read-file'
-import * as sops from './utils/sops'
+import type { HydratedConfig } from '../types'
+import { hydrateConfig } from '../utils/hydrate-config'
+import { readConfigForEnv, readSchemaFromConfigRoot } from '../utils/read-file'
+import * as sops from '../utils/sops'
+import type { Options } from '../options'
 import { validate } from './validate'
-import type { Options } from './options'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 
 const debugNamespace = 'strong-config:load'
 const debug = Debug(debugNamespace)
@@ -27,14 +27,28 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
   const schemaFile = readSchemaFromConfigRoot(options.configRoot)
   debug('Schema file: %O', schemaFile)
 
-  if (schemaFile) {
-    validate(runtimeEnv, normalizedConfigRoot)
+  if (!schemaFile) {
+    // Deliberately NOT making this a debug() output because we want to encourage all users to define a schema for their configs
+    console.info(
+      `⚠️ No schema file found under '${options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
+    )
+  } else {
+    validate(runtimeEnv, options.configRoot)
     debug(`${runtimeEnv} config is valid`)
 
     if (options.types !== false && process.env.NODE_ENV === 'development') {
-      if (process?.env?.npm_config_argv?.includes('watch')) {
+      /*
+       * Hacky way to SKIP type generation for dev scripts like 'yarn dev:load:watch'
+       * but NOT SKIP when running 'yarn test --watch'
+       */
+      if (
+        /* istanbul ignore next */
+        process.env?.npm_config_argv?.includes('watch') &&
+        !process.env?.npm_config_argv?.includes('--watch')
+      ) {
         return config
       }
+
       /*
        * Why a callback?
        * Because making load() return a promise would be cumbersome for consumers of this package.
@@ -47,6 +61,7 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
       generateTypesFromSchemaCallback(
         options.configRoot,
         options.types,
+        /* istanbul ignore next: too difficult to test and too little value in testing this */
         (error) => {
           if (error) {
             console.error('Failed to generate types from schema:', error)
@@ -54,10 +69,6 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
         }
       )
     }
-  } else {
-    console.info(
-      `⚠️ No schema file found under '${normalizedConfigRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
-    )
   }
 
   return config

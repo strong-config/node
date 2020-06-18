@@ -4,8 +4,14 @@ import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {
   const encryptedConfigPath = 'example/development.yaml'
+  const invalidConfigPath = 'example/invalid.yml'
   const unencryptedConfigPath = 'example/unencrypted.yml'
-  const allConfigFiles = [encryptedConfigPath, unencryptedConfigPath]
+
+  const allConfigFiles = [
+    encryptedConfigPath,
+    invalidConfigPath,
+    unencryptedConfigPath,
+  ]
 
   beforeAll(() => {
     jest.spyOn(process, 'exit').mockImplementation()

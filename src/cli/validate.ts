@@ -2,30 +2,34 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
-const debug = Debug('strong-config:validate')
-
-import { validate } from '../validate'
+import { validate } from '../core/validate'
 import { defaultOptions } from '../options'
+
+const debugNamespace = 'strong-config:validate'
+const debug = Debug(debugNamespace)
 
 export const validateCliWrapper = (
   configFile: string,
   configRoot: string,
+  /* istanbul ignore next: we are actually testing both cases, default and overriden default */
   verbose = false
 ): void => {
-  if (verbose) Debug.enable('strong-config:validate')
+  if (verbose) Debug.enable(debugNamespace)
 
   const spinner = ora('Validating...').start()
 
   try {
     validate(configFile, configRoot)
   } catch (error) {
-    spinner.fail(`Config validation against schema failed`)
+    spinner.fail('Config validation against schema failed')
     debug(error)
 
     process.exit(1)
   }
 
   spinner.succeed('Config is valid!')
+
+  if (verbose) Debug.disable()
 }
 
 export class Validate extends Command {
