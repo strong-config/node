@@ -31,7 +31,10 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
     validate(runtimeEnv, normalizedConfigRoot)
     debug(`${runtimeEnv} config is valid`)
 
-    if (options.types !== false) {
+    if (options.types !== false && process.env.NODE_ENV === 'development') {
+      if (process?.env?.npm_config_argv?.includes('watch')) {
+        return config
+      }
       /*
        * Why a callback?
        * Because making load() return a promise would be cumbersome for consumers of this package.
@@ -42,7 +45,7 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
        * the core functionality of strong-config.
        */
       generateTypesFromSchemaCallback(
-        normalizedConfigRoot,
+        options.configRoot,
         options.types,
         (error) => {
           if (error) {
