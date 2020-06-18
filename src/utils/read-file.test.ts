@@ -1,87 +1,158 @@
 import fs from 'fs'
+import yaml from 'js-yaml'
 import type { ConfigFile } from '../types'
-import { findConfigFilesAtPath } from './find-files'
-import { getFileFromPath } from './get-file-from-path'
-import { readConfigFile, readSchemaFile } from './read-file'
+import * as findFiles from './find-files'
+import * as readFile from './read-file'
 
-jest.mock('fs')
-jest.mock('./find-files')
-const configFilePaths = ['config/development.yml']
+const configRoot = 'config'
+const configFilePaths = [`${configRoot}/development.yml`]
 const configFile: ConfigFile = {
   contents: { parsed: 'values' },
   filePath: configFilePaths[0],
 }
-jest.mock('./get-file-from-path', () => ({
-  getFileFromPath: jest.fn(() => configFile),
-}))
+const {
+  readConfigForEnv,
+  readConfigFromPath,
+  readSchemaFromConfigRoot,
+} = readFile
 
 describe('utils :: read-file', () => {
-  describe('readConfigFile()', () => {
-    const findConfigFilesAtPathMock = findConfigFilesAtPath as jest.MockedFunction<
-      typeof findConfigFilesAtPath
-    >
-    findConfigFilesAtPathMock.mockReturnValue(configFilePaths)
-
+  describe('readConfigForEnv()', () => {
     beforeEach(() => {
       jest.clearAllMocks()
     })
 
-    it('passes arguments to findConfigFilesAtPath', () => {
-      readConfigFile('config', 'smth')
-
-      expect(findConfigFilesAtPathMock).toHaveBeenCalledWith('config', 'smth')
+    afterAll(() => {
+      jest.restoreAllMocks()
     })
 
-    it('throws when files array is empty', () => {
-      findConfigFilesAtPathMock.mockReturnValueOnce([])
-
-      expect(() => readConfigFile('config', 'smth')).toThrow(
-        /One of these files must exist/
-      )
-    })
-
-    it('throws when files array contains more than one match', () => {
-      findConfigFilesAtPathMock.mockReturnValueOnce([
-        ...configFilePaths,
-        'config/anotherfile.yaml',
-      ])
-
-      expect(() => readConfigFile('config', 'development')).toThrow(
-        /Exactly one must exist/
-      )
-    })
-
-    it('reads file when exactly one config is found', () => {
-      readConfigFile('dev/config', 'development')
-
-      expect(getFileFromPath).toHaveBeenCalledWith(configFilePaths[0])
-    })
-
-    it('returns result of getFileFromPath', () => {
-      expect(readConfigFile('dev/config', 'development')).toEqual(configFile)
-    })
-  })
-
-  describe('readSchemaFile()', () => {
-    const existsSyncMock = fs.existsSync as jest.MockedFunction<
-      typeof fs.existsSync
-    >
-
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-
-    describe('given a config root without an existing schema.json', () => {
-      it('returns undefined when input is not a JSON file', () => {
-        existsSyncMock.mockReturnValueOnce(false)
-        expect(readSchemaFile('not-a-json-file.yaml')).toBeUndefined()
+    describe('given an invalid configRoot', () => {
+      it('should throw', () => {
+        expect(() =>
+          readConfigForEnv('production', '/wrong/config/root')
+        ).toThrowError("Couldn't find config file")
       })
     })
 
-    describe('given a config root with an existing schema.json', () => {
+    describe('given a config name for which multiple files exist (e.g. development.yaml AND development.json)', () => {
+      it('should throw', () => {
+        const findFilesResult = [
+          'config/development.yml',
+          'config/development.json',
+        ]
+        jest
+          .spyOn(findFiles, 'findConfigFilesAtPath')
+          .mockReturnValueOnce(findFilesResult)
+
+        expect(() => readConfigForEnv('development', './config')).toThrowError(
+          `Duplicate config files detected: ${findFilesResult.join(',')}`
+        )
+      })
+    })
+
+    describe('given a valid config name', () => {
+      it('loads the config file', () => {
+        jest
+          .spyOn(findFiles, 'findConfigFilesAtPath')
+          .mockReturnValueOnce(configFilePaths)
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('mocked config file')
+        jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
+
+        expect(readConfigForEnv('development', configRoot)).toStrictEqual(
+          configFile
+        )
+      })
+    })
+  })
+
+  describe('readConfigFromPath()', () => {
+    describe('given an invalid path', () => {
+      it('should return undefined', () => {
+        expect(
+          readSchemaFromConfigRoot('./an/invalid/path/prod.yml')
+        ).toBeUndefined()
+      })
+    })
+
+    describe('given a valid path to a YAML config file', () => {
+      const configFileContents = 'parsed: yaml'
+
+      beforeEach(() => {
+        jest.clearAllMocks()
+        jest.spyOn(yaml, 'load')
+        jest.spyOn(JSON, 'parse')
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+      })
+
+      afterAll(() => {
+        jest.restoreAllMocks()
+      })
+
+      it('returns the expected config file', () => {
+        const result = readConfigFromPath('some/path/config.yaml')
+
+        expect(yaml.load).toHaveBeenCalledWith(configFileContents)
+        expect(JSON.parse).not.toHaveBeenCalled()
+
+        expect(result).toStrictEqual({
+          filePath: 'some/path/config.yaml',
+          contents: { parsed: 'yaml' },
+        })
+      })
+    })
+
+    describe('given a valid path to a JSON config file', () => {
+      const configFileContents = `{ "parsed": "json" }`
+
+      beforeEach(() => {
+        jest.clearAllMocks()
+        jest.spyOn(yaml, 'load')
+        jest.spyOn(JSON, 'parse')
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+      })
+
+      afterAll(() => {
+        jest.restoreAllMocks()
+      })
+
+      it('returns the expected config file', () => {
+        const result = readConfigFromPath('some/path/config.json')
+
+        expect(JSON.parse).toHaveBeenCalledWith(configFileContents)
+        expect(yaml.load).not.toHaveBeenCalled()
+
+        expect(result).toStrictEqual({
+          filePath: 'some/path/config.json',
+          contents: { parsed: 'json' },
+        })
+      })
+    })
+  })
+
+  describe('readSchemaFromConfigRoot()', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('given a config root WITHOUT an existing schema.json', () => {
+      it('returns undefined when input is not a JSON file', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
+
+        expect(readSchemaFromConfigRoot('not-a-json-file.yaml')).toBeUndefined()
+      })
+    })
+
+    describe('given a config root WITH an existing schema.json', () => {
       it('returns the parsed schema file', () => {
-        existsSyncMock.mockReturnValueOnce(true)
-        expect(readSchemaFile('config')).toEqual(configFile)
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest
+          .spyOn(fs, 'readFileSync')
+          .mockReturnValueOnce(JSON.stringify({ mocked: 'schema' }))
+
+        expect(readSchemaFromConfigRoot('config')).toEqual({ mocked: 'schema' })
       })
     })
   })

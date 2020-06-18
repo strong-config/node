@@ -1,38 +1,71 @@
-import { existsSync } from 'fs'
+import { normalize } from 'path'
+import fs from 'fs'
+import yaml from 'js-yaml'
 import { isEmpty } from 'ramda'
-import { defaultOptions } from '../options'
-import { ConfigFile, ConfigFileExtensions } from '../types'
-
+import { ConfigFile, Schema, ConfigFileExtensions, JSONObject } from '../types'
 import { findConfigFilesAtPath } from './find-files'
-import { getFileFromPath } from './get-file-from-path'
 
-export const readConfigFile = (
-  basePath: string,
-  fileName: string
+export const readConfigForEnv = (
+  runtimeEnv: string,
+  configRootRaw: string
 ): ConfigFile => {
-  const filePaths = findConfigFilesAtPath(basePath, fileName)
+  const configRoot = normalize(configRootRaw)
+  const filePaths = findConfigFilesAtPath(configRoot, runtimeEnv)
 
   if (isEmpty(filePaths)) {
     throw new Error(
-      `None of ${fileName}.{${ConfigFileExtensions.join(
+      `Couldn't find config file ${configRoot}/${runtimeEnv}.{${ConfigFileExtensions.join(
         ','
-      )}} found. One of these files must exist.`
+      )}}`
     )
   } else if (filePaths.length > 1) {
     throw new Error(
-      `More than one of ${fileName}.{${ConfigFileExtensions.join(
+      `Duplicate config files detected: ${filePaths.join(
         ','
-      )}} found. Exactly one must exist.`
+      )}. There can be only one config file per environment.`
     )
   }
 
-  return getFileFromPath(filePaths[0])
+  return readConfigFromPath(filePaths[0])
 }
 
-export const readSchemaFile = (
-  configRoot: string = defaultOptions.configRoot
-): ConfigFile | undefined => {
+// Return type can NOT be undefined because config files are NOT optional (contrary to schema files)
+export const readConfigFromPath = (configPathRaw: string): ConfigFile => {
+  const configPath = normalize(configPathRaw)
+
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Couldn't find config file ${configPath}`)
+  }
+
+  const fileAsString = fs.readFileSync(configPath).toString()
+  const fileExtension = configPath.split('.').pop()
+
+  let parsedFile
+
+  if (fileExtension === 'json') {
+    parsedFile = JSON.parse(fileAsString) as JSONObject
+  } else if (fileExtension === 'yml' || fileExtension === 'yaml') {
+    parsedFile = yaml.load(fileAsString) as JSONObject
+  } else {
+    throw new Error(
+      `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
+    )
+  }
+
+  return { contents: parsedFile, filePath: configPath }
+}
+
+// Return type can be undefined because use of schemas is optional (contrary to config files)
+export const readSchemaFromConfigRoot = (
+  configRootRaw: string
+): Schema | undefined => {
+  const configRoot = normalize(configRootRaw)
   const schemaPath = `${configRoot}/schema.json`
 
-  return existsSync(schemaPath) ? getFileFromPath(schemaPath) : undefined
+  if (!fs.existsSync(schemaPath)) return
+
+  const schemaAsString = fs.readFileSync(schemaPath).toString()
+  const schema = JSON.parse(schemaAsString) as Schema
+
+  return schema
 }

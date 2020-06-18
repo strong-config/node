@@ -3,7 +3,7 @@ jest.mock('./validate')
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
 import * as generateTypesFromSchemaModule from '../generate-types-from-schema'
-import * as readFileModule from '../utils/read-file'
+import * as readFile from '../utils/read-file'
 import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
 
@@ -30,12 +30,12 @@ describe('strong-config generate-types', () => {
   })
 
   it('checks if a valid schema file exists', async () => {
-    jest.spyOn(readFileModule, 'readSchemaFile')
+    jest.spyOn(readFile, 'readSchemaFromConfigRoot')
     const configRoot = '/i/dont/exist'
 
     await GenerateTypes.run(['--config-root', configRoot])
 
-    expect(readFileModule.readSchemaFile).toHaveBeenCalledWith(configRoot)
+    expect(readFile.readSchemaFromConfigRoot).toHaveBeenCalledWith(configRoot)
   })
 
   it('generates types', async () => {

@@ -4,7 +4,7 @@ import ora from 'ora'
 import Debug from 'debug'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
-import { readSchemaFile } from '../utils/read-file'
+import { readSchemaFromConfigRoot } from '../utils/read-file'
 import { validateCliWrapper } from './validate'
 
 const debugNamespace = 'strong-config:encrypt'
@@ -128,7 +128,7 @@ export class Encrypt extends Command {
   run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
 
-    if (readSchemaFile(flags['config-root'])) {
+    if (readSchemaFromConfigRoot(flags['config-root'])) {
       validateCliWrapper(
         args['config_file'],
         flags['config-root'],

@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
-import { pathExistsSync } from 'fs-extra'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { defaultOptions } from '../options'
 import type { EncryptedConfig, JSONObject } from '../types'
-import { getFileFromPath } from '../utils/get-file-from-path'
+import { readConfigFromPath } from './../utils/read-file'
 
 export class CheckEncryption extends Command {
   static description = 'check that secrets in config files are safely encrypted'
@@ -79,15 +78,17 @@ export class CheckEncryption extends Command {
     const spinner = ora(`Checking ${path} for encryption...`).start()
     const { flags } = this.parse(CheckEncryption)
 
-    if (!pathExistsSync(path)) {
+    let configFile
+
+    try {
+      configFile = readConfigFromPath(path)
+    } catch {
       spinner.fail(
         `${path} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`
       )
 
       return false
     }
-
-    const configFile = getFileFromPath(path)
 
     if (this.checkEncryption(configFile.contents)) {
       spinner.succeed(

@@ -1,20 +1,18 @@
-import { normalize } from 'path'
 import Debug from 'debug'
 import type { HydratedConfig } from './types'
 import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 import { hydrateConfig } from './utils/hydrate-config'
-import { readConfigFile, readSchemaFile } from './utils/read-file'
+import { readConfigForEnv, readSchemaFromConfigRoot } from './utils/read-file'
 import * as sops from './utils/sops'
 import { validate } from './validate'
-import { Options } from './options'
+import type { Options } from './options'
 
 const debugNamespace = 'strong-config:load'
 const debug = Debug(debugNamespace)
 
 export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
-  const normalizedConfigRoot = normalize(options.configRoot)
+  const configFile = readConfigForEnv(runtimeEnv, options.configRoot)
 
-  const configFile = readConfigFile(normalizedConfigRoot, runtimeEnv)
   debug('Read config file: %O', configFile)
 
   const decryptedConfigFile = sops.decryptToObject(
@@ -26,7 +24,7 @@ export const load = (runtimeEnv: string, options: Options): HydratedConfig => {
   const config = hydrateConfig(runtimeEnv, options)(decryptedConfigFile)
   debug('Hydrated config: %O', config)
 
-  const schemaFile = readSchemaFile(normalizedConfigRoot)
+  const schemaFile = readSchemaFromConfigRoot(options.configRoot)
   debug('Schema file: %O', schemaFile)
 
   if (schemaFile) {

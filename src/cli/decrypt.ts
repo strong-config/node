@@ -3,7 +3,7 @@ import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
-import { readSchemaFile } from '../utils/read-file'
+import { readSchemaFromConfigRoot } from '../utils/read-file'
 import { defaultOptions } from '../options'
 import { validateCliWrapper } from './validate'
 
@@ -87,7 +87,7 @@ export class Decrypt extends Command {
 
     this.decrypt()
 
-    if (readSchemaFile(flags['config-root'])) {
+    if (readSchemaFromConfigRoot(flags['config-root'])) {
       validateCliWrapper(
         args['config_file'],
         flags['config-root'],

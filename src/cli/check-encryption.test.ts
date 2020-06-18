@@ -1,5 +1,5 @@
 import { stderr, stdout } from 'stdout-stderr'
-import * as getFileFromPathModule from '../utils/get-file-from-path'
+import * as readFiles from '../utils/read-file'
 import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {
@@ -29,10 +29,10 @@ describe('strong-config check-encryption', () => {
 
   describe('for ONE file', () => {
     it('should read the config file', async () => {
-      jest.spyOn(getFileFromPathModule, 'getFileFromPath')
+      jest.spyOn(readFiles, 'readConfigFromPath')
       await CheckEncryption.run([encryptedConfigPath])
 
-      expect(getFileFromPathModule.getFileFromPath).toHaveBeenCalledWith(
+      expect(readFiles.readConfigFromPath).toHaveBeenCalledWith(
         encryptedConfigPath
       )
     })
@@ -90,7 +90,7 @@ describe('strong-config check-encryption', () => {
       })
 
       it('should print out the contents of encrypted config files to the terminal', async () => {
-        const encryptedConfigFile = getFileFromPathModule.getFileFromPath(
+        const encryptedConfigFile = readFiles.readConfigFromPath(
           encryptedConfigPath
         )
         await CheckEncryption.run([encryptedConfigPath, '-v'])
@@ -103,7 +103,7 @@ describe('strong-config check-encryption', () => {
       })
 
       it('should print out the contents of unencrypted config files to the terminal', async () => {
-        const unencryptedConfigFile = getFileFromPathModule.getFileFromPath(
+        const unencryptedConfigFile = readFiles.readConfigFromPath(
           unencryptedConfigPath
         )
         await CheckEncryption.run([unencryptedConfigPath, '-v'])

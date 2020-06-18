@@ -1,10 +1,12 @@
+import { JSONSchema4 } from 'json-schema'
+
 type JSON = string | number | boolean | null | JSON[] | JSONObject
 
 export type JSONObject = { [key: string]: JSON }
 
 export type BaseConfig = JSONObject
 
-export type Schema = JSONObject
+export type Schema = JSONSchema4
 
 type SopsMetadata = {
   kms: unknown | null
@@ -29,10 +31,5 @@ export const ConfigFileExtensions = ['json', 'yaml', 'yml']
 
 export type ConfigFile = {
   contents: EncryptedConfig
-  filePath: string
-}
-
-export type SchemaFile = {
-  contents: Schema
   filePath: string
 }
