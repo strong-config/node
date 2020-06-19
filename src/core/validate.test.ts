@@ -1,11 +1,30 @@
 import Ajv from 'ajv'
 import { defaultOptions } from '../options'
 import * as readFiles from '../utils/read-file'
+import * as sops from '../utils/sops'
 import type { Schema } from '../types'
 import { validate } from './validate'
 
 describe('validate()', () => {
   const configRoot = 'example'
+  const decryptedConfigValid = {
+    name: 'example-project',
+    someField: { optionalField: 123, requiredField: 'crucial string' },
+    someArray: ['joe', 'freeman'],
+  }
+  const decryptedConfigInvalid = {
+    nameXXX: 'invalid name',
+    someField: 'wrong value type',
+    extraField: 'field disallowed by schema',
+  }
+
+  const decryptToObjectStub = jest
+    .spyOn(sops, 'decryptToObject')
+    .mockReturnValue(decryptedConfigValid)
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   describe('given a valid DECRYPTED config file', () => {
     it('should return true', () => {
@@ -21,6 +40,7 @@ describe('validate()', () => {
 
   describe('given an invalid DECRYPTED config file', () => {
     it('should throw', () => {
+      decryptToObjectStub.mockReturnValueOnce(decryptedConfigInvalid)
       expect(() => validate('invalid', configRoot)).toThrowError(
         'data should NOT have additional properties'
       )
