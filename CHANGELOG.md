@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.33](https://github.com/strong-config/node/compare/v0.2.32...v0.2.33) (2020-06-19)
+
+
+### Bug Fixes
+
+* **CI:** also need to run tests with --coverage flag in CI to generate the necessary coverage reports for coveralls ([ca77925](https://github.com/strong-config/node/commit/ca77925678714af93e6c1370724d80e272aad8e5))
+* **CI:** fixed wrongly named ‘yarn clean’ task that broke the release job in CI ([44d5760](https://github.com/strong-config/node/commit/44d576010c2bb124fede03050464cb76d3e83915))
+
 ### [0.2.32](https://github.com/strong-config/node/compare/v0.2.31...v0.2.32) (2020-06-10)
 
 
