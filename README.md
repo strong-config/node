@@ -1,6 +1,7 @@
 # 💪 strong-config
 
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
 Simple, safe and secure config management for NodeJS. Based on [SOPS](https://github.com/mozilla/sops).
 
