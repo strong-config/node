@@ -38,7 +38,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
+
       - run: yarn test
+
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v1.1.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     runs-on: ${{ matrix.os }}
