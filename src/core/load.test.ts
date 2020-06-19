@@ -1,17 +1,14 @@
-jest.mock('../utils/hydrate-config')
-jest.mock('../utils/sops')
-jest.mock('./generate-types-from-schema')
-jest.mock('./validate')
-
 import { defaultOptions } from '../options'
 import { hydrateConfig, HydrateConfig } from '../utils/hydrate-config'
 import * as readFiles from '../utils/read-file'
 import * as sops from '../utils/sops'
-
 import type { HydratedConfig } from '../types'
 import { validate } from './validate'
-import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 import { load } from './load'
+
+jest.mock('../utils/hydrate-config')
+jest.mock('../utils/sops')
+jest.mock('./validate')
 
 describe('load()', () => {
   const OLD_ENV = process.env
@@ -107,57 +104,6 @@ describe('load()', () => {
         runtimeEnv,
         defaultOptions.configRoot
       )
-    })
-
-    describe("when process.env.NODE_ENV === 'development' and options.types is NOT false", () => {
-      beforeEach(() => {
-        process.env.NODE_ENV = 'development'
-      })
-
-      it('generates types', () => {
-        load(runtimeEnv, defaultOptions)
-
-        expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
-          defaultOptions.configRoot,
-          defaultOptions.types,
-          expect.any(Function)
-        )
-      })
-
-      it('skips generating types if called from a dev script in watch mode', () => {
-        process.env.npm_config_argv = `cooked: { 'dev', 'load', 'watch' }`
-        load(runtimeEnv, defaultOptions)
-
-        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
-      })
-
-      it('does NOT skip generating types if called from tests in watch mode', () => {
-        process.env.npm_config_argv = `cooked: { 'test', '--watch' }`
-        load(runtimeEnv, defaultOptions)
-
-        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(1)
-      })
-    })
-
-    describe("when process.env.NODE_ENV is anything else than 'development'", () => {
-      it('skips generating types', () => {
-        process.env.NODE_ENV = 'production'
-        load(runtimeEnv, defaultOptions)
-
-        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
-        process.env.NODE_ENV = runtimeEnv
-      })
-    })
-
-    describe('when options.types is false', () => {
-      it('skips generating types', () => {
-        load(runtimeEnv, {
-          ...defaultOptions,
-          types: false,
-        })
-
-        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(0)
-      })
     })
   })
 })

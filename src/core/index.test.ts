@@ -3,14 +3,16 @@ import { defaultOptions } from '../options'
 import optionsSchema from '../options-schema.json'
 import { load } from './load'
 import * as validateModule from './validate'
+import { generateTypesFromSchemaCallback } from './generate-types-from-schema'
 import StrongConfig = require('.')
 
 jest.mock('./load')
 jest.mock('./validate')
-
-const runtimeEnv = process.env.NODE_ENV || 'test'
+jest.mock('./generate-types-from-schema')
 
 describe('StrongConfig class', () => {
+  const runtimeEnv = process.env.NODE_ENV || 'test'
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -97,20 +99,20 @@ describe('StrongConfig class', () => {
       expect(secondLoadResult).toStrictEqual(configMock)
     })
 
-    describe('when process.env[runtimeEnv] is undefined', () => {
-      beforeAll(() => {
-        delete process.env[defaultOptions.runtimeEnvName]
-      })
+    it('throws if runtimeEnv is not set', () => {
+      delete process.env[defaultOptions.runtimeEnvName]
+      expect(() => new StrongConfig(defaultOptions)).toThrow(
+        /process.env.*.is undefined/
+      )
+      process.env[defaultOptions.runtimeEnvName] = runtimeEnv
+    })
 
-      it('throws if runtimeEnv is not set', () => {
-        expect(() => new StrongConfig(defaultOptions)).toThrow(
-          /process.env.*.is undefined/
-        )
-      })
+    it('triggers type generation', () => {
+      const strongConfig = new StrongConfig()
+      strongConfig.generateTypes = jest.fn()
+      strongConfig.load()
 
-      afterAll(() => {
-        process.env[defaultOptions.runtimeEnvName] = runtimeEnv
-      })
+      expect(strongConfig.generateTypes).toHaveBeenCalled()
     })
   })
 
@@ -129,6 +131,65 @@ describe('StrongConfig class', () => {
         defaultOptions.configRoot
       )
       expect(result).toStrictEqual(true)
+    })
+  })
+
+  describe('generateTypes()', () => {
+    describe("when process.env.NODE_ENV === 'development' and options.types is NOT false", () => {
+      let strongConfig: StrongConfig
+
+      beforeEach(() => {
+        strongConfig = new StrongConfig()
+        process.env.NODE_ENV = 'development'
+      })
+
+      it('generates types', () => {
+        strongConfig.generateTypes()
+
+        expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
+          defaultOptions.configRoot,
+          defaultOptions.types,
+          expect.any(Function)
+        )
+      })
+
+      it('skips generating types if called from a dev script in watch mode', () => {
+        process.env.npm_config_argv = `cooked: { 'dev', 'load', 'watch' }`
+
+        strongConfig.generateTypes()
+
+        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
+      })
+
+      it('does NOT skip generating types if called from tests in watch mode', () => {
+        process.env.npm_config_argv = `cooked: { 'test', '--watch' }`
+
+        strongConfig.generateTypes()
+
+        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe("when process.env.NODE_ENV is anything other than 'development'", () => {
+      it('skips generating types', () => {
+        process.env.NODE_ENV = 'production'
+
+        new StrongConfig().generateTypes()
+
+        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
+        process.env.NODE_ENV = runtimeEnv
+      })
+    })
+
+    describe('when options.types is false', () => {
+      it('skips generating types', () => {
+        process.env.NODE_ENV = 'development'
+
+        new StrongConfig({ ...defaultOptions, types: false }).generateTypes()
+
+        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(0)
+        process.env.NODE_ENV = runtimeEnv
+      })
     })
   })
 })
