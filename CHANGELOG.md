@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.35](https://github.com/strong-config/node/compare/v0.2.34...v0.2.35) (2020-06-19)
+
+
+### Bug Fixes
+
+* **CI:** fix manifest generation (at least locally) ([dd23f35](https://github.com/strong-config/node/commit/dd23f35fb99e5b06d7839113925352cd63eff8a5))
+
 ### [0.2.34](https://github.com/strong-config/node/compare/v0.2.33...v0.2.34) (2020-06-19)
 
 ### [0.2.33](https://github.com/strong-config/node/compare/v0.2.32...v0.2.33) (2020-06-19)
