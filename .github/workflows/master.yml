@@ -47,7 +47,7 @@ jobs:
       - name: Yarn install with caching
         uses: bahmutov/npm-install@v1.1.0
 
-      - run: yarn test
+      - run: yarn test --coverage
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v1.1.1
