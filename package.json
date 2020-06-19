@@ -61,10 +61,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@oclif/command": "^1.5.19",
-    "@oclif/plugin-autocomplete": "^0.1.5",
-    "@oclif/plugin-help": "^2.2.2",
-    "@oclif/plugin-not-found": "^1.2.3",
+    "@oclif/command": "^1.6.1",
+    "@oclif/plugin-autocomplete": "^0.2.0",
+    "@oclif/plugin-help": "^3.1.0",
+    "@oclif/plugin-not-found": "^1.2.4",
     "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "ajv": "^6.10.2",
     "debug": "^4.1.1",
@@ -85,10 +85,10 @@
     "@types/ajv": "^1.0.0",
     "@types/debug": "^4.1.5",
     "@types/fs-extra": "^9.0.1",
-    "@types/glob": "^7.1.1",
+    "@types/glob": "^7.1.2",
     "@types/jest": "^26.0.0",
     "@types/js-yaml": "^3.12.4",
-    "@types/node": "^14.0.5",
+    "@types/node": "^14.0.13",
     "@types/node-fetch": "^2.5.7",
     "@types/ora": "^3.2.0",
     "@types/pascal-case": "^1.1.2",
@@ -122,7 +122,7 @@
     "shelljs": "^0.8.4",
     "stdout-stderr": "^0.1.13",
     "ts-jest": "^26.1.0",
-    "ts-node": "^8.10.1",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   },
   "resolutions": {

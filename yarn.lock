@@ -752,16 +752,18 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@oclif/color@^0.0.0":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/@oclif/color/-/color-0.0.0.tgz#54939bbd16d1387511bf1a48ccda1a417248e6a9"
-  integrity sha512-KKd3W7eNwfNF061tr663oUNdt8EMnfuyf5Xv55SGWA1a0rjhWqS/32P7OeB7CbXcJUBdfVrPyR//1afaW12AWw==
+"@oclif/color@^0.x":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@oclif/color/-/color-0.1.2.tgz#28b07e2850d9ce814d0b587ce3403b7ad8f7d987"
+  integrity sha512-M9o+DOrb8l603qvgz1FogJBUGLqcMFL1aFg2ZEL0FbXJofiNTLOWIeB4faeZTLwE6dt0xH9GpCVpzksMMzGbmA==
   dependencies:
     ansi-styles "^3.2.1"
+    chalk "^3.0.0"
+    strip-ansi "^5.2.0"
     supports-color "^5.4.0"
     tslib "^1"
 
-"@oclif/command@^1.4.31", "@oclif/command@^1.5.10", "@oclif/command@^1.5.13", "@oclif/command@^1.5.19", "@oclif/command@^1.5.3":
+"@oclif/command@^1.5.10", "@oclif/command@^1.5.13":
   version "1.5.19"
   resolved "https://registry.yarnpkg.com/@oclif/command/-/command-1.5.19.tgz#13f472450eb83bd6c6871a164c03eadb5e1a07ed"
   integrity sha512-6+iaCMh/JXJaB2QWikqvGE9//wLEVYYwZd5sud8aLoLKog1Q75naZh2vlGVtg5Mq/NqpqGQvdIjJb3Bm+64AUQ==
@@ -773,7 +775,7 @@
     debug "^4.1.1"
     semver "^5.6.0"
 
-"@oclif/command@^1.5.20", "@oclif/command@^1.6.0":
+"@oclif/command@^1.5.20", "@oclif/command@^1.6.0", "@oclif/command@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@oclif/command/-/command-1.6.1.tgz#774e860f283f32a728377da1c2a90beb8aadf9f5"
   integrity sha512-pvmMmfGn+zm4e4RwVw63mg9sIaqKqmVsFbImQoUrCO/43UmWzoSHWNXKdgEGigOezWrkZfFucaeZcSbp149OWg==
@@ -785,7 +787,7 @@
     debug "^4.1.1"
     semver "^5.6.0"
 
-"@oclif/config@^1", "@oclif/config@^1.12.8", "@oclif/config@^1.6.22":
+"@oclif/config@^1", "@oclif/config@^1.12.8":
   version "1.13.3"
   resolved "https://registry.yarnpkg.com/@oclif/config/-/config-1.13.3.tgz#1b13e18d0e4242ddbd9cbd100f0eec819aa2bf8c"
   integrity sha512-qs5XvGRw+1M41abOKCjd0uoeHCgsMxa2MurD2g2K8CtQlzlMXl0rW5idVeimIg5208LLuxkfzQo8TKAhhRCWLg==
@@ -794,7 +796,7 @@
     debug "^4.1.1"
     tslib "^1.9.3"
 
-"@oclif/config@^1.12.12", "@oclif/config@^1.15.1":
+"@oclif/config@^1.12.12", "@oclif/config@^1.13.0", "@oclif/config@^1.15.1":
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/@oclif/config/-/config-1.15.1.tgz#39950c70811ab82d75bb3cdb33679ed0a4c21c57"
   integrity sha512-GdyHpEZuWlfU8GSaZoiywtfVBsPcfYn1KuSLT1JTfvZGpPG6vShcGr24YZ3HG2jXUFlIuAqDcYlTzOrqOdTPNQ==
@@ -847,17 +849,17 @@
     chalk "^2.4.2"
     tslib "^1.9.3"
 
-"@oclif/plugin-autocomplete@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-autocomplete/-/plugin-autocomplete-0.1.5.tgz#b021b50db6d6b0d9e7d2227c58f43906578ae175"
-  integrity sha512-Afchpdd8FNfx9GaU/1D9IzyfiXvjfGybgzQ6G4GTFvPO0/hLdkXX3YyYq+SnxE6/bCrhg4pleiB+GuJACmmkEA==
+"@oclif/plugin-autocomplete@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-autocomplete/-/plugin-autocomplete-0.2.0.tgz#e965ae83abdb81ff97eb7d63a975bcedb78dfdd9"
+  integrity sha512-pHbaE2PH7d9lHjCgFrrQ+ZIwvY+7OAQaGoaANqDbicBNDK/Rszt4N4oGj22dJT7sCQ8a/3Eh942rjxYIq9Mi9Q==
   dependencies:
-    "@oclif/command" "^1.4.31"
-    "@oclif/config" "^1.6.22"
+    "@oclif/command" "^1.5.13"
+    "@oclif/config" "^1.13.0"
     chalk "^2.4.1"
-    cli-ux "^4.4.0"
-    debug "^3.1.0"
-    fs-extra "^6.0.1"
+    cli-ux "^5.2.1"
+    debug "^4.0.0"
+    fs-extra "^7.0.0"
     moment "^2.22.1"
 
 "@oclif/plugin-help@^2":
@@ -888,20 +890,6 @@
     widest-line "^2.0.1"
     wrap-ansi "^4.0.0"
 
-"@oclif/plugin-help@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-2.2.2.tgz#94435cf00e0400708ca501e0e7823d460f92b974"
-  integrity sha512-Xh4o3TKEg5CsIpQx1XzzV0RYCShfksFuFF0CBodv5Eh1boAw06cBGv225LYdAX8lcSo9qklw/tuz2RsAsH0o9A==
-  dependencies:
-    "@oclif/command" "^1.5.13"
-    chalk "^2.4.1"
-    indent-string "^3.2.0"
-    lodash.template "^4.4.0"
-    string-width "^3.0.0"
-    strip-ansi "^5.0.0"
-    widest-line "^2.0.1"
-    wrap-ansi "^4.0.0"
-
 "@oclif/plugin-help@^3":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-3.0.1.tgz#21919bc6bef58eb045b80312dbb1d671ee7bba51"
@@ -917,13 +905,28 @@
     widest-line "^2.0.1"
     wrap-ansi "^4.0.0"
 
-"@oclif/plugin-not-found@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-not-found/-/plugin-not-found-1.2.3.tgz#00f9e7a0a793a5e2f616d8280075f4592de8f079"
-  integrity sha512-Igbw2T4gLrb/f28Llr730FeMXBSI2PXdky2YvQfsZeQGDsyBZmC4gprJJtmrMWQcjz0B51IInRBnZYERvwfIpw==
+"@oclif/plugin-help@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-3.1.0.tgz#507ff8e9cabe734672b12d1ec0b79812d18c58a8"
+  integrity sha512-orSWpXGlJaX16eSjAtI8scA8QhrjQOaCSHodEx52t18JKbIVzG8jcngugyWAOB/V4jhPl0rdiVk9XFsaIIiG2g==
   dependencies:
-    "@oclif/color" "^0.0.0"
-    "@oclif/command" "^1.5.3"
+    "@oclif/command" "^1.5.20"
+    "@oclif/config" "^1.15.1"
+    chalk "^2.4.1"
+    indent-string "^4.0.0"
+    lodash.template "^4.4.0"
+    string-width "^3.0.0"
+    strip-ansi "^5.0.0"
+    widest-line "^2.0.1"
+    wrap-ansi "^4.0.0"
+
+"@oclif/plugin-not-found@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-not-found/-/plugin-not-found-1.2.4.tgz#160108c82f0aa10f4fb52cee4e0135af34b7220b"
+  integrity sha512-G440PCuMi/OT8b71aWkR+kCWikngGtyRjOR24sPMDbpUFV4+B3r51fz1fcqeUiiEOYqUpr0Uy/sneUe1O/NfBg==
+  dependencies:
+    "@oclif/color" "^0.x"
+    "@oclif/command" "^1.6.0"
     cli-ux "^4.9.0"
     fast-levenshtein "^2.0.6"
     lodash "^4.17.13"
@@ -1057,6 +1060,14 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/glob@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.2.tgz#06ca26521353a545d94a0adc74f38a59d232c987"
+  integrity sha512-VgNIkxK+j7Nz5P7jvUZlRvhuPSmsEfS03b0alKcq5V/STUKAa3Plemsn5mrQUO7am6OErJ4rhGEGJbACclrtRA==
+  dependencies:
+    "@types/minimatch" "*"
+    "@types/node" "*"
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.3.tgz#039af35fe26bec35003e8d86d2ee9c586354348f"
@@ -1130,10 +1141,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.5.tgz#e19436e7f8e9b4601005d73673b6dc4784ffcc2f"
   integrity sha512-9fq4jZVhPNW8r+UYKnxF1e2HkDWOWKM5bC2/7c9wPV835I0aOrVbS/Hw/pWPk2uKrNXQqg9Z959Kz+IYDd5p3w==
 
-"@types/node@^14.0.5":
-  version "14.0.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.5.tgz#3d03acd3b3414cf67faf999aed11682ed121f22b"
-  integrity sha512-90hiq6/VqtQgX8Sp0EzeIsv3r+ellbGj4URKj5j30tLlZvRUpnAe9YbYnjl3pJM93GyXU0tghHhvXHq+5rnCKA==
+"@types/node@^14.0.13":
+  version "14.0.13"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.13.tgz#ee1128e881b874c371374c1f72201893616417c9"
+  integrity sha512-rouEWBImiRaSJsVA+ITTFM6ZxibuAlTuNOCyxVbwreu6k6+ujs7DfnU9o+PShFhET78pMBl3eH+AGSI5eOTkPA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -2052,7 +2063,7 @@ cli-truncate@2.1.0, cli-truncate@^2.1.0:
     slice-ansi "^3.0.0"
     string-width "^4.2.0"
 
-cli-ux@^4.4.0, cli-ux@^4.9.0:
+cli-ux@^4.9.0:
   version "4.9.3"
   resolved "https://registry.yarnpkg.com/cli-ux/-/cli-ux-4.9.3.tgz#4c3e070c1ea23eef010bbdb041192e0661be84ce"
   integrity sha512-/1owvF0SZ5Gn54cgrikJ0QskgTzeg30HGjkmjFoaHDJzAqFpuX1DBpFR8aLvsE1J5s9MgeYRENQK4BFwOag5VA==
@@ -2458,14 +2469,14 @@ debug@^2.2.0, debug@^2.3.3, debug@^2.6.9:
   dependencies:
     ms "2.0.0"
 
-debug@^3.1.0, debug@^3.2.6:
+debug@^3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
   dependencies:
     ms "^2.1.1"
 
-debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
+debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
@@ -7204,7 +7215,7 @@ strip-ansi@^4.0.0:
   dependencies:
     ansi-regex "^3.0.0"
 
-strip-ansi@^5.0.0, strip-ansi@^5.1.0:
+strip-ansi@^5.0.0, strip-ansi@^5.1.0, strip-ansi@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-5.2.0.tgz#8c9a536feb6afc962bdfa5b104a5091c1ad9c0ae"
   integrity sha512-DuRs1gKbBqsMKIZlrffwlug8MHkcnpjs5VPmL1PAh+mA30U0DTotfDZ0d2UUsXpPmPmMMJ6W773MaA3J+lbiWA==
@@ -7543,10 +7554,10 @@ ts-jest@^26.1.0:
     semver "7.x"
     yargs-parser "18.x"
 
-ts-node@^8.10.1:
-  version "8.10.1"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.10.1.tgz#77da0366ff8afbe733596361d2df9a60fc9c9bd3"
-  integrity sha512-bdNz1L4ekHiJul6SHtZWs1ujEKERJnHs4HxN7rjTyyVOFf3HaJ6sLqe6aPG62XTzAB/63pKRh5jTSWL0D7bsvw==
+ts-node@^8.10.2:
+  version "8.10.2"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.10.2.tgz#eee03764633b1234ddd37f8db9ec10b75ec7fb8d"
+  integrity sha512-ISJJGgkIpDdBhWVu3jufsWpK3Rzo7bdiIXJjQc0ynKxVOVcg2oIrf2H2cejminGrptVc6q6/uynAHNCuWGbpVA==
   dependencies:
     arg "^4.1.0"
     diff "^4.0.1"
