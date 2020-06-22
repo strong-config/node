@@ -139,13 +139,8 @@ describe('strong-config decrypt', () => {
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
          */
-      } catch (error) {
+      } catch {
         stdout.stop()
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
-        if (error.oclif?.exit !== 0) {
-          console.error(error)
-        }
       }
 
       expect(stdout.output).toContain('USAGE')
@@ -161,13 +156,8 @@ describe('strong-config decrypt', () => {
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
          */
-      } catch (error) {
+      } catch {
         stdout.stop()
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
-        if (error.oclif?.exit !== 0) {
-          console.error(error)
-        }
       }
 
       expect(stdout.output).toContain('USAGE')
