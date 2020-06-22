@@ -85,42 +85,6 @@ describe('strong-config check-encryption', () => {
         expect(process.exit).toHaveBeenCalledWith(1)
       })
     })
-
-    describe('when in verbose mode', () => {
-      beforeAll(() => {
-        jest.spyOn(JSON, 'stringify')
-      })
-
-      beforeEach(() => {
-        jest.clearAllMocks()
-      })
-
-      it('should print out the contents of encrypted config files to the terminal', async () => {
-        const encryptedConfigFile = readFiles.readConfigFromPath(
-          encryptedConfigPath
-        )
-        await CheckEncryption.run([encryptedConfigPath, '-v'])
-
-        expect(JSON.stringify).toHaveBeenCalledWith(
-          encryptedConfigFile.contents,
-          undefined,
-          2
-        )
-      })
-
-      it('should print out the contents of unencrypted config files to the terminal', async () => {
-        const unencryptedConfigFile = readFiles.readConfigFromPath(
-          unencryptedConfigPath
-        )
-        await CheckEncryption.run([unencryptedConfigPath, '-v'])
-
-        expect(JSON.stringify).toHaveBeenCalledWith(
-          unencryptedConfigFile.contents,
-          undefined,
-          2
-        )
-      })
-    })
   })
 
   describe('for ALL files', () => {
@@ -130,7 +94,7 @@ describe('strong-config check-encryption', () => {
           CheckEncryption.prototype,
           'checkOneConfigFile'
         )
-        const flags = { 'config-root': 'example', verbose: false }
+        const flags = { 'config-root': 'example' }
         await CheckEncryption.run(['--config-root', flags['config-root']])
 
         expect(checkOneConfigFileSpy).toHaveBeenCalledTimes(

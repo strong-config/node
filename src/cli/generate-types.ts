@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
-import Debug from 'debug'
 import { generateTypesFromSchema } from '../utils/generate-types-from-schema'
 import { loadSchema } from '../utils/read-files'
 import { defaultOptions } from '../options'
-
-const debugNamespace = 'strong-config:generate-types'
-const debug = Debug(debugNamespace)
 
 export class GenerateTypes extends Command {
   static description = 'generate typescript types based on schema.json'
@@ -23,11 +19,6 @@ export class GenerateTypes extends Command {
       char: 'c',
       description: 'your config folder containing your schema.json',
       default: defaultOptions.configRoot,
-    }),
-    verbose: Flags.boolean({
-      char: 'v',
-      description: 'print stack traces in case of errors',
-      default: false,
     }),
   }
 
@@ -57,7 +48,7 @@ export class GenerateTypes extends Command {
         )
       } catch (error) {
         spinner.fail("Couldn't generate types from schema")
-        debug(error)
+        console.error(error)
       }
 
       spinner.succeed(

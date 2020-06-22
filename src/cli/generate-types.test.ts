@@ -10,6 +10,7 @@ jest.mock('./validate')
 
 describe('strong-config generate-types', () => {
   beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation()
     jest.spyOn(fs, 'writeFileSync').mockImplementation()
     jest.spyOn(process, 'exit').mockImplementation()
   })
@@ -85,17 +86,12 @@ describe('strong-config generate-types', () => {
     it('prints the help with --help', async () => {
       try {
         await GenerateTypes.run(['--help'])
-      } catch (error) {
+      } catch {
         /*
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
          */
         stdout.stop()
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
-        if (error.oclif?.exit !== 0) {
-          console.error(error)
-        }
       }
 
       expect(stdout.output).toContain('USAGE')
@@ -110,13 +106,8 @@ describe('strong-config generate-types', () => {
          * NOTE: For some reason oclif throws when running the help command
          * so we need to catch the (non-)error for the test to pass
          */
-      } catch (error) {
+      } catch {
         stdout.stop()
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- no idea how to teach typescript that 'error' is not of type 'any'
-        if (error.oclif?.exit !== 0) {
-          console.error(error)
-        }
       }
 
       expect(stdout.output).toContain('USAGE')

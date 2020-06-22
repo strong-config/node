@@ -22,11 +22,6 @@ export class CheckEncryption extends Command {
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: Flags.boolean({
-      char: 'v',
-      description: 'print stack traces in case of errors',
-      default: false,
-    }),
   }
 
   static args = [
@@ -91,23 +86,11 @@ export class CheckEncryption extends Command {
     }
 
     if (this.checkEncryption(configFile.contents)) {
-      spinner.succeed(
-        `Secrets in ${path} are safely encrypted 💪${
-          flags.verbose
-            ? `:\n${JSON.stringify(configFile.contents, undefined, 2)}`
-            : ''
-        }`
-      )
+      spinner.succeed(`Secrets in ${path} are safely encrypted 💪`)
 
       return true
     } else {
-      spinner.fail(
-        `Secrets in ${path} are NOT encrypted${
-          flags.verbose
-            ? `:\n${JSON.stringify(configFile.contents, undefined, 2)}`
-            : ''
-        }`
-      )
+      spinner.fail(`Secrets in ${path} are NOT encrypted 🚨`)
 
       return false
     }
