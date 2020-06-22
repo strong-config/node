@@ -34,6 +34,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:clean": "rimraf lib",
+    "build:oclifHack": "tsc -p tsconfig.oclif-hack.json",
     "dev": "tsc --watch -p tsconfig.build.json",
     "dev:check": "strong-config check example/development.yaml",
     "dev:decrypt": "sops --decrypt --in-place example/development.yaml && cat example/development.yaml",
@@ -53,7 +54,7 @@
     "lint:yaml": "eslint . --ext .yml,.yaml",
     "postinstall": "node postinstall.js",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "yarn build:clean && yarn build && oclif-dev manifest",
+    "prepack": "yarn build:clean && yarn build:oclifHack && oclif-dev manifest && yarn build:clean && yarn build",
     "release": "npx standard-version",
     "report:health": "ts-node --transpile-only scripts/healthcheck.ts",
     "report:todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",

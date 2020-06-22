@@ -1,35 +1,56 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
+import Ajv from 'ajv'
 import ora from 'ora'
-import Debug from 'debug'
-import { validate } from '../core/validate'
 import { defaultOptions } from '../options'
-
-const debugNamespace = 'strong-config:validate'
-const debug = Debug(debugNamespace)
+import { loadSchema, readConfig } from '../utils/read-files'
+import * as sops from '../utils/sops'
+import { DecryptedConfig } from '../types'
 
 export const validateCliWrapper = (
-  configFile: string,
-  configRoot: string,
-  /* istanbul ignore next: we are actually testing both cases, default and overriden default */
-  verbose = false
+  configPath: string,
+  configRoot: string
 ): void => {
-  if (verbose) Debug.enable(debugNamespace)
-
   const spinner = ora('Validating...').start()
+  const ajv = new Ajv({ allErrors: true, useDefaults: true })
 
   try {
-    validate(configFile, configRoot)
-  } catch (error) {
-    spinner.fail('Config validation against schema failed')
-    debug(error)
+    spinner.text = `Loading config: ${configPath}`
+    spinner.render()
+    const configFile = readConfig(configPath, configRoot)
 
+    spinner.text = `Decrypting config with sops...`
+    spinner.render()
+    const decryptedConfig: DecryptedConfig = sops.decryptToObject(
+      configFile.filePath,
+      configFile.contents
+    )
+
+    spinner.text = `Loading schema from: ${configRoot}`
+    spinner.render()
+    const schema = loadSchema(configRoot)
+
+    if (!schema) {
+      spinner.fail(`No schema file found in: ${configRoot}`)
+      process.exit(1)
+    }
+
+    if (!ajv.validate(schema, decryptedConfig)) {
+      spinner.fail(
+        `Config validation against schema failed:\n${ajv.errorsText()}`
+      )
+      process.exit(1)
+    }
+
+    spinner.text = 'Validating config against schema...'
+    spinner.render()
+  } catch (error) {
+    spinner.fail(`Config validation against schema failed`)
+    console.error(error)
     process.exit(1)
   }
 
   spinner.succeed('Config is valid!')
-
-  if (verbose) Debug.disable()
 }
 
 export class Validate extends Command {
@@ -47,11 +68,6 @@ export class Validate extends Command {
     help: Flags.help({
       char: 'h',
       description: 'show help',
-    }),
-    verbose: Flags.boolean({
-      char: 'v',
-      description: 'print stack traces in case of errors',
-      default: false,
     }),
   }
 
@@ -71,7 +87,7 @@ export class Validate extends Command {
   run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
 
-    validateCliWrapper(args['config_file'], flags['config-root'], flags.verbose)
+    validateCliWrapper(args['config_file'], flags['config-root'])
 
     process.exit(0)
   }

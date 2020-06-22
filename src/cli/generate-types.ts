@@ -2,8 +2,8 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import Debug from 'debug'
-import { generateTypesFromSchema } from '../core/generate-types-from-schema'
-import { readSchemaFromConfigRoot } from '../utils/read-file'
+import { generateTypesFromSchema } from '../utils/generate-types-from-schema'
+import { loadSchema } from '../utils/read-files'
 import { defaultOptions } from '../options'
 
 const debugNamespace = 'strong-config:generate-types'
@@ -43,7 +43,7 @@ export class GenerateTypes extends Command {
     const { flags } = this.parse(GenerateTypes)
     const spinner = ora('Generating types...').start()
 
-    if (!readSchemaFromConfigRoot(flags['config-root'])) {
+    if (!loadSchema(flags['config-root'])) {
       spinner.fail(
         "Didn't find schema file. Without a schema.json file inside your config directory we can't generate types."
       )

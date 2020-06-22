@@ -87,22 +87,47 @@ async function runDevScripts(): Promise<void> {
   try {
     spinner.text = 'Running Dev Scripts: yarn dev:load:es6'
     await run('yarn dev:load:es6')
+
     spinner.text = 'Running Dev Scripts: yarn dev:load:commonjs'
     await run('yarn dev:load:commonjs')
+
     spinner.text = 'Running Dev Scripts: yarn dev:decrypt'
     await run('yarn dev:decrypt')
+
     spinner.text = 'Running Dev Scripts: yarn dev:encrypt'
     await run('yarn dev:encrypt')
-
     // NOTE: This is necessary to not always bump the timestamps and therefore change the file everytime we run health checks
     await run('git checkout example/development.yaml')
+
     spinner.text = 'Running Dev Scripts: yarn dev:validate'
     await run('yarn dev:validate')
+
     spinner.text = 'Running Dev Scripts: yarn dev:check'
     await run('yarn dev:check')
     spinner.succeed(chalk.bold('Dev Scripts'))
   } catch (error) {
     spinner.fail(chalk.bold('Dev Scripts'))
+    throw new Error(error)
+  }
+}
+
+async function runReleaseScripts(): Promise<void> {
+  const spinner = ora('Running Release Scripts...').start()
+
+  try {
+    spinner.text = 'Running Release Scripts: yarn release --dry-run'
+    await run('yarn release --dry-run')
+
+    spinner.text = 'Running Release Scripts: yarn prepack'
+    await run('yarn prepack')
+
+    spinner.text =
+      'Removing generated manifest again to not interfere with local development'
+    await run('rm oclif.manifest.json')
+
+    spinner.succeed(chalk.bold('Release Scripts'))
+  } catch (error) {
+    spinner.fail(chalk.bold('Release Scripts'))
     throw new Error(error)
   }
 }
@@ -133,6 +158,7 @@ async function main(): Promise<void> {
   await runTests()
   await runBuild()
   await runDevScripts()
+  await runReleaseScripts()
   await printTodos()
 }
 

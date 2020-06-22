@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
-import Debug from 'debug'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
-import { readSchemaFromConfigRoot } from '../utils/read-file'
+import { loadSchema } from '../utils/read-files'
 import { validateCliWrapper } from './validate'
-
-const debugNamespace = 'strong-config:encrypt'
-const debug = Debug(debugNamespace)
 
 const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']
@@ -43,11 +39,6 @@ export class Encrypt extends Command {
       description:
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
-    }),
-    verbose: Flags.boolean({
-      char: 'v',
-      description: 'print stack traces in case of errors',
-      default: false,
     }),
     'key-provider': Flags.string({
       char: 'p',
@@ -89,9 +80,6 @@ export class Encrypt extends Command {
   encrypt = (): void => {
     const { args, flags } = this.parse(Encrypt)
 
-    /* istanbul ignore next: we are actually testing that things get logged out in --verbose mode */
-    if (flags.verbose) Debug.enable(debugNamespace)
-
     const spinner = ora('Encrypting...').start()
 
     const sopsOptions = ['--encrypt', ...getSopsOptions(args, flags)]
@@ -119,7 +107,7 @@ export class Encrypt extends Command {
         /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
       }
 
-      debug(error)
+      console.error(error)
       process.exit(1)
     }
 
@@ -129,12 +117,8 @@ export class Encrypt extends Command {
   run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
 
-    if (readSchemaFromConfigRoot(flags['config-root'])) {
-      validateCliWrapper(
-        args['config_file'],
-        flags['config-root'],
-        flags.verbose
-      )
+    if (loadSchema(flags['config-root'])) {
+      validateCliWrapper(args['config_file'], flags['config-root'])
     }
 
     this.encrypt()

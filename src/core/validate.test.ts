@@ -1,128 +1,69 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Ajv from 'ajv'
-import { defaultOptions } from '../options'
-import * as readFiles from '../utils/read-file'
+import { optionsSchema } from '../options'
+import {
+  validOptions,
+  invalidOptions,
+  encryptedConfigFile,
+  hydratedConfig,
+  schema,
+  decryptedConfig,
+} from '../fixtures'
+import * as readFiles from '../utils/read-files'
 import * as sops from '../utils/sops'
-import type { Schema } from '../types'
-import { validate } from './validate'
+import StrongConfig = require('.')
 
-describe('validate()', () => {
-  const configRoot = 'example'
-  const decryptedConfigValid = {
-    name: 'example-project',
-    someField: { optionalField: 123, requiredField: 'crucial string' },
-    someArray: ['joe', 'freeman'],
-  }
-  const decryptedConfigInvalid = {
-    nameXXX: 'invalid name',
-    someField: 'wrong value type',
-    extraField: 'field disallowed by schema',
-  }
+jest.mock('../utils/generate-types-from-schema')
 
-  const decryptToObjectStub = jest
-    .spyOn(sops, 'decryptToObject')
-    .mockReturnValue(decryptedConfigValid)
+describe('StrongConfig.validate(data, schema)', () => {
+  const readConfig = jest.spyOn(readFiles, 'readConfig')
+  const loadSchema = jest.spyOn(readFiles, 'loadSchema')
+  const decryptToObject = jest.spyOn(sops, 'decryptToObject')
+  const ajvValidate = jest.spyOn(Ajv.prototype, 'validate')
+  let sc: StrongConfig
 
   beforeEach(() => {
     jest.clearAllMocks()
+    readConfig.mockReturnValue(encryptedConfigFile)
+    loadSchema.mockReturnValue(schema)
+    decryptToObject.mockReturnValue(decryptedConfig)
+    sc = new StrongConfig()
   })
 
-  describe('given a valid DECRYPTED config file', () => {
-    it('should return true', () => {
-      expect(validate('unencrypted', configRoot)).toBe(true)
-    })
+  it('can validate config objects', () => {
+    // Reset it again because it was implicitly called through new StrongConfig() already
+    ajvValidate.mockClear()
+
+    sc.validate(hydratedConfig, schema)
+    expect(ajvValidate).toHaveBeenCalledWith(schema, hydratedConfig)
+    expect(ajvValidate).toHaveReturnedWith(true)
+
+    ajvValidate.mockClear()
+
+    const invalidConfig = { i: 'am', not: 'valid' }
+    // @ts-ignore explicitly testing invalid input here
+    expect(() => sc.validate(invalidConfig, schema)).toThrowError(
+      'data should NOT have additional properties'
+    )
+    expect(ajvValidate).toHaveBeenCalledWith(schema, invalidConfig)
+    expect(ajvValidate).toHaveReturnedWith(false)
   })
 
-  describe('given a valid ENCRYPTED config file', () => {
-    it('should return true', () => {
-      expect(validate('development', configRoot)).toBe(true)
-    })
-  })
+  it('can validate strong-config options', () => {
+    // Reset it again because it was implicitly called through new StrongConfig() already
+    ajvValidate.mockClear()
 
-  describe('given an invalid DECRYPTED config file', () => {
-    it('should throw', () => {
-      decryptToObjectStub.mockReturnValueOnce(decryptedConfigInvalid)
-      expect(() => validate('invalid', configRoot)).toThrowError(
-        'data should NOT have additional properties'
-      )
-    })
-  })
+    sc.validate(validOptions, optionsSchema)
+    expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, validOptions)
+    expect(ajvValidate).toHaveReturnedWith(true)
 
-  describe('given a non-existing config file', () => {
-    it('should throw', () => {
-      const filePath = 'i-dont-exist.yml'
-      expect(() => validate(filePath, configRoot)).toThrowError(
-        `Couldn't find config file ${configRoot}/${filePath}`
-      )
-    })
-  })
+    ajvValidate.mockClear()
 
-  describe("when schema can't be found in configRoot", () => {
-    it('should throw', () => {
-      jest
-        .spyOn(readFiles, 'readSchemaFromConfigRoot')
-        // eslint-disable-next-line unicorn/no-useless-undefined
-        .mockReturnValueOnce(undefined)
-
-      expect(() => validate('development', 'example')).toThrowError(
-        'No schema file found'
-      )
-    })
-  })
-
-  describe('valid input', () => {
-    it('accepts a relative path to a config file as input', () => {
-      const relativePaths = [
-        'example/development.yaml',
-        './example/development.yaml',
-        '../node/example/development.yaml',
-      ]
-
-      for (const path of relativePaths) {
-        expect(validate(path, configRoot)).toBe(true)
-      }
-    })
-
-    it('accepts an absolute path to a config file as input', () => {
-      expect(
-        validate(`${process.cwd()}/example/development.yaml`, configRoot)
-      ).toBe(true)
-    })
-
-    it('accepts a runtimeEnv name as input', () => {
-      expect(validate('development', configRoot)).toBe(true)
-    })
-
-    it('uses defaultOptions.configRoot in case no explicit configRoot flag gets passed', () => {
-      jest.spyOn(readFiles, 'readConfigForEnv')
-      const runtimeEnv = 'development'
-
-      // this will throw because defaultOptions.configRoot is './config' which doesn't exist
-      expect(() => validate(runtimeEnv)).toThrow()
-
-      expect(readFiles.readConfigForEnv).toHaveBeenCalledWith(
-        runtimeEnv,
-        defaultOptions.configRoot
-      )
-    })
-  })
-
-  describe('schema augmentation with runtimeEnv property', () => {
-    it('should dynamically add a runtimeEnv prop to the loaded schema', () => {
-      jest.spyOn(Ajv.prototype, 'validate')
-
-      const schema = readFiles.readSchemaFromConfigRoot(configRoot) as Schema
-      expect(schema).not.toHaveProperty('properties.runtimeEnv')
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore we know it's not undefined here because we control the file
-      schema.properties['runtimeEnv'] = { type: 'string' }
-
-      validate('development', configRoot)
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      expect(Ajv.prototype.validate).toHaveBeenCalledWith(
-        schema,
-        expect.any(Object)
-      )
-    })
+    // @ts-ignore explicitly testing invalid input here
+    expect(() => sc.validate(invalidOptions, optionsSchema)).toThrowError(
+      'data should NOT have additional properties'
+    )
+    expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, invalidOptions)
+    expect(ajvValidate).toHaveReturnedWith(false)
   })
 })

@@ -75,8 +75,7 @@ describe('strong-config decrypt', () => {
 
       expect(validateCli.validateCliWrapper).toHaveBeenCalledWith(
         configFile,
-        configRoot,
-        false
+        configRoot
       )
 
       expect(validateCli.validateCliWrapper).toHaveBeenCalledAfter(
@@ -129,17 +128,6 @@ describe('strong-config decrypt', () => {
       stderr.stop()
 
       expect(stderr.output).toMatch('Failed to decrypt config file')
-    })
-
-    it('logs the full error when called with --verbose', async () => {
-      runSopsWithOptionsMock.mockImplementationOnce(() => {
-        throw new Error('something went wrong')
-      })
-      await Decrypt.run(['non-existing-file', '--verbose'])
-      stderr.stop()
-      expect(stderr.output).toContain(
-        'strong-config:decrypt Error: something went wrong'
-      )
     })
   })
 

@@ -4,7 +4,7 @@ import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { defaultOptions } from '../options'
 import type { EncryptedConfig, JSONObject } from '../types'
-import { readConfigFromPath } from './../utils/read-file'
+import { readConfigFromPath } from '../utils/read-files'
 
 export class CheckEncryption extends Command {
   static description = 'check that secrets in config files are safely encrypted'

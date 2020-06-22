@@ -5,7 +5,7 @@ import { prop } from 'ramda'
 import Debug from 'debug'
 import type { JSONObject } from '../types'
 import type { TypeOptions } from '../options'
-import { pascalCase } from '../utils/pascal-case'
+import { pascalCase } from './pascal-case'
 
 const debug = Debug('strong-config:generate-types')
 

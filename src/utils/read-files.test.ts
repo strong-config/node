@@ -1,23 +1,15 @@
 import fs from 'fs'
+import glob from 'glob'
 import yaml from 'js-yaml'
-import type { ConfigFile } from '../types'
-import * as findFiles from './find-files'
-import * as readFile from './read-file'
+import type { EncryptedConfigFile } from '../types'
+import * as readFiles from './read-files'
 
-const configRoot = 'config'
-const configFilePaths = [`${configRoot}/development.yml`]
-const configFile: ConfigFile = {
-  contents: { parsed: 'values' },
-  filePath: configFilePaths[0],
-}
-const {
-  readConfigForEnv,
-  readConfigFromPath,
-  readSchemaFromConfigRoot,
-} = readFile
+const { findConfigForEnv, readConfigFromPath, loadSchema } = readFiles
 
 describe('utils :: read-file', () => {
-  describe('readConfigForEnv()', () => {
+  const configRoot = 'config'
+
+  describe('findConfigForEnv()', () => {
     beforeEach(() => {
       jest.clearAllMocks()
     })
@@ -29,37 +21,38 @@ describe('utils :: read-file', () => {
     describe('given an invalid configRoot', () => {
       it('should throw', () => {
         expect(() =>
-          readConfigForEnv('production', '/wrong/config/root')
+          findConfigForEnv('production', '/wrong/config/root')
         ).toThrowError("Couldn't find config file")
       })
     })
 
     describe('given a config name for which multiple files exist (e.g. development.yaml AND development.json)', () => {
       it('should throw', () => {
-        const findFilesResult = [
+        const multipleConfigFiles = [
           'config/development.yml',
           'config/development.json',
         ]
-        jest
-          .spyOn(findFiles, 'findConfigFilesAtPath')
-          .mockReturnValueOnce(findFilesResult)
+        jest.spyOn(glob, 'sync').mockReturnValueOnce(multipleConfigFiles)
 
-        expect(() => readConfigForEnv('development', './config')).toThrowError(
-          `Duplicate config files detected: ${findFilesResult.join(',')}`
+        expect(() => findConfigForEnv('development', './config')).toThrowError(
+          `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
         )
       })
     })
 
     describe('given a valid config name', () => {
       it('loads the config file', () => {
-        jest
-          .spyOn(findFiles, 'findConfigFilesAtPath')
-          .mockReturnValueOnce(configFilePaths)
+        const oneConfigFile = [`${configRoot}/development.yml`]
+        const configFile: EncryptedConfigFile = {
+          contents: { parsed: 'values' },
+          filePath: oneConfigFile[0],
+        }
+        jest.spyOn(glob, 'sync').mockReturnValueOnce(oneConfigFile)
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
         jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('mocked config file')
         jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
 
-        expect(readConfigForEnv('development', configRoot)).toStrictEqual(
+        expect(findConfigForEnv('development', configRoot)).toStrictEqual(
           configFile
         )
       })
@@ -69,9 +62,7 @@ describe('utils :: read-file', () => {
   describe('readConfigFromPath()', () => {
     describe('given an invalid path', () => {
       it('should return undefined', () => {
-        expect(
-          readSchemaFromConfigRoot('./an/invalid/path/prod.yml')
-        ).toBeUndefined()
+        expect(loadSchema('./an/invalid/path/prod.yml')).toBeUndefined()
       })
     })
 
@@ -147,7 +138,7 @@ describe('utils :: read-file', () => {
     })
   })
 
-  describe('readSchemaFromConfigRoot()', () => {
+  describe('loadSchema()', () => {
     beforeEach(() => {
       jest.clearAllMocks()
     })
@@ -156,18 +147,21 @@ describe('utils :: read-file', () => {
       it('returns undefined when input is not a JSON file', () => {
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
 
-        expect(readSchemaFromConfigRoot('not-a-json-file.yaml')).toBeUndefined()
+        expect(loadSchema('not-a-json-file.yaml')).toBeUndefined()
       })
     })
 
     describe('given a config root WITH an existing schema.json', () => {
-      it('returns the parsed schema file', () => {
+      it('returns the parsed schema file and hydrates it with the runtimeEnv', () => {
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
         jest
           .spyOn(fs, 'readFileSync')
           .mockReturnValueOnce(JSON.stringify({ mocked: 'schema' }))
 
-        expect(readSchemaFromConfigRoot('config')).toEqual({ mocked: 'schema' })
+        expect(loadSchema('config')).toEqual({
+          mocked: 'schema',
+          properties: { runtimeEnv: { type: 'string' } },
+        })
       })
     })
   })

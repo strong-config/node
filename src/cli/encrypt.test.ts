@@ -83,8 +83,7 @@ describe('strong-config encrypt', () => {
 
       expect(validateCli.validateCliWrapper).toHaveBeenCalledWith(
         configFile,
-        configRoot,
-        false
+        configRoot
       )
 
       expect(validateCli.validateCliWrapper).toHaveBeenCalledBefore(
@@ -158,18 +157,6 @@ describe('strong-config encrypt', () => {
       stderr.stop()
 
       expect(stderr.output).toMatch('Failed to encrypt config file')
-    })
-
-    it('logs the full error when called with --verbose', async () => {
-      runSopsWithOptionsMock.mockImplementationOnce(() => {
-        throw new Error('something went wrong')
-      })
-      await Encrypt.run(['non-existing-file', '--verbose', ...requiredKeyFlags])
-      stderr.stop()
-
-      expect(stderr.output).toContain(
-        'strong-config:encrypt Error: something went wrong'
-      )
     })
   })
 

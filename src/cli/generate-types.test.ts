@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
-import * as generateTypesFromSchemaModule from '../core/generate-types-from-schema'
-import * as readFile from '../utils/read-file'
+import * as generateTypesFromSchemaModule from '../utils/generate-types-from-schema'
+import * as readFiles from '../utils/read-files'
 import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
 
@@ -31,12 +31,12 @@ describe('strong-config generate-types', () => {
   })
 
   it('checks if a valid schema file exists', async () => {
-    jest.spyOn(readFile, 'readSchemaFromConfigRoot')
+    jest.spyOn(readFiles, 'loadSchema')
     const configRoot = '/i/dont/exist'
 
     await GenerateTypes.run(['--config-root', configRoot])
 
-    expect(readFile.readSchemaFromConfigRoot).toHaveBeenCalledWith(configRoot)
+    expect(readFiles.loadSchema).toHaveBeenCalledWith(configRoot)
   })
 
   it('generates types', async () => {

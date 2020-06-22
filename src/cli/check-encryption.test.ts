@@ -1,5 +1,5 @@
 import { stderr, stdout } from 'stdout-stderr'
-import * as readFiles from '../utils/read-file'
+import * as readFiles from '../utils/read-files'
 import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {

@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
-import Debug from 'debug'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
-import { readSchemaFromConfigRoot } from '../utils/read-file'
+import { loadSchema } from '../utils/read-files'
 import { defaultOptions } from '../options'
 import { validateCliWrapper } from './validate'
-
-const debug = Debug('strong-config:decrypt')
 
 export class Decrypt extends Command {
   static description = 'decrypt config files'
@@ -40,11 +37,6 @@ export class Decrypt extends Command {
         'your config folder containing your config files and optional schema.json',
       default: defaultOptions.configRoot,
     }),
-    verbose: Flags.boolean({
-      char: 'v',
-      description: 'print stack traces in case of errors',
-      default: false,
-    }),
   }
 
   static usage = 'decrypt CONFIG_FILE OUTPUT_PATH [--help]'
@@ -57,9 +49,6 @@ export class Decrypt extends Command {
 
   decrypt = (): void => {
     const { args, flags } = this.parse(Decrypt)
-
-    /* istanbul ignore next: we are actually testing that things get logged out in --verbose mode */
-    if (flags.verbose) Debug.enable('strong-config:decrypt')
 
     const spinner = ora('Decrypting...').start()
 
@@ -78,7 +67,7 @@ export class Decrypt extends Command {
         )
       }
 
-      debug(error)
+      console.error(error)
       process.exit(1)
     }
 
@@ -90,12 +79,8 @@ export class Decrypt extends Command {
 
     this.decrypt()
 
-    if (readSchemaFromConfigRoot(flags['config-root'])) {
-      validateCliWrapper(
-        args['config_file'],
-        flags['config-root'],
-        flags.verbose
-      )
+    if (loadSchema(flags['config-root'])) {
+      validateCliWrapper(args['config_file'], flags['config-root'])
     }
 
     process.exit(0)
