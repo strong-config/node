@@ -123,7 +123,7 @@ async function runReleaseScripts(): Promise<void> {
 
     spinner.text =
       'Removing generated manifest again to not interfere with local development'
-    await run('rm oclif.manifest.json')
+    await run('rimraf oclif.manifest.json')
 
     spinner.succeed(chalk.bold('Release Scripts'))
   } catch (error) {
