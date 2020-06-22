@@ -1,7 +1,6 @@
-import { existsSync } from 'fs'
-import { sync } from 'execa'
-import { load } from 'js-yaml'
-import { has, isNil } from 'ramda'
+import fs from 'fs'
+import execa from 'execa'
+import yaml from 'js-yaml'
 import which from 'which'
 import type { DecryptedConfig, EncryptedConfig } from '../types'
 
@@ -17,7 +16,7 @@ export function getSopsBinary(): string {
     return 'sops'
   }
 
-  if (existsSync('sops')) {
+  if (fs.existsSync('sops')) {
     return './sops'
   }
 
@@ -27,7 +26,7 @@ export function getSopsBinary(): string {
 export const runSopsWithOptions = (options: string[]): string => {
   const sopsBinary = getSopsBinary()
 
-  const sopsResult = sync(sopsBinary, options)
+  const sopsResult = execa.sync(sopsBinary, options)
 
   switch (sopsResult.exitCode) {
     case 0:
@@ -41,21 +40,24 @@ export const runSopsWithOptions = (options: string[]): string => {
 
 export const decryptToObject = (
   filePath: string,
-  parsedConfig: EncryptedConfig
+  config: EncryptedConfig
 ): DecryptedConfig => {
-  if (isNil(parsedConfig)) {
+  if (!config) {
     throw new Error('Config is nil and can not be decrytped')
   }
 
-  // If there's no SOPS metadata, parsedConfig already represents decrypted config
-  if (!has('sops')(parsedConfig)) {
-    return parsedConfig
+  // If there's no SOPS metadata, config is already decrypted
+  if (!Object.prototype.hasOwnProperty.call(config, 'sops')) {
+    return config
   }
 
   const sopsResult = runSopsWithOptions(['--decrypt', filePath])
 
-  // We should be able to safely typecast this because runSopsWithOptions() should have already failed if it couldn't decrypt the config
-  return load(sopsResult) as DecryptedConfig
+  /*
+   * We should be able to safely typecast the result because runSopsWithOptions()
+   * should have already failed if it couldn't decrypt the config
+   */
+  return yaml.load(sopsResult) as DecryptedConfig
 }
 
 export const decryptInPlace = (filePath: string): void =>
