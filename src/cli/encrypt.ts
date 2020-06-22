@@ -4,7 +4,7 @@ import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
 import { loadSchema } from '../utils/read-files'
-import { validateCliWrapper } from './validate'
+import { validate } from './validate'
 
 const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
 const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']
@@ -118,7 +118,7 @@ export class Encrypt extends Command {
     const { args, flags } = this.parse(Encrypt)
 
     if (loadSchema(flags['config-root'])) {
-      validateCliWrapper(args['config_file'], flags['config-root'])
+      validate(args['config_file'], flags['config-root'])
     }
 
     this.encrypt()

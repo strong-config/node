@@ -7,10 +7,7 @@ import { loadSchema, readConfig } from '../utils/read-files'
 import * as sops from '../utils/sops'
 import { DecryptedConfig } from '../types'
 
-export const validateCliWrapper = (
-  configPath: string,
-  configRoot: string
-): void => {
+export const validate = (configPath: string, configRoot: string): void => {
   const spinner = ora('Validating...').start()
   const ajv = new Ajv({ allErrors: true, useDefaults: true })
 
@@ -87,7 +84,7 @@ export class Validate extends Command {
   run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
 
-    validateCliWrapper(args['config_file'], flags['config-root'])
+    validate(args['config_file'], flags['config-root'])
 
     process.exit(0)
   }

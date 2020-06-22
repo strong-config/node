@@ -2,7 +2,7 @@
 import { stderr, stdout } from 'stdout-stderr'
 import { runSopsWithOptions } from '../utils/sops'
 import { Decrypt } from './decrypt'
-import * as validateCli from './validate'
+import * as validateCommand from './validate'
 
 jest.mock('../utils/sops', () => {
   return {
@@ -69,16 +69,16 @@ describe('strong-config decrypt', () => {
 
   describe('given a config-root with a schema file', () => {
     it('validates config against schema AFTER decrypting', async () => {
-      jest.spyOn(validateCli, 'validateCliWrapper')
+      jest.spyOn(validateCommand, 'validate')
 
       await Decrypt.run([configFile, '--config-root', configRoot])
 
-      expect(validateCli.validateCliWrapper).toHaveBeenCalledWith(
+      expect(validateCommand.validate).toHaveBeenCalledWith(
         configFile,
         configRoot
       )
 
-      expect(validateCli.validateCliWrapper).toHaveBeenCalledAfter(
+      expect(validateCommand.validate).toHaveBeenCalledAfter(
         runSopsWithOptionsMock
       )
     })

@@ -4,7 +4,7 @@ import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { loadSchema } from '../utils/read-files'
 import { defaultOptions } from '../options'
-import { validateCliWrapper } from './validate'
+import { validate } from './validate'
 
 export class Decrypt extends Command {
   static description = 'decrypt config files'
@@ -80,7 +80,7 @@ export class Decrypt extends Command {
     this.decrypt()
 
     if (loadSchema(flags['config-root'])) {
-      validateCliWrapper(args['config_file'], flags['config-root'])
+      validate(args['config_file'], flags['config-root'])
     }
 
     process.exit(0)
