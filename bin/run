@@ -1,15 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-const fs = require('fs')
-const path = require('path')
-const project = path.join(__dirname, '../tsconfig.json')
-const isDev = fs.existsSync(project)
-
-if (isDev) {
-  require('ts-node').register({ project, transpileOnly: true })
-}
-
-require(`../${isDev ? 'src' : 'lib'}/cli`)
+require('@oclif/command')
   .run()
+  .then(require('@oclif/command/flush'))
   .catch(require('@oclif/errors/handle'))
