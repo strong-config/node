@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.37](https://github.com/strong-config/node/compare/v0.2.36...v0.2.37) (2020-06-23)
+
+
+### Features
+
+* removed —verbose flag from ‘check’ and ‘generate-types’ commands ([2847cc4](https://github.com/strong-config/node/commit/2847cc4f959c0387196a50f62380b4f1c555be75))
+
 ### [0.2.36](https://github.com/strong-config/node/compare/v0.2.35...v0.2.36) (2020-06-22)
 
 ### [0.2.35](https://github.com/strong-config/node/compare/v0.2.34...v0.2.35) (2020-06-19)
