@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.38](https://github.com/strong-config/node/compare/v0.2.37...v0.2.38) (2020-06-23)
+
 ### [0.2.37](https://github.com/strong-config/node/compare/v0.2.36...v0.2.37) (2020-06-23)
 
 
