@@ -1,11 +1,5 @@
 {
-  "ignore": [
-    "**/*.test.ts"
-  ],
-  "watch": [
-    "src",
-    "example",
-    "scripts/dev"
-  ],
+  "ignore": ["**/*.test.ts"],
+  "watch": ["src", "example"],
   "ext": "ts,js,json,yaml,yml"
 }
