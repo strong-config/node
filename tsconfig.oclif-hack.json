@@ -1,19 +1,12 @@
 {
   "explanation": [
-    "FIXME: Find out why the oclif manifest generation fails without this hack",
+    "FIXME: Find out why oclif acts up without this hack",
     "When running the typescript compiler with the normal build config `tsconfig.build.json`",
     "then creating the oclif manifest file via `yarn oclif-dev manifest` fails with a cryptic error.",
-    "The problem is that for some reason it seems to need something inside the ./scripts folder.",
-    "If we exclude the scripts folder here (like in tsconfig.build.json), then it would fail:",
-    "'exclude': ['src/**/*.test.ts', 'scripts']"
+    "oclif seems to fail if the 'src' folder is missing from the typescript output, no idea why."
   ],
-  "extends": "./tsconfig.json",
-
-  "exclude": ["src/**/*.test.ts"],
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "./lib",
-    "sourceMap": true
+    "rootDir": "."
   }
 }
