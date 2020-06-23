@@ -28,8 +28,8 @@ async function runLinters(): Promise<void> {
   }
 }
 
-async function runTests(): Promise<void> {
-  const spinner = ora('Running tests...').start()
+async function runUnitTests(): Promise<void> {
+  const spinner = ora('Running unit tests...').start()
 
   try {
     await run('yarn test --coverage')
@@ -37,6 +37,17 @@ async function runTests(): Promise<void> {
   } catch (error) {
     spinner.fail(chalk.bold('Tests'))
     throw new Error(error)
+  }
+}
+
+async function cleanBuild(): Promise<void> {
+  const spinner = ora('Cleaning previous build files...').start()
+
+  try {
+    await run('yarn build:clean')
+    spinner.succeed(chalk.bold('Clean Build'))
+  } catch {
+    spinner.fail(chalk.bold('Clean Build'))
   }
 }
 
@@ -81,32 +92,19 @@ async function runBuild(): Promise<void> {
   }
 }
 
-async function runDevScripts(): Promise<void> {
-  const spinner = ora('Running Dev Scripts...').start()
+async function runIntegrationTests(): Promise<void> {
+  const spinner = ora('Running Integration Tests...').start()
 
   try {
-    spinner.text = 'Running Dev Scripts: yarn dev:load:es6'
-    await run('yarn dev:load:es6')
+    spinner.text = 'Running Integration Tests: Core Library'
+    await run('yarn test:core')
 
-    spinner.text = 'Running Dev Scripts: yarn dev:load:commonjs'
-    await run('yarn dev:load:commonjs')
+    spinner.text = 'Running Integration Tests: CLI'
+    await run('yarn test:cli')
 
-    spinner.text = 'Running Dev Scripts: yarn dev:decrypt'
-    await run('yarn dev:decrypt')
-
-    spinner.text = 'Running Dev Scripts: yarn dev:encrypt'
-    await run('yarn dev:encrypt')
-    // NOTE: This is necessary to not always bump the timestamps and therefore change the file everytime we run health checks
-    await run('git checkout example/development.yaml')
-
-    spinner.text = 'Running Dev Scripts: yarn dev:validate'
-    await run('yarn dev:validate')
-
-    spinner.text = 'Running Dev Scripts: yarn dev:check'
-    await run('yarn dev:check')
-    spinner.succeed(chalk.bold('Dev Scripts'))
+    spinner.succeed(chalk.bold('Integration Tests'))
   } catch (error) {
-    spinner.fail(chalk.bold('Dev Scripts'))
+    spinner.fail(chalk.bold('Integration Tests'))
     throw new Error(error)
   }
 }
@@ -154,10 +152,12 @@ async function printTodos(): Promise<void> {
 async function main(): Promise<void> {
   ora('Checking overall project health...\n').info()
 
+  // FIXME: A weird oclif bug makes this clean necessary (see tsconfig.oclif-hack.json)
+  await cleanBuild()
   await runLinters()
-  await runTests()
+  await runUnitTests()
   await runBuild()
-  await runDevScripts()
+  await runIntegrationTests()
   await runReleaseScripts()
   await printTodos()
 }

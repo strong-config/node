@@ -112,14 +112,7 @@ class StrongConfig {
 
     if (
       this.options.types !== false &&
-      process.env.NODE_ENV === 'development' &&
-      /*
-       * Hacky way to skip type generation for dev scripts like 'yarn dev:load:watch'
-       * but NOT skip when running 'yarn test --watch' (because some tests are checking that type generation occurs)
-       */
-      /* istanbul ignore next: not worth testing this development-only hack */
-      (!process.env?.npm_config_argv?.includes('watch') ||
-        process.env?.npm_config_argv?.includes('--watch'))
+      process.env.NODE_ENV === 'development'
     ) {
       debug('Starting type generation...')
       /*

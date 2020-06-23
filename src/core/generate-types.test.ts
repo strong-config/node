@@ -44,23 +44,6 @@ describe('StrongConfig.generateTypes()', () => {
           expect.any(Function)
         )
       })
-
-      it('generates types if called from tests in --watch mode', () => {
-        process.env.npm_config_argv = `cooked: { 'test', '--watch' }`
-
-        sc = new StrongConfig(validOptions)
-
-        expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(1)
-      })
-
-      it('does NOT generate types if called from a dev script in watch mode', () => {
-        process.env.npm_config_argv = `cooked: { 'dev', 'load', 'watch' }`
-
-        sc = new StrongConfig(validOptions)
-        sc.generateTypes()
-
-        expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
-      })
     })
 
     describe('when options.types is false', () => {
