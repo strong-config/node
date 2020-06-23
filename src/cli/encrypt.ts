@@ -6,9 +6,6 @@ import { defaultOptions } from '../options'
 import { loadSchema } from '../utils/read-files'
 import { validate } from './validate'
 
-const DEFAULT_ENCRYPTED_KEY_SUFFIX = 'Secret'
-const SUPPORTED_KEY_PROVIDERS = ['pgp', 'gcp', 'aws', 'azr']
-
 export class Encrypt extends Command {
   static description = 'encrypt config files'
 
@@ -44,7 +41,7 @@ export class Encrypt extends Command {
       char: 'p',
       description: 'key provider to use to encrypt secrets',
       required: true,
-      options: SUPPORTED_KEY_PROVIDERS,
+      options: ['pgp', 'gcp', 'aws', 'azr'],
       dependsOn: ['key-id'],
     }),
     'key-id': Flags.string({
@@ -57,7 +54,7 @@ export class Encrypt extends Command {
       char: 'e',
       description: 'key suffix determining the values to be encrypted',
       required: false,
-      default: DEFAULT_ENCRYPTED_KEY_SUFFIX,
+      default: 'Secret',
       exclusive: ['unencrypted-key-suffix'],
     }),
     'unencrypted-key-suffix': Flags.string({
