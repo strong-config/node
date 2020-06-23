@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { inspect } = require('util')
+
+// We want to use the actual compiled JS here to make sure the final npm package works
 const StrongConfig = require('../../lib/core')
 
 const strongConfig = new StrongConfig({

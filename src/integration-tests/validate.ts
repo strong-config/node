@@ -1,5 +1,5 @@
-import type { Schema } from '../../src/types'
-import StrongConfig = require('../../src/core')
+import type { Schema } from '../types'
+import StrongConfig = require('../core')
 
 const strongConfig = new StrongConfig({
   configRoot: 'example/',

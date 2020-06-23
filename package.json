@@ -40,12 +40,6 @@
     "dev:decrypt": "sops --decrypt --in-place example/development.yaml && cat example/development.yaml",
     "dev:encrypt": "yarn dev:importkey && sops --pgp 2E9644A658379349EFB77E895351CE7FC0AC6E94 --encrypted-suffix Secret --encrypt --in-place example/development.yaml && cat example/development.yaml",
     "dev:importkey": "gpg --import --quiet example/pgp/example-keypair.pgp",
-    "dev:load": "yarn dev:load:es6",
-    "dev:load:commonjs": "yarn build; yarn dev:importkey && cross-env NODE_ENV=development time node scripts/dev/load-commonjs.js",
-    "dev:load:es6": "yarn dev:importkey && cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/load-es6.ts",
-    "dev:load:watch": "nodemon --exec 'yarn dev:load:es6'",
-    "dev:validate": "cross-env NODE_ENV=development time ts-node --transpile-only scripts/dev/validate.ts",
-    "dev:validate:watch": "nodemon --exec 'yarn dev:validate'",
     "lint": "yarn lint:ts && yarn lint:scripts && yarn lint:json && yarn lint:yaml && yarn lint:markdown",
     "lint:json": "eslint . --fix --ext .json",
     "lint:markdown": "markdownlint **/*.md --ignore node_modules --ignore CHANGELOG.md",
@@ -59,7 +53,14 @@
     "report:health": "ts-node --transpile-only scripts/healthcheck.ts",
     "report:todo": "leasot '**/*.ts' --ignore 'node_modules/**/*','lib/**/*','.git/**/*' || true",
     "start": "yarn dev",
-    "test": "jest"
+    "test": "jest",
+    "test:core": "yarn test:core:load:es6 && yarn test:core:load:commonjs && yarn test:core:validate",
+    "test:core:load": "yarn test:core:load:es6",
+    "test:core:load:commonjs": "yarn build && yarn dev:importkey && cross-env NODE_ENV=development time node src/integration-tests/load-commonjs.js",
+    "test:core:load:es6": "yarn dev:importkey && cross-env NODE_ENV=development time ts-node --transpile-only src/integration-tests/load-es6.ts",
+    "test:core:load:watch": "nodemon --exec 'yarn test:load:es6'",
+    "test:core:validate": "cross-env NODE_ENV=development time ts-node --transpile-only src/integration-tests/validate.ts",
+    "test:core:validate:watch": "nodemon --exec 'yarn test:validate'"
   },
   "dependencies": {
     "@oclif/command": "^1.6.1",

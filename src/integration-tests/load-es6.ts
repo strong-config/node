@@ -1,5 +1,5 @@
 import { inspect } from 'util'
-import StrongConfig = require('../../src/core')
+import StrongConfig = require('../core')
 
 const strongConfig = new StrongConfig({
   configRoot: 'example',
