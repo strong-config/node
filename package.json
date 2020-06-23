@@ -11,7 +11,7 @@
   "files": [
     "/bin",
     "/lib",
-    "postinstall.js",
+    "/scripts/postinstall.js",
     "oclif.manifest.json"
   ],
   "bin": {
@@ -46,7 +46,7 @@
     "lint:scripts": "npx scriptlint --fix",
     "lint:ts": "eslint . --fix --ext .ts",
     "lint:yaml": "eslint . --ext .yml,.yaml",
-    "postinstall": "node postinstall.js",
+    "postinstall": "node scripts/postinstall.js",
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "yarn build:clean && yarn build:oclifHack && oclif-dev manifest && yarn build:clean && yarn build",
     "release": "npx standard-version",
