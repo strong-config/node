@@ -78,6 +78,7 @@
     "node-fetch": "^2.6.0",
     "ora": "^4.0.4",
     "ramda": "^0.26.1",
+    "tslib": "^2.0.0",
     "which": "^2.0.2"
   },
   "devDependencies": {

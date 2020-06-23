@@ -10,7 +10,8 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./lib",
+    "importHelpers": true,
+    "outDir": "lib",
     "sourceMap": true
   }
 }
