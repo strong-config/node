@@ -40,17 +40,6 @@ async function runUnitTests(): Promise<void> {
   }
 }
 
-async function cleanBuild(): Promise<void> {
-  const spinner = ora('Cleaning previous build files...').start()
-
-  try {
-    await run('yarn build:clean')
-    spinner.succeed(chalk.bold('Clean Build'))
-  } catch {
-    spinner.fail(chalk.bold('Clean Build'))
-  }
-}
-
 async function runBuild(): Promise<void> {
   const spinner = ora().start()
 
@@ -152,8 +141,6 @@ async function printTodos(): Promise<void> {
 async function main(): Promise<void> {
   ora('Checking overall project health...\n').info()
 
-  // FIXME: A weird oclif bug makes this clean necessary (see tsconfig.oclif-hack.json)
-  await cleanBuild()
   await runLinters()
   await runUnitTests()
   await runBuild()
