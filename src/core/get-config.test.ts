@@ -11,7 +11,7 @@ import {
   schema,
 } from '../fixtures'
 import * as hydrateConfigModule from './../utils/hydrate-config'
-import StrongConfig from '.'
+import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
 

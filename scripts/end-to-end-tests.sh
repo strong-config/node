@@ -35,4 +35,8 @@ yarn strong-config validate example/development.yaml --config-root example
 echo "Core Tests"
 NODE_ENV=development yarn ts-node --transpile-only e2e/load-es6.ts
 NODE_ENV=development yarn ts-node --transpile-only e2e/validate.ts
+
+# The PATH= assignment is necessary so the 'sops' binary is available which sits in node_modules/.bin
+# This hack is not necessary for the previous commands because all 'yarn xxx' commands automatically
+# add ./node_modules/.bin to $PATH already
 NODE_ENV=development PATH="$(yarn bin):$PATH" node e2e/load-commonjs.js

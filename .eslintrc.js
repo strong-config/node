@@ -12,7 +12,7 @@ module.exports = {
     'tsconfig.eslint.json',
     'example/types.d.ts',
   ],
-  plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn'],
+  plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn', 'tsdoc'],
   extends: [
     // https://eslint.org/docs/rules/
     'eslint:recommended',
@@ -151,6 +151,9 @@ module.exports = {
 
     // Read this for the rationale: https://basarat.gitbook.io/typescript/main-1/defaultisbad
     'import/no-default-export': 'error',
+
+    // https://www.npmjs.com/package/eslint-plugin-tsdoc
+    'tsdoc/syntax': 'warn',
   },
   reportUnusedDisableDirectives: true,
   globals: {
