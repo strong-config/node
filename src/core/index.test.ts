@@ -49,6 +49,17 @@ describe('StrongConfig.constructor()', () => {
     expect(sc.validate).toHaveReturnedWith(true)
   })
 
+  it('throws if runtimeEnv is not set', () => {
+    const originalEnv = process.env[defaultOptions.runtimeEnvName]
+    delete process.env[defaultOptions.runtimeEnvName]
+
+    expect(() => new StrongConfig()).toThrowError(
+      `process.env.${defaultOptions.runtimeEnvName} needs to be set but was 'undefined'`
+    )
+
+    process.env[defaultOptions.runtimeEnvName] = originalEnv
+  })
+
   it('throws if the passed options object is invalid', () => {
     const invalidOptions = { i: 'am', super: 'invalid' }
     const validate = jest.spyOn(StrongConfig.prototype, 'validate')
