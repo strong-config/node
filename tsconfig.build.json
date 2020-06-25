@@ -3,8 +3,8 @@
   "exclude": [
     "src/**/*.test.ts",
     "src/integration-tests",
-    "src/example",
     "src/fixtures",
+    "example",
     "scripts"
   ],
   "compilerOptions": {
