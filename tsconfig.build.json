@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "exclude": [
     "src/**/*.test.ts",
+    "src/e2e",
     "src/integration-tests",
     "src/fixtures",
     "example",
