@@ -3,6 +3,7 @@
   "version": "0.2.37",
   "description": "SOPS-based secret management tool for Node.js",
   "repository": "git@github.com:strong-config/node.git",
+  "homepage": "https://strong-config.dev",
   "bugs": "https://github.com/strong-config/node/issues",
   "author": "Brickblock Engineering <dev@brickblock.io>",
   "license": "MIT",
