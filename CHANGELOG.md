@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.39](https://github.com/strong-config/node/compare/v0.2.38...v0.2.39) (2020-06-25)
+
+
+### Features
+
+* **core:** check for existence of process.env.NODE_ENV in constructor ([a5dfa68](https://github.com/strong-config/node/commit/a5dfa681de6ab957fe482620b015bd2d8c2e88ac))
+
 ### [0.2.38](https://github.com/strong-config/node/compare/v0.2.37...v0.2.38) (2020-06-23)
 
 ### [0.2.37](https://github.com/strong-config/node/compare/v0.2.36...v0.2.37) (2020-06-23)
