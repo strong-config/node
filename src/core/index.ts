@@ -26,6 +26,12 @@ class StrongConfig {
     this.options = mergedOptions
     this.runtimeEnv = process.env[mergedOptions.runtimeEnvName] as string
 
+    if (!this.runtimeEnv) {
+      throw new Error(
+        `[strong-config 💪]: process.env.${this.options.runtimeEnvName} needs to be set but was '${this.runtimeEnv}'\nMake sure it's set when starting the app, e.g. '${this.options.runtimeEnvName}'=development yarn start'\n`
+      )
+    }
+
     // eslint-disable-next-line unicorn/no-null
     this.schema = this.getSchema() || null
     this.config = this.getConfig()
@@ -112,7 +118,7 @@ class StrongConfig {
 
     if (
       this.options.types !== false &&
-      process.env.NODE_ENV === 'development'
+      process.env[this.options.runtimeEnvName] === 'development'
     ) {
       debug('Starting type generation...')
       /*
