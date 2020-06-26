@@ -12,11 +12,17 @@ import { HydratedConfig } from './../types'
 const debug = Debug('strong-config:main')
 
 /**
- * Strong Config Main Class
+ * The main Strong Config interface
  *
  * @remarks
- * We use `export =` syntax for CommonJS compatibility
- * https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
+ * This class lets you interact with your application configuration in a  simple, safe,
+ * and reliable way. It finds & loads configuration files from the file system, decrypts
+ * encrypted config values, and optionally validates config against a user-defined json-schema.
+ * If a schema is defined, it will also auto-generate typescript types for your config
+ * for a better development experience.
+ *
+ * This class should be instantiated just once per application in order to avoid unnecessary
+ * repetitive file system lookups.
  *
  * @example
  * ```js
@@ -43,6 +49,10 @@ const debug = Debug('strong-config:main')
  * import config from './config' // import memoized config instead of doing 'new StrongConfig()' again
  * console.log("Here is your memoized config:", config)
  * ```
+ *
+ * @remarks
+ * We use `export =` syntax for CommonJS compatibility
+ * https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
  */
 export = class StrongConfig {
   public readonly options: Options
@@ -51,7 +61,7 @@ export = class StrongConfig {
   private schema: Schema | null | undefined
 
   /**
-   * Initializes StrongConfig and loads config (& schema if existant)
+   * Initializes StrongConfig and loads & memoizes config (plus schema, if existent)
    *
    * @param options - custom options to override defaults
    *
@@ -180,7 +190,7 @@ export = class StrongConfig {
   }
 
   /**
-   * Returns 'true' if config is validate, throws an error if it's not
+   * Validates config against a user-defined json-schema
    *
    * @remarks
    * Also used to validate the Strong Config options upon instantiation
@@ -205,16 +215,6 @@ export = class StrongConfig {
   /**
    * Generates a types.d.ts file in your config folder to strongly type your config object
    *
-   * @remarks
-   * Why a callback?
-   * Because if we made this function asynchronous, it would mean that wherever strong-config
-   * is used, the code from which it's called needs to be asynchronous, too.
-   * For example, it would be "const strongConfig = await new StrongConfig()" which means also
-   * that this code would need to be wrapped in an 'async' function. This is too cumbersome.
-   *
-   * Also, type generation is a dev-only feature that can safely fail without impacting
-   * the core functionality of strong-config, so it's OK to not wait for it to finish.
-   *
    * @example
    * ```ts
    * // Import the generated types from your config folder
@@ -225,6 +225,16 @@ export = class StrongConfig {
    * The 'as unknown as Config' part is a slightly hacky way of convincing the TypeScript compiler
    * that the config variable is in fact of type 'Config'. See more details about this approach in
    * this blog article: https://mariusschulz.com/blog/the-unknown-type-in-typescript#using-type-assertions-with-unknown
+   *
+   * @remarks
+   * Why a callback?
+   * Because if we made this function asynchronous, it would mean that wherever strong-config
+   * is used, the code from which it's called needs to be asynchronous, too.
+   * For example, it would be "const strongConfig = await new StrongConfig()" which means also
+   * that this code would need to be wrapped in an 'async' function. This is too cumbersome.
+   *
+   * Also, type generation is a dev-only feature that can safely fail without impacting
+   * the core functionality of strong-config, so it's OK to not wait for it to finish.
    */
   public generateTypes(): void {
     debug('Checking whether types should be generated...')
