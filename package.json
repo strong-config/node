@@ -76,6 +76,7 @@
     "fs-extra": "^9.0.0",
     "js-yaml": "^3.13.1",
     "json-schema-to-typescript": "^8.0.0",
+    "match-all": "^1.2.5",
     "node-fetch": "^2.6.0",
     "ora": "^4.0.4",
     "ramda": "^0.26.1",

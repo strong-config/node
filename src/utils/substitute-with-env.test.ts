@@ -1,58 +1,73 @@
 import { defaultOptions } from '../options'
 import { substituteWithEnv } from './substitute-with-env'
 
-describe('utils :: substitute-with-env', () => {
-  describe('substituteWithEnv()', () => {
-    const processEnvMock = {
-      replace: 'REPLACED',
-      ABC: 'SOME_ENV_VAR_VALUE',
+describe('substituteWithEnv()', () => {
+  const substituteWithEnvInitialized = substituteWithEnv(
+    defaultOptions.substitutionPattern
+  )
+  const OLD_PROCESS_ENV = process.env
+
+  beforeAll(() => {
+    process.env = {
+      REPLACE_ME: 'REPLACED',
+      SOME_ENV_VAR: 'an-env-var-value',
       '0INVALID': 'INVALID KEY',
     }
+  })
 
-    const substituteWithEnvInitialized = substituteWithEnv(
-      defaultOptions.substitutionPattern
-    )
-    const OLD_PROCESS_ENV = process.env
+  afterAll(() => {
+    process.env = OLD_PROCESS_ENV
+  })
 
-    beforeAll(() => {
-      process.env = processEnvMock
-    })
-
-    afterAll(() => {
-      process.env = OLD_PROCESS_ENV
-    })
-
-    it('returns strings without any substitutions as is', () => {
-      const input = '{"field":"value","otherField":"whatever"}'
+  describe('given a string WITHOUT any substitutable values', () => {
+    it('returns the same value it received as input', () => {
+      const input = '{"field": "value", "otherField": "other-value"}'
 
       expect(substituteWithEnvInitialized(input)).toBe(input)
     })
+  })
 
-    it('substitutes all valid ${...}', () => {
-      const input = '{"field":"${ABC}","otherField":"${replace}"}'
+  describe('given a string WITH substitutable values', () => {
+    it('substitutes all valid ${...} expressions with the respective env var value', () => {
+      const input =
+        '{ "field": "${SOME_ENV_VAR}", "otherField": "${REPLACE_ME}" }'
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      const substitutedOutput = `{ "field": "${process.env.SOME_ENV_VAR}", "otherField": "${process.env.REPLACE_ME}" }`
 
-      expect(substituteWithEnvInitialized(input)).toBe(
-        '{"field":"SOME_ENV_VAR_VALUE","otherField":"REPLACED"}'
-      )
+      expect(substituteWithEnvInitialized(input)).toBe(substitutedOutput)
     })
 
     it('throws when an environment variable is not set', () => {
-      const input = '{"field":"${NOT_SET}","otherField":"${replace}"}'
+      const input = '{ "field": "${NOT_SET}" }'
 
       expect(() => substituteWithEnvInitialized(input)).toThrow(
-        /process.env is missing key/
+        /Environment variable "NOT_SET" is undefined/
       )
     })
 
     it('throws when an environment variable starts with a string', () => {
-      const input = '{"field":"${0INVALID}","otherField":"${REPLACE}"}'
+      const input = '{ "field": "${0INVALID}" }'
 
       expect(() => substituteWithEnvInitialized(input)).toThrow(
         /Environment variable must not start with a digit/
       )
     })
 
-    test.todo('throws when template ${} is found')
-    test.todo('throws when template ${...} contains invalid characters')
+    it('throws when config value has empty substitution pattern ${}', () => {
+      const input = '{ "field": "${}", "otherField": "${REPLACE_ME}" }'
+
+      expect(() => substituteWithEnvInitialized(input)).toThrow(
+        "Config can't contain empty substitution template '${}'"
+      )
+    })
+
+    it('throws when template ${...} contains invalid characters', () => {
+      const input =
+        '{ "field": "${NO_$PEC!AL_CHARS_ALLOWED}", "otherField": "${REPLACE_ME}" }'
+
+      expect(() => substituteWithEnvInitialized(input)).toThrow(
+        `Env vars 'NO_$PEC!AL_CHARS_ALLOWED' contain unsupported characters. Env var names should only contain a-z, A-Z, 0-9, and _`
+      )
+    })
   })
 })

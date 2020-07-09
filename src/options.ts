@@ -8,7 +8,7 @@ export interface TypeOptions {
 export interface Options {
   runtimeEnvName: string
   types: TypeOptions | false
-  substitutionPattern: string
+  substitutionPattern: RegExp
   configRoot: string
 }
 
@@ -22,7 +22,7 @@ export const defaultOptions: Pick<
     rootTypeName: 'Config',
     fileName: 'types.d.ts',
   },
-  substitutionPattern: '\\$\\{(\\w+)\\}',
+  substitutionPattern: /\${(\w+)}/g,
 }
 
 export const optionsSchema: Schema = {
@@ -73,7 +73,7 @@ export const optionsSchema: Schema = {
       description:
         'The escaped regexp that is used to match against template strings to be replaced with their corresponding environment variable values',
       examples: ['\\$\\{(\\w+)\\}', '\\$(\\w+)'],
-      type: 'string',
+      type: 'object',
       format: 'regex',
     },
   },
