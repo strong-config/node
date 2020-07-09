@@ -8,27 +8,24 @@ export interface TypeOptions {
 export interface Options {
   runtimeEnvName: string
   types: TypeOptions | false
-  substitutionPattern: RegExp
   configRoot: string
 }
 
-export const defaultOptions: Pick<
-  Options,
-  'runtimeEnvName' | 'substitutionPattern' | 'configRoot'
-> & { types: TypeOptions } = {
+export const defaultOptions: Pick<Options, 'runtimeEnvName' | 'configRoot'> & {
+  types: TypeOptions
+} = {
   configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
   types: {
     rootTypeName: 'Config',
     fileName: 'types.d.ts',
   },
-  substitutionPattern: /\${(\w+)}/g,
 }
 
 export const optionsSchema: Schema = {
   type: 'object',
   title: 'Schema for strong-config options',
-  required: ['configRoot', 'runtimeEnvName', 'types', 'substitutionPattern'],
+  required: ['configRoot', 'runtimeEnvName', 'types'],
   additionalProperties: false,
   properties: {
     configRoot: {
@@ -67,14 +64,6 @@ export const optionsSchema: Schema = {
           type: 'string',
         },
       },
-    },
-    substitutionPattern: {
-      title: 'Substitution pattern',
-      description:
-        'The escaped regexp that is used to match against template strings to be replaced with their corresponding environment variable values',
-      examples: ['\\$\\{(\\w+)\\}', '\\$(\\w+)'],
-      type: 'object',
-      format: 'regex',
     },
   },
 }

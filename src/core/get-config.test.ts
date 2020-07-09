@@ -62,7 +62,7 @@ describe('StrongConfig.getConfig()', () => {
     it('hydrates the config object', () => {
       new StrongConfig(validOptions)
 
-      expect(hydrateConfig).toHaveBeenCalledWith(runtimeEnv, validOptions)
+      expect(hydrateConfig).toHaveBeenCalledWith(runtimeEnv)
       expect(innerHydrateFunction).toHaveBeenCalledWith(decryptedConfig)
     })
 

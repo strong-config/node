@@ -130,13 +130,12 @@ The available options and their defaults are:
 
 ```js
 {
+  configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
   types: {
     rootTypeName: 'Config',
-    filePath: 'strong-config.d.ts',
+    filePath: 'types.d.ts',
   },
-  substitutionPattern: '\\$\\{(\\w+)\\}',
-  configRoot: 'config',
 }
 ```
 
