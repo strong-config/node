@@ -9,6 +9,7 @@ module.exports = {
     'src/**/*.ts',
     '!src/cli/index.ts',
     '!src/integration-tests/**/*',
+    '!src/e2e/**/*',
   ],
   coverageThreshold: {
     global: {

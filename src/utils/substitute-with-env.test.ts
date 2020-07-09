@@ -1,4 +1,7 @@
+import matchAll from 'match-all'
 import { substituteWithEnv } from './substitute-with-env'
+
+jest.mock('match-all', () => jest.fn(() => ({ toArray: jest.fn(() => []) })))
 
 describe('substituteWithEnv()', () => {
   const OLD_PROCESS_ENV = process.env
@@ -67,5 +70,21 @@ describe('substituteWithEnv()', () => {
         `Env vars 'NO_$PEC!AL_CHARS_ALLOWED' contain unsupported characters. Env var names should only contain a-z, A-Z, 0-9, and _`
       )
     })
+  })
+
+  it('uses a polyfill for String.prototype.matchAll in older Node versions', () => {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const originalImplementation = String.prototype.matchAll
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore explicitly testing error case here
+    String.prototype.matchAll = undefined
+
+    const config = { field: 'value', otherField: 'other-value' }
+
+    substituteWithEnv(config)
+    expect(matchAll).toHaveBeenCalled()
+
+    String.prototype.matchAll = originalImplementation
   })
 })

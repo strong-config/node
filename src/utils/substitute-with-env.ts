@@ -33,6 +33,7 @@ export const substituteWithEnv = (
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore because matchAll is in fact undefined in Node versions < 12.x
   if (String.prototype.matchAll) {
+    // For advantages of matchAll, check https://2ality.com/2018/02/string-prototype-matchall.html
     envVarsWithIllegalCharacters = [...configAsString.matchAll(/\${(.*?)}/g)]
       .map((matches) => matches[1])
       .filter((envVarName) => /\W/.test(envVarName))
@@ -40,7 +41,10 @@ export const substituteWithEnv = (
     // This is a polyfill because String.prototype.matchAll is only support from Node 12.x upwards
     envVarsWithIllegalCharacters = matchAll(configAsString, /\${(.*?)}/g)
       .toArray()
-      .filter((envVarName) => /\W/.test(envVarName))
+      .filter(
+        /* istanbul ignore next: no need to test the same logic used above again */
+        (envVarName) => /\W/.test(envVarName)
+      )
   }
 
   if (envVarsWithIllegalCharacters.length > 0) {
