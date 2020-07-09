@@ -24,7 +24,6 @@ describe('StrongConfig.getConfig()', () => {
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   const decryptToObject = jest.spyOn(sops, 'decryptToObject')
   const hydrateConfig = jest.spyOn(hydrateConfigModule, 'hydrateConfig')
-  const innerHydrateFunction = jest.fn().mockReturnValue(hydratedConfig)
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -32,7 +31,7 @@ describe('StrongConfig.getConfig()', () => {
     readConfig.mockReturnValue(encryptedConfigFile)
     decryptToObject.mockReturnValue(decryptedConfig)
     loadSchema.mockReturnValue(schema)
-    hydrateConfig.mockReturnValue(innerHydrateFunction)
+    hydrateConfig.mockReturnValue(hydratedConfig)
   })
 
   afterAll(() => {
@@ -62,8 +61,7 @@ describe('StrongConfig.getConfig()', () => {
     it('hydrates the config object', () => {
       new StrongConfig(validOptions)
 
-      expect(hydrateConfig).toHaveBeenCalledWith(runtimeEnv)
-      expect(innerHydrateFunction).toHaveBeenCalledWith(decryptedConfig)
+      expect(hydrateConfig).toHaveBeenCalledWith(decryptedConfig, runtimeEnv)
     })
 
     describe('when a schema exists', () => {

@@ -1,6 +1,9 @@
 import matchAll from 'match-all'
+import { DecryptedConfig } from '../types'
 
-export const substituteWithEnv = (configAsString: string): string => {
+export const substituteWithEnv = (
+  decryptedConfig: DecryptedConfig
+): DecryptedConfig => {
   /*
    * This substitution pattern will replace the following types of expressions
    * in a config file with the respective env var value at runtime:
@@ -17,6 +20,7 @@ export const substituteWithEnv = (configAsString: string): string => {
    *  FAIL: ${}              => no empty env var name allowed
    */
   const substitutionPattern = /\${(\w+)}/g
+  const configAsString = JSON.stringify(decryptedConfig)
 
   if (configAsString.includes('${}')) {
     throw new TypeError(
@@ -47,7 +51,7 @@ export const substituteWithEnv = (configAsString: string): string => {
     )
   }
 
-  return configAsString.replace(
+  const substitutedConfig = configAsString.replace(
     substitutionPattern,
     (_original: string, envVar: string) => {
       if (!process.env[envVar]) {
@@ -61,4 +65,6 @@ export const substituteWithEnv = (configAsString: string): string => {
       return process.env[envVar] as string
     }
   )
+
+  return JSON.parse(substitutedConfig) as DecryptedConfig
 }

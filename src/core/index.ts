@@ -143,7 +143,7 @@ export = class StrongConfig {
     )
     debug('Decrypted config: %O', decryptedConfig)
 
-    const config = hydrateConfig(this.runtimeEnv)(decryptedConfig)
+    const config = hydrateConfig(decryptedConfig, this.runtimeEnv)
     debug('Hydrated config: %O', config)
 
     if (this.schema) {
