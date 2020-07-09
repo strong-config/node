@@ -1,7 +1,6 @@
 import { callbackify } from 'util'
 import { readFileSync, writeFileSync } from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
-import { prop } from 'ramda'
 import Debug from 'debug'
 import type { JSONObject } from '../types'
 import type { TypeOptions } from '../options'
@@ -26,7 +25,7 @@ export const generateTypesFromSchema = async (
   const parsedSchemaString = JSON.parse(schemaString) as JSONObject
   debug('Parsed schema string to JSON:\n%O\n', parsedSchemaString)
 
-  const title = prop('title', parsedSchemaString)
+  const title = parsedSchemaString.title
 
   if (title === undefined) {
     throw new Error(
