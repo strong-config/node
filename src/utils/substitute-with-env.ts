@@ -30,6 +30,7 @@ export const substituteWithEnv = (
 
   let envVarsWithIllegalCharacters
 
+  /* istanbul ignore next: the if-branch does not get executed in Node 10 environments and will drop test coverage < 100% if not ignored */
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore because matchAll is in fact undefined in Node versions < 12.x
   if (String.prototype.matchAll) {
