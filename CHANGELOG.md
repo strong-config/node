@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.42](https://github.com/strong-config/node/compare/v0.2.41...v0.2.42) (2020-07-10)
+
+
+### Features
+
+* **options:** removed ‘substitionPattern’ from options ([3021725](https://github.com/strong-config/node/commit/3021725c2665e884f0388cd406b1b56f98d4761a))
+* stricter env var substitution checks and tests ([8cfa45f](https://github.com/strong-config/node/commit/8cfa45f5dc282a7a79146edf28cb469325d80c6a))
+
 ### [0.2.41](https://github.com/strong-config/node/compare/v0.2.40...v0.2.41) (2020-06-26)
 
 ### [0.2.40](https://github.com/strong-config/node/compare/v0.2.39...v0.2.40) (2020-06-25)
