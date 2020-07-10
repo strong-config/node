@@ -1,7 +1,12 @@
 import matchAll from 'match-all'
 import { substituteWithEnv } from './substitute-with-env'
 
-jest.mock('match-all', () => jest.fn(() => ({ toArray: jest.fn(() => []) })))
+jest.mock('match-all', () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const matchAllOriginal = jest.requireActual('match-all')
+
+  return jest.fn().mockImplementation(matchAllOriginal)
+})
 
 describe('substituteWithEnv()', () => {
   const OLD_PROCESS_ENV = process.env
