@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import path from 'path'
 import { Command, flags as Flags } from '@oclif/command'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
@@ -69,35 +70,46 @@ export class CheckEncryption extends Command {
     spinner.succeed('Secrets in all config files are safely encrypted 💪')
   }
 
-  checkOneConfigFile(path: string): boolean {
-    const spinner = ora(`Checking ${path} for encryption...`).start()
+  checkOneConfigFile(rawPath: string): boolean {
+    const configPath = path.normalize(rawPath)
+    const spinner = ora(`Checking ${configPath} for encryption...`).start()
     const { flags } = this.parse(CheckEncryption)
 
     let configFile
 
     try {
-      configFile = readConfigFromPath(path)
+      configFile = readConfigFromPath(configPath)
     } catch {
       spinner.fail(
-        `${path} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`
+        `${configPath} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`
       )
 
       return false
     }
 
-    if (this.checkEncryption(configFile.contents)) {
-      spinner.succeed(`Secrets in ${path} are safely encrypted 💪`)
+    if (this.isEncrypted(configFile.contents)) {
+      spinner.succeed(`Secrets in ${configPath} are safely encrypted 💪`)
+
+      return true
+    } else if (!this.hasSecrets(configFile.contents)) {
+      spinner.succeed(
+        `No secrets found in ${configPath}, no encryption required.`
+      )
 
       return true
     } else {
-      spinner.fail(`Secrets in ${path} are NOT encrypted 🚨`)
+      spinner.fail(`Secrets in ${configPath} are NOT encrypted 🚨`)
 
       return false
     }
   }
 
-  checkEncryption(configObject: JSONObject | EncryptedConfig): boolean {
+  isEncrypted(configObject: JSONObject | EncryptedConfig): boolean {
     return Object.keys(configObject).includes('sops')
+  }
+
+  hasSecrets(config: JSONObject): boolean {
+    return Object.keys(config).some((key) => key.endsWith('Secret'))
   }
 
   async run(): Promise<void> {
