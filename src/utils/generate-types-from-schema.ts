@@ -3,14 +3,12 @@ import { readFileSync, writeFileSync } from 'fs'
 import { compileFromFile } from 'json-schema-to-typescript'
 import Debug from 'debug'
 import type { JSONObject } from '../types'
-import type { TypeOptions } from '../options'
 import { pascalCase } from './pascal-case'
 
 const debug = Debug('strong-config:generate-types')
 
 export const generateTypesFromSchema = async (
-  configRoot: string,
-  typeOptions: TypeOptions
+  configRoot: string
 ): Promise<void> => {
   const schemaPath = `${configRoot}/schema.json`
 
@@ -46,14 +44,14 @@ export const generateTypesFromSchema = async (
   }
 
   const configInterfaceAsString = `
-export interface ${typeOptions.rootTypeName} extends ${pascalCase(title)} {
+export interface Config extends ${pascalCase(title)} {
   runtimeEnv: string
 }`
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
-  writeFileSync(`${configRoot}/${typeOptions.fileName}`, exportedTypes)
+  writeFileSync(`${configRoot}/config.d.ts`, exportedTypes)
   debug(
-    `Wrote generated types to file '${configRoot}/${typeOptions.fileName}': %s`,
+    `Wrote generated types to file '${configRoot}/config.d.ts': %s`,
     '\n'.concat(exportedTypes)
   )
 }

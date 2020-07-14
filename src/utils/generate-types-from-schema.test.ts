@@ -27,10 +27,7 @@ export interface TheTopLevelInterface {
         `{ "title": "the top-level-interface" }`
       )
 
-      await generateTypesFromSchema(
-        defaultOptions.configRoot,
-        defaultOptions.types
-      )
+      await generateTypesFromSchema(defaultOptions.configRoot)
 
       const expectedRootType = `
 export interface Config extends TheTopLevelInterface {
@@ -39,7 +36,7 @@ export interface Config extends TheTopLevelInterface {
       const expectedTypes = compiledTypes.concat(expectedRootType)
 
       expect(fs.writeFileSync).toHaveBeenCalledWith(
-        `${defaultOptions.configRoot}/${defaultOptions.types.fileName}`,
+        `${defaultOptions.configRoot}/config.d.ts`,
         expectedTypes
       )
     })
@@ -51,7 +48,7 @@ export interface Config extends TheTopLevelInterface {
     )
 
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot, defaultOptions.types)
+      generateTypesFromSchema(defaultOptions.configRoot)
     ).rejects.toThrowError(
       "Expected top-level attribute 'title' in schema definition."
     )
@@ -63,7 +60,7 @@ export interface Config extends TheTopLevelInterface {
     readFileSyncSpy.mockReturnValueOnce(`{ "title": ${title} }`)
 
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot, defaultOptions.types)
+      generateTypesFromSchema(defaultOptions.configRoot)
     ).rejects.toThrowError(
       `'Title' attribute in schema definition must be a string, but is of type '${typeof title}'`
     )
@@ -73,7 +70,7 @@ export interface Config extends TheTopLevelInterface {
     readFileSyncSpy.mockReturnValueOnce(`{ "title": "config" }`)
 
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot, defaultOptions.types)
+      generateTypesFromSchema(defaultOptions.configRoot)
     ).rejects.toThrowError(
       'Title attribute of top-level schema definition must not be named Config or config'
     )

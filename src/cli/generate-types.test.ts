@@ -3,7 +3,6 @@ import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
 import * as generateTypesFromSchemaModule from '../utils/generate-types-from-schema'
 import * as readFiles from '../utils/read-files'
-import { defaultOptions } from '../options'
 import { GenerateTypes } from './generate-types'
 
 jest.mock('./validate')
@@ -48,7 +47,7 @@ describe('strong-config generate-types', () => {
 
     expect(
       generateTypesFromSchemaModule.generateTypesFromSchema
-    ).toHaveBeenCalledWith(configRoot, defaultOptions.types)
+    ).toHaveBeenCalledWith(configRoot)
   })
 
   it('exits with code 0 when type generation was successful', async () => {

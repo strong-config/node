@@ -7,6 +7,7 @@ import {
   decryptedConfig,
 } from '../fixtures'
 import { generateTypesFromSchemaCallback } from '../utils/generate-types-from-schema'
+
 import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
@@ -17,7 +18,6 @@ describe('StrongConfig.generateTypes()', () => {
   jest.spyOn(readFiles, 'readConfig').mockReturnValue(encryptedConfigFile)
   jest.spyOn(readFiles, 'loadSchema').mockReturnValue(schema)
   jest.spyOn(sops, 'decryptToObject').mockReturnValue(decryptedConfig)
-  let sc: StrongConfig
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -33,22 +33,20 @@ describe('StrongConfig.generateTypes()', () => {
       process.env[validOptions.runtimeEnvName] = originalEnv
     })
 
-    describe('when options.types is NOT false', () => {
+    describe('when options.generateTypes is TRUE', () => {
       it('generates types', () => {
-        sc = new StrongConfig(validOptions)
-        sc.generateTypes()
+        new StrongConfig({ ...validOptions, generateTypes: true })
 
         expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
           validOptions.configRoot,
-          validOptions.types,
           expect.any(Function)
         )
       })
     })
 
-    describe('when options.types is false', () => {
+    describe('when options.generateTypes is FALSE', () => {
       it('skips generating types', () => {
-        new StrongConfig({ ...validOptions, types: false })
+        new StrongConfig({ ...validOptions, generateTypes: false })
 
         expect(generateTypesFromSchemaCallback).toHaveBeenCalledTimes(0)
       })
@@ -65,8 +63,7 @@ describe('StrongConfig.generateTypes()', () => {
     })
 
     it('skips generating types', () => {
-      sc = new StrongConfig(validOptions)
-      sc.generateTypes()
+      new StrongConfig(validOptions)
 
       expect(generateTypesFromSchemaCallback).not.toHaveBeenCalled()
     })

@@ -132,10 +132,7 @@ The available options and their defaults are:
 {
   configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
-  types: {
-    rootTypeName: 'Config',
-    filePath: 'types.d.ts',
-  },
+  generateTypes: true,
 }
 ```
 

@@ -29,7 +29,7 @@ echo "CLI Tests"
 yarn strong-config decrypt example/development.yaml tmp.yml && cat tmp.yml && rm tmp.yml
 yarn strong-config encrypt -p pgp -k 2E9644A658379349EFB77E895351CE7FC0AC6E94 example/unencrypted.yml tmp.yml && cat tmp.yml && rm tmp.yml
 yarn strong-config check example/development.yaml --config-root example
-yarn strong-config generate-types --config-root example && cat example/types.d.ts
+yarn strong-config generate-types --config-root example && cat example/config.d.ts
 yarn strong-config validate example/development.yaml --config-root example
 
 echo "Core Tests"

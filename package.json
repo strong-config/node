@@ -55,7 +55,7 @@
     "test:cli:check": "./bin/run check example/development.yaml --config-root example",
     "test:cli:decrypt": "yarn dev:importkey && ./bin/run decrypt example/development.yaml tmp.yml && cat tmp.yml && rimraf tmp.yml",
     "test:cli:encrypt": "yarn dev:importkey && ./bin/run encrypt -p pgp -k 2E9644A658379349EFB77E895351CE7FC0AC6E94 example/unencrypted.yml tmp.yml && cat tmp.yml && rimraf tmp.yml",
-    "test:cli:generateTypes": "rimraf example/types.d.ts && ./bin/run generate-types --config-root example && cat example/types.d.ts",
+    "test:cli:generateTypes": "rimraf example/config.d.ts && ./bin/run generate-types --config-root example && cat example/config.d.ts",
     "test:cli:validate": "./bin/run validate example/development.yaml --config-root example",
     "test:core": "yarn test:core:load:es6 && yarn test:core:load:commonjs && yarn test:core:validate",
     "test:core:load": "yarn test:core:load:es6",

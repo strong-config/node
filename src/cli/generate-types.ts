@@ -42,17 +42,14 @@ export class GenerateTypes extends Command {
       process.exit(1)
     } else {
       try {
-        await generateTypesFromSchema(
-          flags['config-root'],
-          defaultOptions.types
-        )
+        await generateTypesFromSchema(flags['config-root'])
       } catch (error) {
         spinner.fail("Couldn't generate types from schema")
         console.error(error)
       }
 
       spinner.succeed(
-        `Successfully generated types to '${flags['config-root']}/${defaultOptions.types.fileName}' 💪`
+        `Successfully generated types to '${flags['config-root']}/config.d.ts' 💪`
       )
       process.exit(0)
     }

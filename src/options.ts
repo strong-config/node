@@ -1,31 +1,21 @@
 import { Schema } from './types'
 
-export interface TypeOptions {
-  rootTypeName: string
-  fileName: string
-}
-
 export interface Options {
-  runtimeEnvName: string
-  types: TypeOptions | false
   configRoot: string
+  runtimeEnvName: string
+  generateTypes: boolean
 }
 
-export const defaultOptions: Pick<Options, 'runtimeEnvName' | 'configRoot'> & {
-  types: TypeOptions
-} = {
+export const defaultOptions: Options = {
   configRoot: 'config',
   runtimeEnvName: 'NODE_ENV',
-  types: {
-    rootTypeName: 'Config',
-    fileName: 'types.d.ts',
-  },
+  generateTypes: true,
 }
 
 export const optionsSchema: Schema = {
   type: 'object',
   title: 'Schema for strong-config options',
-  required: ['configRoot', 'runtimeEnvName', 'types'],
+  required: ['configRoot', 'runtimeEnvName', 'generateTypes'],
   additionalProperties: false,
   properties: {
     configRoot: {
@@ -42,28 +32,11 @@ export const optionsSchema: Schema = {
       type: 'string',
       pattern: '^[a-zA-Z]\\w*$',
     },
-    types: {
-      title: 'Type-related options',
+    generateTypes: {
+      title: 'Generate TypeScript types',
       description:
-        'Type-related options controlling the generation of Typescript types for the config',
-      type: ['object', 'boolean'],
-      additionalProperties: false,
-      properties: {
-        rootTypeName: {
-          title: 'Root type name',
-          description: 'The name of the generated root type',
-          examples: ['Config', 'AppConfig'],
-          type: 'string',
-          pattern: '^[A-Z]\\w*$',
-        },
-        fileName: {
-          title: 'File name for auto-generated TypeScript types',
-          description:
-            'Name for the types file containing auto-generated TypeScript types for your config',
-          examples: ['types.d.ts', 'config.d.ts'],
-          type: 'string',
-        },
-      },
+        'Boolean that governs whether to generate TypeScript types for the config or not',
+      type: 'boolean',
     },
   },
 }

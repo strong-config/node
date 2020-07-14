@@ -12,7 +12,7 @@ oclif.manifest.json
 strong-config.d.ts
 
 # Auto-generated example types file
-example/types.d.ts
+example/config.d.ts
 
 # Logs
 logs

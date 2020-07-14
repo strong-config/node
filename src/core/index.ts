@@ -148,7 +148,13 @@ export = class StrongConfig {
 
     if (this.schema) {
       this.validate(config, this.schema)
-      this.generateTypes()
+
+      if (
+        this.options.generateTypes &&
+        process.env[this.options.runtimeEnvName] === 'development'
+      ) {
+        this.generateTypes()
+      }
     }
 
     return config
@@ -213,12 +219,12 @@ export = class StrongConfig {
   }
 
   /**
-   * Generates a types.d.ts file in your config folder to strongly type your config object
+   * Generates a config.d.ts file in your config folder to strongly type your config object
    *
    * @example
    * ```ts
    * // Import the generated types from your config folder
-   * import { Config } from "../config/types"
+   * import { Config } from "../config/config.d.ts"
    * // Then use them like this
    * const config = new StrongConfig().getConfig() as unknown as Config
    * ```
@@ -237,25 +243,18 @@ export = class StrongConfig {
    * the core functionality of strong-config, so it's OK to not wait for it to finish.
    */
   public generateTypes(): void {
-    debug('Checking whether types should be generated...')
-
-    if (
-      this.options.types !== false &&
-      process.env[this.options.runtimeEnvName] === 'development'
-    ) {
-      debug('Starting type generation...')
-      generateTypesFromSchemaCallback(
-        this.options.configRoot,
-        this.options.types,
-        /* istanbul ignore next: too difficult to test and too little value in testing this */
-        (error) => {
-          if (error) {
-            console.error('Failed to generate types from schema:', error)
-          } else {
-            debug('Type generation succeeded')
-          }
+    debug('Starting type generation...')
+    generateTypesFromSchemaCallback(
+      this.options.configRoot,
+      /* istanbul ignore next: too difficult to test and too little value in testing it */
+      (error) => {
+        if (error) {
+          debug('Type generation failed')
+          console.error('Failed to generate types from schema:', error)
+        } else {
+          debug('Type generation succeeded')
         }
-      )
-    }
+      }
+    )
   }
 }
