@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.44](https://github.com/strong-config/node/compare/v0.2.43...v0.2.44) (2020-07-29)
+
+
+### Features
+
+* **options:** make type-generation option a simple boolean option ([9d0626b](https://github.com/strong-config/node/commit/9d0626bae84404d312d3633002ae9dd5dbe38e3a))
+* **validate:** allow ‘validate’ cli command to operate on either ONE or ALL config files (was previously just possible for one file at a time) ([514303f](https://github.com/strong-config/node/commit/514303f25e2b24c90e035e76c88125da1339b7fb))
+
+
+### Bug Fixes
+
+* **checkEncryption:** fixed overly cautious CLI ‘check’ command that would fail for a config file that didn’t even contain any secrets ([15f3c3f](https://github.com/strong-config/node/commit/15f3c3fcbe2090087f9a202b7360b433f0de2e4a))
+
 ### [0.2.43](https://github.com/strong-config/node/compare/v0.2.42...v0.2.43) (2020-07-22)
 
 ### [0.2.42](https://github.com/strong-config/node/compare/v0.2.41...v0.2.42) (2020-07-10)
