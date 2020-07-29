@@ -2,7 +2,7 @@
 import fs from 'fs'
 import { stderr, stdout } from 'stdout-stderr'
 import * as generateTypesFromSchemaModule from '../utils/generate-types-from-schema'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import { GenerateTypes } from './generate-types'
 
 jest.mock('./validate')

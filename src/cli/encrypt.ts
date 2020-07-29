@@ -3,8 +3,8 @@ import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
-import { loadSchema } from '../utils/read-files'
 import { validate } from './validate'
+import { loadSchema } from './../utils/load-files'
 
 export class Encrypt extends Command {
   static description = 'encrypt config files'

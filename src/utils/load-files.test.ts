@@ -2,14 +2,14 @@ import fs from 'fs'
 import glob from 'glob'
 import yaml from 'js-yaml'
 import type { EncryptedConfigFile } from '../types'
-import * as readFiles from './read-files'
+import * as readFiles from './load-files'
 
-const { findConfigForEnv, readConfigFromPath, loadSchema } = readFiles
+const { loadConfigForEnv, loadConfigFromPath, loadSchema } = readFiles
 
 describe('utils :: read-file', () => {
   const configRoot = 'config'
 
-  describe('findConfigForEnv()', () => {
+  describe('loadConfigForEnv()', () => {
     beforeEach(() => {
       jest.clearAllMocks()
     })
@@ -21,7 +21,7 @@ describe('utils :: read-file', () => {
     describe('given an invalid configRoot', () => {
       it('should throw', () => {
         expect(() =>
-          findConfigForEnv('production', '/wrong/config/root')
+          loadConfigForEnv('production', '/wrong/config/root')
         ).toThrowError("Couldn't find config file")
       })
     })
@@ -34,7 +34,7 @@ describe('utils :: read-file', () => {
         ]
         jest.spyOn(glob, 'sync').mockReturnValueOnce(multipleConfigFiles)
 
-        expect(() => findConfigForEnv('development', './config')).toThrowError(
+        expect(() => loadConfigForEnv('development', './config')).toThrowError(
           `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
         )
       })
@@ -52,14 +52,14 @@ describe('utils :: read-file', () => {
         jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('mocked config file')
         jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
 
-        expect(findConfigForEnv('development', configRoot)).toStrictEqual(
+        expect(loadConfigForEnv('development', configRoot)).toStrictEqual(
           configFile
         )
       })
     })
   })
 
-  describe('readConfigFromPath()', () => {
+  describe('loadConfigFromPath()', () => {
     describe('given an invalid path', () => {
       it('should return undefined', () => {
         expect(loadSchema('./an/invalid/path/prod.yml')).toBeUndefined()
@@ -82,7 +82,7 @@ describe('utils :: read-file', () => {
       })
 
       it('returns the expected config file', () => {
-        const result = readConfigFromPath('some/path/config.yaml')
+        const result = loadConfigFromPath('some/path/config.yaml')
 
         expect(yaml.load).toHaveBeenCalledWith(configFileContents)
         expect(JSON.parse).not.toHaveBeenCalled()
@@ -110,7 +110,7 @@ describe('utils :: read-file', () => {
       })
 
       it('returns the expected config file', () => {
-        const result = readConfigFromPath('some/path/config.json')
+        const result = loadConfigFromPath('some/path/config.json')
 
         expect(JSON.parse).toHaveBeenCalledWith(configFileContents)
         expect(yaml.load).not.toHaveBeenCalled()
@@ -131,7 +131,7 @@ describe('utils :: read-file', () => {
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
         const configPath = 'some/path/config.xml'
 
-        expect(() => readConfigFromPath(configPath)).toThrowError(
+        expect(() => loadConfigFromPath(configPath)).toThrowError(
           `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
         )
       })

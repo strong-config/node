@@ -2,7 +2,7 @@
 import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
-import { loadSchema } from '../utils/read-files'
+import { loadSchema } from '../utils/load-files'
 import { defaultOptions } from '../options'
 import { validate } from './validate'
 

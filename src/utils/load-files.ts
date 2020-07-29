@@ -9,16 +9,7 @@ import {
   JSONObject,
 } from '../types'
 
-export const readConfig = (
-  runtimeEnvOrPath: string,
-  configRoot: string
-): EncryptedConfigFile => {
-  return fs.existsSync(path.normalize(runtimeEnvOrPath))
-    ? readConfigFromPath(path.normalize(runtimeEnvOrPath))
-    : findConfigForEnv(runtimeEnvOrPath, configRoot)
-}
-
-export const findConfigForEnv = (
+export const loadConfigForEnv = (
   runtimeEnv: string,
   configRootRaw: string
 ): EncryptedConfigFile => {
@@ -51,11 +42,11 @@ export const findConfigForEnv = (
     )
   }
 
-  return readConfigFromPath(configFiles[0])
+  return loadConfigFromPath(configFiles[0])
 }
 
 // Return type can NOT be undefined because config files are NOT optional (contrary to schema files)
-export const readConfigFromPath = (
+export const loadConfigFromPath = (
   configPathRaw: string
 ): EncryptedConfigFile => {
   const configPath = path.normalize(configPathRaw)

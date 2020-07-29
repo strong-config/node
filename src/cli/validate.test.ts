@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { stderr, stdout } from 'stdout-stderr'
 import Ajv from 'ajv'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import { encryptedConfigFile, schema, decryptedConfig } from '../fixtures'
 import { defaultOptions } from '../options'
@@ -12,7 +12,7 @@ describe('strong-config validate', () => {
   const configRoot = 'example'
   const fullConfigPath = `${configRoot}/${runtimeEnv}.yaml`
 
-  const readConfig = jest.spyOn(readFiles, 'readConfig')
+  const loadConfigFromPath = jest.spyOn(readFiles, 'loadConfigFromPath')
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   const decryptToObject = jest.spyOn(sops, 'decryptToObject')
   const ajvValidate = jest.spyOn(Ajv.prototype, 'validate')
@@ -26,8 +26,8 @@ describe('strong-config validate', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    readConfig.mockReturnValue(encryptedConfigFile)
     loadSchema.mockReturnValue(schema)
+    loadConfigFromPath.mockReturnValue(encryptedConfigFile)
     decryptToObject.mockReturnValue(decryptedConfig)
 
     // Mocking stdout/stderr to not pollute the jest output with status messages

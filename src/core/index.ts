@@ -3,7 +3,7 @@ import Ajv from 'ajv'
 import type { Options } from '../options'
 import { optionsSchema, defaultOptions } from '../options'
 import type { MemoizedConfig, Schema } from '../types'
-import { loadSchema, readConfig } from '../utils/read-files'
+import { loadSchema, loadConfigForEnv } from '../utils/load-files'
 import { hydrateConfig } from '../utils/hydrate-config'
 import * as sops from '../utils/sops'
 import { generateTypesFromSchemaCallback } from '../utils/generate-types-from-schema'
@@ -134,7 +134,10 @@ export = class StrongConfig {
     }
 
     debug('💰 Loading config from disk (expensive operation!)')
-    const configFile = readConfig(this.runtimeEnv, this.options.configRoot)
+    const configFile = loadConfigForEnv(
+      this.runtimeEnv,
+      this.options.configRoot
+    )
     debug('Loaded config file: %O', configFile)
 
     const decryptedConfig = sops.decryptToObject(

@@ -1,4 +1,4 @@
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import {
   validOptions,
@@ -10,7 +10,7 @@ import StrongConfig = require('.')
 
 describe('StrongConfig.getSchema()', () => {
   jest.spyOn(console, 'info').mockReturnValue()
-  jest.spyOn(readFiles, 'readConfig').mockReturnValue(encryptedConfigFile)
+  jest.spyOn(readFiles, 'loadConfigForEnv').mockReturnValue(encryptedConfigFile)
   jest.spyOn(sops, 'decryptToObject').mockReturnValue(decryptedConfig)
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   let sc: StrongConfig

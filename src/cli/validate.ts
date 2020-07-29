@@ -3,7 +3,7 @@ import { Command, flags as Flags } from '@oclif/command'
 import Ajv from 'ajv'
 import ora from 'ora'
 import { defaultOptions } from '../options'
-import { loadSchema, readConfig } from '../utils/read-files'
+import { loadSchema, loadConfigFromPath } from '../utils/load-files'
 import * as sops from '../utils/sops'
 import { DecryptedConfig } from '../types'
 
@@ -14,7 +14,7 @@ export const validate = (configPath: string, configRoot: string): void => {
   try {
     spinner.text = `Loading config: ${configPath}`
     spinner.render()
-    const configFile = readConfig(configPath, configRoot)
+    const configFile = loadConfigFromPath(configPath)
 
     spinner.text = `Decrypting config with sops...`
     spinner.render()

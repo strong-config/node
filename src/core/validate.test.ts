@@ -9,14 +9,14 @@ import {
   schema,
   decryptedConfig,
 } from '../fixtures'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
 
 describe('StrongConfig.validate(data, schema)', () => {
-  const readConfig = jest.spyOn(readFiles, 'readConfig')
+  const loadConfigForEnv = jest.spyOn(readFiles, 'loadConfigForEnv')
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   const decryptToObject = jest.spyOn(sops, 'decryptToObject')
   const ajvValidate = jest.spyOn(Ajv.prototype, 'validate')
@@ -24,7 +24,7 @@ describe('StrongConfig.validate(data, schema)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    readConfig.mockReturnValue(encryptedConfigFile)
+    loadConfigForEnv.mockReturnValue(encryptedConfigFile)
     loadSchema.mockReturnValue(schema)
     decryptToObject.mockReturnValue(decryptedConfig)
     sc = new StrongConfig()

@@ -1,5 +1,5 @@
 import { stderr, stdout } from 'stdout-stderr'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import { CheckEncryption } from './check-encryption'
 
 describe('strong-config check-encryption', () => {
@@ -37,10 +37,10 @@ describe('strong-config check-encryption', () => {
 
   describe('for ONE file', () => {
     it('should read the config file', async () => {
-      jest.spyOn(readFiles, 'readConfigFromPath')
+      jest.spyOn(readFiles, 'loadConfigFromPath')
       await CheckEncryption.run([encryptedConfigPath])
 
-      expect(readFiles.readConfigFromPath).toHaveBeenCalledWith(
+      expect(readFiles.loadConfigFromPath).toHaveBeenCalledWith(
         encryptedConfigPath
       )
     })

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import Ajv from 'ajv'
 import { optionsSchema, defaultOptions } from '../options'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import {
   validOptions,
@@ -20,7 +20,7 @@ describe('StrongConfig.getConfig()', () => {
   const runtimeEnv = 'development'
 
   jest.spyOn(console, 'info').mockReturnValue()
-  const readConfig = jest.spyOn(readFiles, 'readConfig')
+  const loadConfigForEnv = jest.spyOn(readFiles, 'loadConfigForEnv')
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   const decryptToObject = jest.spyOn(sops, 'decryptToObject')
   const hydrateConfig = jest.spyOn(hydrateConfigModule, 'hydrateConfig')
@@ -28,7 +28,7 @@ describe('StrongConfig.getConfig()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     process.env[defaultOptions.runtimeEnvName] = runtimeEnv
-    readConfig.mockReturnValue(encryptedConfigFile)
+    loadConfigForEnv.mockReturnValue(encryptedConfigFile)
     decryptToObject.mockReturnValue(decryptedConfig)
     loadSchema.mockReturnValue(schema)
     hydrateConfig.mockReturnValue(hydratedConfig)
@@ -43,7 +43,7 @@ describe('StrongConfig.getConfig()', () => {
     it('loads the config file from disk, based on runtimeEnv', () => {
       new StrongConfig(validOptions)
 
-      expect(readConfig).toHaveBeenCalledWith(
+      expect(loadConfigForEnv).toHaveBeenCalledWith(
         runtimeEnv,
         validOptions.configRoot
       )
@@ -123,14 +123,14 @@ describe('StrongConfig.getConfig()', () => {
     it('should NOT load config file from disk and return memoized config directly', () => {
       const sc = new StrongConfig(validOptions)
       const firstLoadResult = sc.getConfig()
-      expect(readConfig).toHaveBeenCalled()
+      expect(loadConfigForEnv).toHaveBeenCalled()
       expect(sops.decryptToObject).toHaveBeenCalled()
       expect(hydrateConfig).toHaveBeenCalled()
 
       jest.clearAllMocks()
 
       const secondLoadResult = sc.getConfig()
-      expect(readConfig).not.toHaveBeenCalled()
+      expect(loadConfigForEnv).not.toHaveBeenCalled()
       expect(sops.decryptToObject).not.toHaveBeenCalled()
       expect(hydrateConfig).not.toHaveBeenCalled()
 

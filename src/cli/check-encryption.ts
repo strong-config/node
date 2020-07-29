@@ -5,7 +5,7 @@ import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { defaultOptions } from '../options'
 import type { EncryptedConfig, JSONObject } from '../types'
-import { readConfigFromPath } from '../utils/read-files'
+import { loadConfigFromPath } from '../utils/load-files'
 
 export class CheckEncryption extends Command {
   static description = 'check that secrets in config files are safely encrypted'
@@ -78,7 +78,7 @@ export class CheckEncryption extends Command {
     let configFile
 
     try {
-      configFile = readConfigFromPath(configPath)
+      configFile = loadConfigFromPath(configPath)
     } catch {
       spinner.fail(
         `${configPath} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`

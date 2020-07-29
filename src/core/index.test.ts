@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/unbound-method */
 import { optionsSchema, defaultOptions } from '../options'
-import * as readFiles from '../utils/read-files'
+import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import {
   validOptions,
@@ -13,7 +13,7 @@ import StrongConfig = require('.')
 jest.mock('../utils/generate-types-from-schema')
 
 describe('StrongConfig.constructor()', () => {
-  const readConfig = jest.spyOn(readFiles, 'readConfig')
+  const loadConfigForEnv = jest.spyOn(readFiles, 'loadConfigForEnv')
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
   const decryptToObject = jest.spyOn(sops, 'decryptToObject')
 
@@ -23,7 +23,7 @@ describe('StrongConfig.constructor()', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    readConfig.mockReturnValue(encryptedConfigFile)
+    loadConfigForEnv.mockReturnValue(encryptedConfigFile)
     loadSchema.mockReturnValue(schema)
     decryptToObject.mockReturnValue(decryptedConfig)
   })
