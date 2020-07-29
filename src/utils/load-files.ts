@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import glob from 'glob'
+import fastGlob from 'fast-glob'
 import yaml from 'js-yaml'
 import {
   EncryptedConfigFile,
@@ -14,13 +14,11 @@ export const loadConfigForEnv = (
   configRootRaw: string
 ): EncryptedConfigFile => {
   const configRoot = path.normalize(configRootRaw)
-  const allFiles = glob.sync(
-    `${runtimeEnv}.{${ConfigFileExtensions.join(',')}}`,
-    {
-      cwd: path.resolve(configRoot),
-      absolute: true,
-    }
-  )
+
+  const globPattern = `${configRoot}/${runtimeEnv}.{${ConfigFileExtensions.join(
+    ','
+  )}}`
+  const allFiles = fastGlob.sync(globPattern)
 
   const configFiles = allFiles.filter((filePath) => {
     const fileName = filePath.split('/').pop() as string

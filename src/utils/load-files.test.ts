@@ -1,5 +1,5 @@
 import fs from 'fs'
-import glob from 'glob'
+import fastGlob from 'fast-glob'
 import yaml from 'js-yaml'
 import type { EncryptedConfigFile } from '../types'
 import * as readFiles from './load-files'
@@ -32,7 +32,7 @@ describe('utils :: read-file', () => {
           'config/development.yml',
           'config/development.json',
         ]
-        jest.spyOn(glob, 'sync').mockReturnValueOnce(multipleConfigFiles)
+        jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(multipleConfigFiles)
 
         expect(() => loadConfigForEnv('development', './config')).toThrowError(
           `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
@@ -47,7 +47,7 @@ describe('utils :: read-file', () => {
           contents: { parsed: 'values' },
           filePath: oneConfigFile[0],
         }
-        jest.spyOn(glob, 'sync').mockReturnValueOnce(oneConfigFile)
+        jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(oneConfigFile)
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
         jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('mocked config file')
         jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
