@@ -43,7 +43,7 @@ describe('StrongConfig.validate(data, schema)', () => {
     const invalidConfig = { i: 'am', not: 'valid' }
     // @ts-ignore explicitly testing invalid input here
     expect(() => sc.validate(invalidConfig, schema)).toThrowError(
-      'data should NOT have additional properties'
+      'config should NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(schema, invalidConfig)
     expect(ajvValidate).toHaveReturnedWith(false)
@@ -61,7 +61,7 @@ describe('StrongConfig.validate(data, schema)', () => {
 
     // @ts-ignore explicitly testing invalid input here
     expect(() => sc.validate(invalidOptions, optionsSchema)).toThrowError(
-      'data should NOT have additional properties'
+      'config should NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, invalidOptions)
     expect(ajvValidate).toHaveReturnedWith(false)

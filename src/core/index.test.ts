@@ -67,7 +67,7 @@ describe('StrongConfig.constructor()', () => {
     expect(
       // @ts-ignore explicitly testing invalid options here
       () => new StrongConfig(invalidOptions)
-    ).toThrowError('data should NOT have additional properties')
+    ).toThrowError('config should NOT have additional properties')
 
     expect(validate).toHaveBeenCalledWith(
       { ...defaultOptions, ...invalidOptions },

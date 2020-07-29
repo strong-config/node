@@ -2,12 +2,12 @@ import Debug from 'debug'
 import Ajv from 'ajv'
 import type { Options } from '../options'
 import { optionsSchema, defaultOptions } from '../options'
-import type { MemoizedConfig, Schema } from '../types'
-import { loadSchema, loadConfigForEnv } from '../utils/load-files'
-import { hydrateConfig } from '../utils/hydrate-config'
-import * as sops from '../utils/sops'
+import type { HydratedConfig, MemoizedConfig, Schema } from '../types'
+import { formatAjvErrors } from '../utils/format-ajv-errors'
 import { generateTypesFromSchemaCallback } from '../utils/generate-types-from-schema'
-import { HydratedConfig } from './../types'
+import { hydrateConfig } from '../utils/hydrate-config'
+import { loadSchema, loadConfigForEnv } from '../utils/load-files'
+import * as sops from '../utils/sops'
 
 const debug = Debug('strong-config:main')
 
@@ -215,7 +215,9 @@ export = class StrongConfig {
     const ajv = new Ajv({ allErrors: true, useDefaults: true })
 
     if (!ajv.validate(schema, data)) {
-      throw new Error(ajv.errorsText())
+      throw new Error(
+        `Config validation failed ❌\n${formatAjvErrors(ajv.errorsText())}\n`
+      )
     }
 
     return true

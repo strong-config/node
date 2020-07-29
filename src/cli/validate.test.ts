@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { stderr, stdout } from 'stdout-stderr'
 import Ajv from 'ajv'
+import { formatAjvErrors } from '../utils/format-ajv-errors'
 import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import { encryptedConfigFile, decryptedConfig } from '../fixtures'
 import { defaultOptions } from '../options'
-import { Validate, formatAjvErrors } from './validate'
+import { Validate } from './validate'
 import * as validateCommand from './validate'
 
 describe('strong-config validate', () => {

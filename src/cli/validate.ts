@@ -3,6 +3,7 @@ import { Command, flags as Flags } from '@oclif/command'
 import Ajv from 'ajv'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
+import { formatAjvErrors } from '../utils/format-ajv-errors'
 import { defaultOptions } from '../options'
 import { loadSchema, loadConfigFromPath } from '../utils/load-files'
 import * as sops from '../utils/sops'
@@ -48,9 +49,6 @@ export const validateOneConfigFile = (
     return false
   }
 }
-
-export const formatAjvErrors = (errorText: string): string =>
-  '  - '.concat(errorText.replace(/,\s/g, '\n  - ').replace(/data/g, 'config'))
 
 export class Validate extends Command {
   static description = 'validate config files against a schema'
