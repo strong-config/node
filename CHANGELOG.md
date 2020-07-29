@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.45](https://github.com/strong-config/node/compare/v0.2.44...v0.2.45) (2020-07-29)
+
+
+### Features
+
+* **validate:** display better error messages on validation errors ([1e89a03](https://github.com/strong-config/node/commit/1e89a037d0c42549276b61e82682467a14804478))
+
 ### [0.2.44](https://github.com/strong-config/node/compare/v0.2.43...v0.2.44) (2020-07-29)
 
 
