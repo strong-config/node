@@ -3,14 +3,27 @@ import { stderr, stdout } from 'stdout-stderr'
 import Ajv from 'ajv'
 import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
-import { encryptedConfigFile, schema, decryptedConfig } from '../fixtures'
+import { encryptedConfigFile, decryptedConfig } from '../fixtures'
 import { defaultOptions } from '../options'
-import { Validate } from './validate'
+import { Validate, formatAjvErrors } from './validate'
+import * as validateCommand from './validate'
 
 describe('strong-config validate', () => {
+  const encryptedConfigPath = 'example/development.yaml'
+  const invalidConfigPath = 'example/invalid.yml'
+  const unencryptedConfigPath = 'example/unencrypted.yml'
+  const noSecretsConfigPath = 'example/no-secrets.yml'
+
+  const allConfigFiles = [
+    encryptedConfigPath,
+    invalidConfigPath,
+    unencryptedConfigPath,
+    noSecretsConfigPath,
+  ]
+
   const runtimeEnv = 'development'
   const configRoot = 'example'
-  const fullConfigPath = `${configRoot}/${runtimeEnv}.yaml`
+  const schema = readFiles.loadSchema(configRoot)
 
   const loadConfigFromPath = jest.spyOn(readFiles, 'loadConfigFromPath')
   const loadSchema = jest.spyOn(readFiles, 'loadSchema')
@@ -26,7 +39,6 @@ describe('strong-config validate', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    loadSchema.mockReturnValue(schema)
     loadConfigFromPath.mockReturnValue(encryptedConfigFile)
     decryptToObject.mockReturnValue(decryptedConfig)
 
@@ -44,194 +56,245 @@ describe('strong-config validate', () => {
     jest.restoreAllMocks()
   })
 
-  it('validates a given config against its schema', async () => {
-    await Validate.run([fullConfigPath, '--config-root', configRoot])
+  describe('for ONE file', () => {
+    it('validates a given config against its schema', async () => {
+      await Validate.run([encryptedConfigPath, '--config-root', configRoot])
 
-    expect(readConfig).toHaveBeenCalledWith(fullConfigPath, configRoot)
-    expect(sops.decryptToObject).toHaveBeenCalledWith(
-      encryptedConfigFile.filePath,
-      encryptedConfigFile.contents
-    )
-    expect(loadSchema).toHaveBeenCalledWith(configRoot)
-    expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
-    expect(ajvValidate).toHaveReturnedWith(true)
-    expect(process.exit).toHaveBeenCalledWith(0)
-  })
-
-  it('accepts a relative path to a config file as input', async () => {
-    const relativePaths = [
-      'example/development.yaml',
-      './example/development.yaml',
-      '../node/example/development.yaml',
-    ]
-
-    for (const path of relativePaths) {
-      ajvValidate.mockClear()
-      processExit.mockClear()
-      await Validate.run([path, '--config-root', configRoot])
-
+      expect(loadConfigFromPath).toHaveBeenCalledWith(encryptedConfigPath)
+      expect(sops.decryptToObject).toHaveBeenCalledWith(
+        encryptedConfigFile.filePath,
+        encryptedConfigFile.contents
+      )
+      expect(loadSchema).toHaveBeenCalledWith(configRoot)
       expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
       expect(ajvValidate).toHaveReturnedWith(true)
       expect(process.exit).toHaveBeenCalledWith(0)
-    }
-  })
+    })
 
-  it('accepts an absolute path to a config file as input', async () => {
-    const absolutePath = `${process.cwd()}/example/development.yaml`
+    it('accepts a relative path to a config file as input', async () => {
+      const relativePaths = [
+        'example/development.yaml',
+        './example/development.yaml',
+        '../node/example/development.yaml',
+      ]
 
-    await Validate.run([absolutePath, '--config-root', configRoot])
+      for (const path of relativePaths) {
+        ajvValidate.mockClear()
+        processExit.mockClear()
+        await Validate.run([path, '--config-root', configRoot])
 
-    expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
-    expect(ajvValidate).toHaveReturnedWith(true)
+        expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
+        expect(ajvValidate).toHaveReturnedWith(true)
+        expect(process.exit).toHaveBeenCalledWith(0)
+      }
+    })
 
-    expect(process.exit).toHaveBeenCalledWith(0)
-  })
+    it('accepts an absolute path to a config file as input', async () => {
+      const absolutePath = `${process.cwd()}/example/development.yaml`
 
-  it('accepts a runtimeEnv name as input', async () => {
-    await Validate.run([runtimeEnv, '--config-root', configRoot])
+      await Validate.run([absolutePath, '--config-root', configRoot])
 
-    expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
-    expect(ajvValidate).toHaveReturnedWith(true)
+      expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
+      expect(ajvValidate).toHaveReturnedWith(true)
 
-    expect(process.exit).toHaveBeenCalledWith(0)
-  })
+      expect(process.exit).toHaveBeenCalledWith(0)
+    })
 
-  it('uses defaultOptions.configRoot in case no explicit configRoot flag gets passed', async () => {
-    await Validate.run([runtimeEnv])
+    it('accepts a runtimeEnv name as input', async () => {
+      await Validate.run([runtimeEnv, '--config-root', configRoot])
 
-    expect(readConfig).toHaveBeenCalledWith(
-      runtimeEnv,
-      defaultOptions.configRoot
-    )
-    expect(process.exit).toHaveBeenCalledWith(0)
-  })
+      expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
+      expect(ajvValidate).toHaveReturnedWith(true)
 
-  it('displays the validation process', async () => {
-    await Validate.run([fullConfigPath, '--config-root', configRoot])
-    stderr.stop()
-    stdout.stop()
+      expect(process.exit).toHaveBeenCalledWith(0)
+    })
 
-    expect(stderr.output).toMatch('Validating...')
-    expect(stderr.output).toMatch(`Loading config: ${fullConfigPath}`)
-    expect(stderr.output).toMatch(`Loading schema from: ${configRoot}`)
-    expect(stderr.output).toMatch('Validating config against schema...')
-    expect(stderr.output).toMatch('Config is valid!')
-  })
+    it('displays the validation process', async () => {
+      await Validate.run([encryptedConfigPath, '--config-root', configRoot])
+      stderr.stop()
+      stdout.stop()
 
-  describe('error handling', () => {
-    describe('with non-existing config files', () => {
-      const nonExistingFile = 'i-dont-exist.yml'
-      const originalError = new Error("Couldn't find config file")
+      expect(stderr.output).toMatch(`Validating ${encryptedConfigPath}...`)
+      expect(stderr.output).toMatch(`Loading config: ${encryptedConfigPath}`)
+      expect(stderr.output).toMatch(`Loading schema from: ${configRoot}`)
+      expect(stderr.output).toMatch('Validating config against schema...')
+      expect(stderr.output).toMatch(`${encryptedConfigPath} is valid!`)
+    })
 
-      beforeEach(() => {
-        readConfig.mockImplementationOnce(() => {
-          throw originalError
+    describe('error handling', () => {
+      describe('with non-existing config files', () => {
+        const nonExistingFile = 'i-dont-exist.yml'
+        const originalError = new Error("Couldn't find config file")
+
+        beforeEach(() => {
+          loadConfigFromPath.mockImplementationOnce(() => {
+            throw originalError
+          })
+        })
+
+        it('fails', async () => {
+          await Validate.run(['i-dont-exist.yml'])
+          stderr.stop()
+
+          expect(process.exit).toHaveBeenCalledWith(1)
+        })
+
+        it('displays a human-readable error message', async () => {
+          await Validate.run([nonExistingFile])
+          stderr.stop()
+
+          expect(stderr.output).toContain(
+            `${nonExistingFile} => Error during validation`
+          )
+          expect(process.exit).toHaveBeenCalledWith(1)
+        })
+
+        it('displays original error', async () => {
+          await Validate.run([nonExistingFile])
+          stdout.stop()
+
+          expect(console.error).toHaveBeenCalledWith(originalError, '\n')
+          expect(process.exit).toHaveBeenCalledWith(1)
         })
       })
 
-      it('fails', async () => {
-        await Validate.run(['i-dont-exist.yml'])
-        stderr.stop()
+      describe("when schema can't be found in configRoot", () => {
+        beforeEach(() => {
+          // eslint-disable-next-line unicorn/no-useless-undefined
+          loadSchema.mockReturnValue(undefined)
+        })
 
-        expect(process.exit).toHaveBeenCalledWith(1)
+        afterAll(() => {
+          loadSchema.mockRestore()
+        })
+
+        it('fails', async () => {
+          await Validate.run([encryptedConfigPath])
+          expect(process.exit).toHaveBeenCalledWith(1)
+        })
+
+        it('displays human-readable error message', async () => {
+          await Validate.run([encryptedConfigPath])
+          stderr.stop()
+          expect(stderr.output).toMatch(
+            `No schema found in your config root ./${defaultOptions.configRoot}/schema.json`
+          )
+        })
+
+        it('displays original error', async () => {
+          const ajvError = new Error('schema should be object or boolean')
+          await Validate.run([encryptedConfigPath])
+
+          expect(console.error).toHaveBeenCalledWith(ajvError, '\n')
+        })
       })
 
-      it('displays a human-readable error message', async () => {
-        await Validate.run([nonExistingFile])
-        stderr.stop()
+      describe('when validation fails', () => {
+        const ajvErrors = 'data should NOT have additional properties'
 
-        expect(stderr.output).toContain(
-          'Config validation against schema failed'
-        )
-        expect(process.exit).toHaveBeenCalledWith(1)
-      })
+        beforeEach(() => {
+          ajvValidate.mockReturnValueOnce(false)
+          jest.spyOn(Ajv.prototype, 'errorsText').mockReturnValueOnce(ajvErrors)
+        })
 
-      it('displays original error', async () => {
-        await Validate.run([nonExistingFile])
-        stdout.stop()
+        it('displays detailed validation errors from ajv', async () => {
+          await Validate.run([encryptedConfigPath])
+          stderr.stop()
 
-        expect(console.error).toHaveBeenCalledWith(originalError)
-        expect(process.exit).toHaveBeenCalledWith(1)
+          expect(stderr.output).toMatch(
+            `${encryptedConfigPath} is invalid:\n${formatAjvErrors(
+              ajvErrors
+            )}\n`
+          )
+        })
       })
     })
 
-    describe("when schema can't be found in configRoot", () => {
-      beforeEach(() => {
-        // eslint-disable-next-line unicorn/no-useless-undefined
-        loadSchema.mockReturnValue(undefined)
+    describe('--help', () => {
+      it('prints the help with --help', async () => {
+        try {
+          await Validate.run(['--help'])
+        } catch {
+          /*
+           * NOTE: For some reason oclif throws when running the help command
+           * so we need to catch the (non-)error for the test to pass
+           */
+          stdout.stop()
+        }
+
+        expect(stdout.output).toContain('USAGE')
+        expect(stdout.output).toContain('ARGUMENTS')
+        expect(stdout.output).toContain('OPTIONS')
+        expect(stdout.output).toContain('EXAMPLES')
       })
 
-      it('fails', async () => {
-        await Validate.run([fullConfigPath])
-        expect(process.exit).toHaveBeenCalledWith(1)
-      })
+      it('always prints help with any command having --help', async () => {
+        try {
+          await Validate.run([encryptedConfigPath, '--help'])
+        } catch {
+          /*
+           * NOTE: For some reason oclif throws when running the help command
+           * so we need to catch the (non-)error for the test to pass
+           */
+          stdout.stop()
+        }
 
-      it('displays human-readable error message', async () => {
-        await Validate.run([fullConfigPath])
-        stderr.stop()
-        expect(stderr.output).toMatch('No schema file found')
-      })
-
-      it('displays original error', async () => {
-        const ajvError = new Error('schema should be object or boolean')
-        await Validate.run([fullConfigPath])
-
-        expect(console.error).toHaveBeenCalledWith(ajvError)
-      })
-    })
-
-    describe('when validation fails', () => {
-      const ajvErrors = ['data should NOT have additional properties']
-
-      beforeEach(() => {
-        ajvValidate.mockReturnValueOnce(false)
-        jest.spyOn(Ajv.prototype, 'errorsText').mockReturnValueOnce(ajvErrors)
-      })
-
-      it('fails', async () => {
-        await Validate.run([fullConfigPath])
-        stderr.stop()
-
-        expect(stderr.output).toMatch(
-          `Config validation against schema failed:\n${ajvErrors.join(',')}`
-        )
+        expect(stdout.output).toContain('USAGE')
+        expect(stdout.output).toContain('ARGUMENTS')
+        expect(stdout.output).toContain('OPTIONS')
+        expect(stdout.output).toContain('EXAMPLES')
       })
     })
   })
 
-  describe('--help', () => {
-    it('prints the help with --help', async () => {
-      try {
-        await Validate.run(['--help'])
-      } catch {
-        /*
-         * NOTE: For some reason oclif throws when running the help command
-         * so we need to catch the (non-)error for the test to pass
-         */
-        stdout.stop()
-      }
+  describe('for ALL files', () => {
+    describe('given a folder with multiple config files', () => {
+      it('should find all *.yaml and *.yml files in the configRoot dir', async () => {
+        const validateOneConfigFileSpy = jest.spyOn(
+          validateCommand,
+          'validateOneConfigFile'
+        )
+        await Validate.run(['--config-root', configRoot])
 
-      expect(stdout.output).toContain('USAGE')
-      expect(stdout.output).toContain('ARGUMENTS')
-      expect(stdout.output).toContain('OPTIONS')
-      expect(stdout.output).toContain('EXAMPLES')
+        expect(validateOneConfigFileSpy).toHaveBeenCalledTimes(
+          allConfigFiles.length
+        )
+        expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
+          1,
+          allConfigFiles[0],
+          schema
+        )
+        expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
+          2,
+          allConfigFiles[1],
+          schema
+        )
+      })
+
+      it('should exit with code 1 and error message when not all config files are valid', async () => {
+        const ajvErrors = 'data should NOT have additional properties'
+        ajvValidate.mockReturnValueOnce(false)
+        jest.spyOn(Ajv.prototype, 'errorsText').mockReturnValueOnce(ajvErrors)
+
+        await Validate.run(['--config-root', 'example'])
+        stderr.stop()
+
+        expect(stderr.output).toMatch('✖ Validation failed')
+        expect(process.exit).toHaveBeenCalledWith(1)
+      })
     })
 
-    it('always prints help with any command having --help', async () => {
-      try {
-        await Validate.run([fullConfigPath, '--help'])
-      } catch {
-        /*
-         * NOTE: For some reason oclif throws when running the help command
-         * so we need to catch the (non-)error for the test to pass
-         */
-        stdout.stop()
-      }
+    describe('given a folder with NO config files', () => {
+      it('should exit with code 1 and error message', async () => {
+        const invalidConfigRoot = './i/dont/exist'
+        await Validate.run(['--config-root', invalidConfigRoot])
+        stderr.stop()
 
-      expect(stdout.output).toContain('USAGE')
-      expect(stdout.output).toContain('ARGUMENTS')
-      expect(stdout.output).toContain('OPTIONS')
-      expect(stdout.output).toContain('EXAMPLES')
+        expect(stderr.output).toMatch(
+          new RegExp(`✖.*Found no config files in.*${invalidConfigRoot}`)
+        )
+        expect(process.exit).toHaveBeenCalledWith(1)
+      })
     })
   })
 })

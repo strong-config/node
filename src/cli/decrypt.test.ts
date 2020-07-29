@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { stderr, stdout } from 'stdout-stderr'
 import { runSopsWithOptions } from '../utils/sops'
+import { loadSchema } from '../utils/load-files'
+
 import { Decrypt } from './decrypt'
 import * as validateCommand from './validate'
 
@@ -18,6 +20,7 @@ const runSopsWithOptionsMock = runSopsWithOptions as jest.Mock<
 describe('strong-config decrypt', () => {
   const configRoot = 'example'
   const configFile = 'example/development.yaml'
+  const schema = loadSchema(configRoot)
   const sopsError = new Error('some sops error')
 
   beforeAll(() => {
@@ -69,16 +72,16 @@ describe('strong-config decrypt', () => {
 
   describe('given a config-root with a schema file', () => {
     it('validates config against schema AFTER decrypting', async () => {
-      jest.spyOn(validateCommand, 'validate')
+      jest.spyOn(validateCommand, 'validateOneConfigFile')
 
       await Decrypt.run([configFile, '--config-root', configRoot])
 
-      expect(validateCommand.validate).toHaveBeenCalledWith(
+      expect(validateCommand.validateOneConfigFile).toHaveBeenCalledWith(
         configFile,
-        configRoot
+        schema
       )
 
-      expect(validateCommand.validate).toHaveBeenCalledAfter(
+      expect(validateCommand.validateOneConfigFile).toHaveBeenCalledAfter(
         runSopsWithOptionsMock
       )
     })
@@ -101,6 +104,41 @@ describe('strong-config decrypt', () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('is already decrypted')
       )
+    })
+  })
+
+  describe("when config file can't be found", () => {
+    it('displays a useful error message', async () => {
+      runSopsWithOptionsMock.mockImplementationOnce(() => {
+        const error = new Error(
+          'original non-userfriendly error message from sops :: file not found'
+        )
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        error.exitCode = 100 // this is sops' error-code
+        throw error
+      })
+
+      await Decrypt.run(['non-existing-file.yml'])
+
+      expect(console.error).toHaveBeenCalledWith(
+        "🤔 Didn't find ./non-existing-file.yml. A typo, perhaps?"
+      )
+    })
+  })
+
+  describe('when an unknown error happens', () => {
+    it('displays the error', async () => {
+      const error = new Error(
+        'original non-userfriendly error message from sops :: weird error that we are not explicitly handling yet'
+      )
+      runSopsWithOptionsMock.mockImplementationOnce(() => {
+        throw error
+      })
+
+      await Decrypt.run(['example/development.yaml'])
+
+      expect(console.error).toHaveBeenCalledWith(error)
     })
   })
 

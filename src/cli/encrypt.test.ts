@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { stderr, stdout } from 'stdout-stderr'
 import { runSopsWithOptions } from '../utils/sops'
+import { loadSchema } from '../utils/load-files'
 import { Encrypt } from './encrypt'
 import * as validateCommand from './validate'
 
@@ -18,6 +19,7 @@ const runSopsWithOptionsMock = runSopsWithOptions as jest.Mock<
 describe('strong-config encrypt', () => {
   const configRoot = 'example'
   const configFile = 'example/development.decrypted.yaml'
+  const schema = loadSchema(configRoot)
   const sopsError = new Error('some sops error')
   const keyId = '2E9644A658379349EFB77E895351CE7FC0AC6E94' // => ./example/pgp/example-keypair.pgp
   const keyProvider = 'pgp'
@@ -72,7 +74,7 @@ describe('strong-config encrypt', () => {
 
   describe('given a config-root with a schema file', () => {
     it('validates config against schema BEFORE encrypting', async () => {
-      jest.spyOn(validateCommand, 'validate')
+      jest.spyOn(validateCommand, 'validateOneConfigFile')
 
       await Encrypt.run([
         configFile,
@@ -81,12 +83,12 @@ describe('strong-config encrypt', () => {
         configRoot,
       ])
 
-      expect(validateCommand.validate).toHaveBeenCalledWith(
+      expect(validateCommand.validateOneConfigFile).toHaveBeenCalledWith(
         configFile,
-        configRoot
+        schema
       )
 
-      expect(validateCommand.validate).toHaveBeenCalledBefore(
+      expect(validateCommand.validateOneConfigFile).toHaveBeenCalledBefore(
         runSopsWithOptionsMock
       )
     })

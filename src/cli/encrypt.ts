@@ -3,8 +3,8 @@ import { Command, flags as Flags } from '@oclif/command'
 import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
-import { validate } from './validate'
 import { loadSchema } from './../utils/load-files'
+import { validateOneConfigFile } from './validate'
 
 export class Encrypt extends Command {
   static description = 'encrypt config files'
@@ -113,9 +113,14 @@ export class Encrypt extends Command {
 
   run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
+    const schema = loadSchema(flags['config-root'])
 
-    if (loadSchema(flags['config-root'])) {
-      validate(args['config_file'], flags['config-root'])
+    if (schema && !validateOneConfigFile(args.config_file, schema)) {
+      ora(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `Encryption failed because ./${args.config_file} failed validation against ./${flags['config-root']}/schema.json`
+      ).fail()
+      process.exit(1)
     }
 
     this.encrypt()

@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import Ajv from 'ajv'
+import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { defaultOptions } from '../options'
 import { loadSchema, loadConfigFromPath } from '../utils/load-files'
 import * as sops from '../utils/sops'
-import { DecryptedConfig } from '../types'
+import { DecryptedConfig, Schema } from '../types'
 
-export const validate = (configPath: string, configRoot: string): void => {
-  const spinner = ora('Validating...').start()
+export const validateOneConfigFile = (
+  configPath: string,
+  schema: Schema
+): boolean => {
+  const spinner = ora(`Validating ${configPath}...`).start()
   const ajv = new Ajv({ allErrors: true, useDefaults: true })
 
   try {
@@ -23,32 +27,30 @@ export const validate = (configPath: string, configRoot: string): void => {
       configFile.contents
     )
 
-    spinner.text = `Loading schema from: ${configRoot}`
+    spinner.text = 'Validating config against schema...'
     spinner.render()
-    const schema = loadSchema(configRoot)
-
-    if (!schema) {
-      spinner.fail(`No schema file found in: ${configRoot}`)
-      process.exit(1)
-    }
 
     if (!ajv.validate(schema, decryptedConfig)) {
       spinner.fail(
-        `Config validation against schema failed:\n${ajv.errorsText()}`
+        `${configPath} is invalid:\n${formatAjvErrors(ajv.errorsText())}\n`
       )
-      process.exit(1)
+
+      return false
+    } else {
+      spinner.succeed(`${configPath} is valid!`)
+
+      return true
     }
-
-    spinner.text = 'Validating config against schema...'
-    spinner.render()
   } catch (error) {
-    spinner.fail(`Config validation against schema failed`)
-    console.error(error)
-    process.exit(1)
-  }
+    spinner.fail(`${configPath} => Error during validation:`)
+    console.error(error, '\n')
 
-  spinner.succeed('Config is valid!')
+    return false
+  }
 }
+
+export const formatAjvErrors = (errorText: string): string =>
+  '  - '.concat(errorText.replace(/,\s/g, '\n  - ').replace(/data/g, 'config'))
 
 export class Validate extends Command {
   static description = 'validate config files against a schema'
@@ -72,19 +74,73 @@ export class Validate extends Command {
     {
       name: 'config_file',
       description:
-        'path to an unencrypted config file, for example `strong-config validate config/production.yml`',
-      required: true,
+        '[optional] path to a specific config file to validate. if omitted, all config files will be validated',
+      required: false,
     },
   ]
 
-  static usage = 'validate CONFIG_FILE [--help]'
+  static usage = 'validate [CONFIG_FILE] [--help]'
 
-  static examples = ['$ validate config/development.yaml', '$ validate --help']
+  static examples = [
+    '$ validate config/development.yaml',
+    '$ validate --config-root ./nested/config-folder',
+    '$ validate --help',
+  ]
 
-  run(): Promise<void> {
+  async validateAllConfigFiles(
+    configRoot: string,
+    schema: Schema
+  ): Promise<boolean> {
+    const spinner = ora(
+      `Validating all config files in ${configRoot}...`
+    ).start()
+
+    const globPattern = `${configRoot}/**/*.{yml,yaml}`
+    const configFiles = await fastGlob(globPattern)
+
+    if (configFiles.length === 0) {
+      spinner.fail(`Found no config files in '${globPattern}'`)
+      process.exit(1)
+    }
+
+    const validationResults = configFiles.map((configPath) =>
+      validateOneConfigFile(configPath, schema)
+    )
+
+    if (validationResults.includes(false)) {
+      console.log('\n')
+      spinner.fail('Validation failed')
+
+      return false
+    } else {
+      spinner.succeed('Secrets in all config files are safely encrypted 💪')
+
+      return true
+    }
+  }
+
+  async run(): Promise<void> {
     const { args, flags } = this.parse(Validate)
 
-    validate(args['config_file'], flags['config-root'])
+    const spinner = ora(`Loading schema from: ${flags['config-root']}`).start()
+    const schema = loadSchema(flags['config-root'])
+
+    if (!schema) {
+      spinner.fail(
+        `No schema found in your config root ./${flags['config-root']}/schema.json\nCan't validate config without a schema because there's nothing to validate against :)\nPlease create a 'schema.json' in your config folder\n`
+      )
+      process.exit(1)
+    }
+
+    if (args.config_file) {
+      validateOneConfigFile(args.config_file, schema)
+        ? process.exit(0)
+        : process.exit(1)
+    } else {
+      ;(await this.validateAllConfigFiles(flags['config-root'], schema))
+        ? process.exit(0)
+        : process.exit(1)
+    }
 
     process.exit(0)
   }
