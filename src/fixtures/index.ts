@@ -7,7 +7,7 @@ import {
   DecryptedConfig,
 } from '../types'
 
-const runtimeEnv = 'development'
+const runtimeEnv = 'test'
 
 export const encryptedConfigFile: EncryptedConfigFile = {
   filePath: `/mocked/path/${runtimeEnv}.yaml`,

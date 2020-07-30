@@ -12,7 +12,7 @@ import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
 
-describe('StrongConfig.generateTypes()', () => {
+describe('Type Generation', () => {
   const originalEnv = process.env[validOptions.runtimeEnvName]
   jest.spyOn(console, 'info').mockReturnValue()
   jest.spyOn(readFiles, 'loadConfigForEnv').mockReturnValue(encryptedConfigFile)
@@ -23,7 +23,7 @@ describe('StrongConfig.generateTypes()', () => {
     jest.clearAllMocks()
   })
 
-  describe("when process.env[runtimeEnvName] === 'development'", () => {
+  describe("when process.env[runtimeEnvName] is 'development'", () => {
     beforeEach(() => {
       jest.clearAllMocks()
       process.env[validOptions.runtimeEnvName] = 'development'

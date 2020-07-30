@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/unbound-method */
+import Ajv from 'ajv'
 import { optionsSchema, defaultOptions } from '../options'
 import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
 import {
+  schema,
   validOptions,
   encryptedConfigFile,
-  schema,
+  hydratedConfig,
   decryptedConfig,
 } from '../fixtures'
 import StrongConfig = require('.')
@@ -79,5 +81,50 @@ describe('StrongConfig.constructor()', () => {
     const sc = new StrongConfig(validOptions)
 
     expect(sc.options).toStrictEqual(validOptions)
+  })
+
+  describe('when a schema exists', () => {
+    it('should validate the loaded config against the schema', () => {
+      jest.spyOn(Ajv.prototype, 'validate').mockReturnValue(true)
+      jest.spyOn(StrongConfig.prototype, 'validate')
+
+      const sc = new StrongConfig(validOptions)
+
+      expect(sc.validate).toHaveBeenCalledTimes(2)
+      expect(sc.validate).toHaveBeenNthCalledWith(
+        1,
+        validOptions,
+        optionsSchema
+      )
+      expect(sc.validate).toHaveBeenNthCalledWith(2, hydratedConfig, schema)
+    })
+  })
+
+  describe('when NO schema exists', () => {
+    it('should skip validation', () => {
+      // eslint-disable-next-line unicorn/no-useless-undefined
+      loadSchema.mockReturnValueOnce(undefined)
+      jest.spyOn(StrongConfig.prototype, 'validate')
+
+      const sc = new StrongConfig(validOptions)
+
+      // The first call to StrongConfig.validate() happens in the constructor to validate the options
+      expect(sc.validate).toHaveBeenCalledTimes(1)
+      expect(sc.validate).toHaveBeenCalledWith(validOptions, optionsSchema)
+
+      // The second time would have been the call to validate the actual config which should not happen without a schema
+      expect(sc.validate).not.toHaveBeenCalledTimes(2)
+    })
+
+    it('should skip type generation', () => {
+      jest
+        .spyOn(StrongConfig.prototype, 'getSchema')
+        // eslint-disable-next-line unicorn/no-null
+        .mockReturnValue(null)
+      jest.spyOn(StrongConfig.prototype, 'generateTypes')
+      const sc = new StrongConfig(validOptions)
+
+      expect(sc.generateTypes).not.toHaveBeenCalled()
+    })
   })
 })

@@ -69,31 +69,31 @@ export = class StrongConfig {
    * The constructor also ensures that the options are valid,
    * and a runtime env has been set.
    */
-  constructor(options?: Partial<Options>) {
-    const mergedOptions = options
-      ? { ...defaultOptions, ...options }
+  constructor(userOptions?: Partial<Options>) {
+    const options = userOptions
+      ? { ...defaultOptions, ...userOptions }
       : defaultOptions
 
-    this.validate(mergedOptions, optionsSchema)
-    this.options = mergedOptions
+    this.validate(options, optionsSchema)
+    this.options = options
 
     if (
-      !process.env[this.options.runtimeEnvName] ||
-      typeof process.env[this.options.runtimeEnvName] !== 'string'
+      !process.env[options.runtimeEnvName] ||
+      typeof process.env[options.runtimeEnvName] !== 'string'
     ) {
       throw new Error(
         `[strong-config 💪]: process.env.${
-          this.options.runtimeEnvName
+          options.runtimeEnvName
         } needs to be set but was '${
-          process.env[this.options.runtimeEnvName] || 'undefined'
+          process.env[options.runtimeEnvName] || 'undefined'
         }'\nMake sure it's set when starting the app, for example: '${
-          this.options.runtimeEnvName
+          options.runtimeEnvName
         }'=development yarn start'\n`
       )
     }
 
     // Typecasting to string is safe as we've determined it's a string in the previous if-statement
-    this.runtimeEnv = process.env[this.options.runtimeEnvName] as string
+    this.runtimeEnv = process.env[options.runtimeEnvName] as string
 
     // See explanation for why 'null' in comments for getSchema() method
     // eslint-disable-next-line unicorn/no-null
@@ -102,13 +102,24 @@ export = class StrongConfig {
 
     if (this.schema) {
       debug('Loaded schema file: %O', this.schema)
+
+      debug('Validating config against schema')
+      this.validate(this.config, this.schema)
+      debug('Config is valid')
+
+      if (
+        options.generateTypes &&
+        process.env[options.runtimeEnvName] === 'development'
+      ) {
+        this.generateTypes()
+      }
     } else {
       /*
        * Deliberately NOT using debug() here because we want to
        * always encourage users to define a schema for their config.
        */
       console.info(
-        `⚠️ No schema file found under '${this.options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
+        `⚠️ No schema file found under '${options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
       )
     }
   }
@@ -148,17 +159,6 @@ export = class StrongConfig {
 
     const config = hydrateConfig(decryptedConfig, this.runtimeEnv)
     debug('Hydrated config: %O', config)
-
-    if (this.schema) {
-      this.validate(config, this.schema)
-
-      if (
-        this.options.generateTypes &&
-        process.env[this.options.runtimeEnvName] === 'development'
-      ) {
-        this.generateTypes()
-      }
-    }
 
     return config
   }

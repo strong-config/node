@@ -89,34 +89,6 @@ describe('StrongConfig.getConfig()', () => {
         expect(sc.generateTypes).toHaveBeenCalledTimes(1)
       })
     })
-
-    describe('when NO schema exists', () => {
-      it('should skip validation', () => {
-        // eslint-disable-next-line unicorn/no-useless-undefined
-        loadSchema.mockReturnValueOnce(undefined)
-        jest.spyOn(StrongConfig.prototype, 'validate')
-
-        const sc = new StrongConfig(validOptions)
-
-        // The first call to StrongConfig.validate() happens in the constructor to validate the options
-        expect(sc.validate).toHaveBeenCalledTimes(1)
-        expect(sc.validate).toHaveBeenCalledWith(validOptions, optionsSchema)
-
-        // The second time would have been the call to validate the actual config which should not happen without a schema
-        expect(sc.validate).not.toHaveBeenCalledTimes(2)
-      })
-
-      it('should skip type generation', () => {
-        jest
-          .spyOn(StrongConfig.prototype, 'getSchema')
-          // eslint-disable-next-line unicorn/no-null
-          .mockReturnValue(null)
-        jest.spyOn(StrongConfig.prototype, 'generateTypes')
-        const sc = new StrongConfig(validOptions)
-
-        expect(sc.generateTypes).not.toHaveBeenCalled()
-      })
-    })
   })
 
   describe('after first invocation, when config is memoized', () => {
@@ -135,35 +107,6 @@ describe('StrongConfig.getConfig()', () => {
       expect(hydrateConfig).not.toHaveBeenCalled()
 
       expect(firstLoadResult).toStrictEqual(secondLoadResult)
-    })
-
-    describe('when a schema exists', () => {
-      beforeEach(() => {
-        jest
-          .spyOn(StrongConfig.prototype, 'getSchema')
-          .mockReturnValueOnce(schema)
-      })
-
-      it('should skip validation', () => {
-        jest.spyOn(StrongConfig.prototype, 'validate')
-        const sc = new StrongConfig(validOptions)
-        expect(sc.validate).toHaveBeenCalledTimes(2)
-
-        jest.clearAllMocks()
-        sc.getConfig()
-        expect(sc.validate).not.toHaveBeenCalled()
-      })
-
-      it('should skip type generation', () => {
-        jest.spyOn(StrongConfig.prototype, 'generateTypes')
-        const sc = new StrongConfig(validOptions)
-        expect(sc.generateTypes).toHaveBeenCalledTimes(1)
-
-        jest.clearAllMocks()
-
-        sc.getConfig()
-        expect(sc.generateTypes).not.toHaveBeenCalled()
-      })
     })
   })
 })

@@ -28,12 +28,12 @@ describe('StrongConfig.validate(data, schema)', () => {
     loadSchema.mockReturnValue(schema)
     decryptToObject.mockReturnValue(decryptedConfig)
     sc = new StrongConfig()
+
+    // Reset mock again because it was implicitly called through `new StrongConfig()` already
+    ajvValidate.mockClear()
   })
 
   it('can validate config objects', () => {
-    // Reset it again because it was implicitly called through new StrongConfig() already
-    ajvValidate.mockClear()
-
     sc.validate(hydratedConfig, schema)
     expect(ajvValidate).toHaveBeenCalledWith(schema, hydratedConfig)
     expect(ajvValidate).toHaveReturnedWith(true)
@@ -50,9 +50,6 @@ describe('StrongConfig.validate(data, schema)', () => {
   })
 
   it('can validate strong-config options', () => {
-    // Reset it again because it was implicitly called through new StrongConfig() already
-    ajvValidate.mockClear()
-
     sc.validate(validOptions, optionsSchema)
     expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, validOptions)
     expect(ajvValidate).toHaveReturnedWith(true)
