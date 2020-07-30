@@ -1,6 +1,6 @@
 {
   "name": "@strong-config/node",
-  "version": "0.2.45",
+  "version": "0.2.46",
   "description": "SOPS-based secret management tool for Node.js",
   "repository": "git@github.com:strong-config/node.git",
   "homepage": "https://strong-config.dev",
