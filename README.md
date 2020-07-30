@@ -1,10 +1,14 @@
+<!-- markdownlint-disable MD013 MD026 MD033 MD034 -->
+
 # 💪 Strong Config
+
 https://strong-config.dev
 
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
 ## Have you ever...
+
 ❓ ...struggled with config drift between local, staging, prod?
 
 ❓ ...forgot to update the production config after updating the development config?
@@ -15,8 +19,8 @@ https://strong-config.dev
 
 ❓ ...wished you could nest config values in your `.env` just like in a JavaScript object?
 
-
 ## Strong Config is here to help!
+
 ✅ **Manage separate configs** **for separate environments** easily, transparently, and safely
 
 ✅ **Define your config in JSON or YAML** instead of `.env` files
@@ -29,7 +33,7 @@ https://strong-config.dev
 
 ✅ **Easy integration with the most popular cloud key management services** [AWS KMS](https://aws.amazon.com/kms/), [Google Cloud KMS](https://cloud.google.com/kms/), and [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/). Powered by [Mozilla's SOPS](https://github.com/mozilla/sops).
 
-✅ **Enforce environment-specific permissions** via your KMS. Decide who can encrypt and decrypt configs for which environments. For example, you could allow *all* engineers to decrypt your staging config, but restrict the production config to fewer people.
+✅ **Enforce environment-specific permissions** via your KMS. Decide who can encrypt and decrypt configs for which environments. For example, you could allow _all_ engineers to decrypt your staging config, but restrict the production config to fewer people.
 
 ✅ **Safeguard your config through git hooks**. Ensure config is both valid and encrypted before committing and pushing.
 
@@ -50,7 +54,7 @@ auth:
   # A secret. Every key with a 'Secret' suffix will be encrypted by Strong Config (e.g. 'encryptMeSecret')
   apiSecret: top-secret-api-credential
 
-# A dynamic value that will be substituted at runtime with the value of the environment variable $SHELL 
+# A dynamic value that will be substituted at runtime with the value of the environment variable $SHELL
 shell: ${SHELL}
 ```
 
@@ -84,7 +88,7 @@ sops:
 
 <br>
 
-## Quickstart 
+## Quickstart
 
 For the full documentation, check https://strong-config.dev. Here's a short teaser:
 
@@ -97,7 +101,7 @@ For the full documentation, check https://strong-config.dev. Here's a short teas
    ```
 
    **Sidenote: The Sops Binary**
-   After package installation, Strong Config automatically runs a `postinstall` script that checks for availability of the sops binary on your system. If it can't find the sops binary, it will try to download it to `node_modules/.bin/sops` which is always part of `$PATH` when you `yarn run` or `npm run` scripts. 
+   After package installation, Strong Config automatically runs a `postinstall` script that checks for availability of the sops binary on your system. If it can't find the sops binary, it will try to download it to `node_modules/.bin/sops` which is always part of `$PATH` when you `yarn run` or `npm run` scripts.
    Alternatively, you can also install sops globally via `brew install sops` (macOS). For other systems check the [official sops releases on GitHub](https://github.com/mozilla/sops/releases).
 
 1. **Create a config file**
@@ -125,7 +129,7 @@ For the full documentation, check https://strong-config.dev. Here's a short teas
    // This will print "{ myFirstConfig: 'strong' }" to the console
    console.log(config)
 
-   /* 
+   /*
     * OPTIONAL (but recommended)
     * Call `new StrongConfig()` just once in your application, then export the memoized config for other files to use.
     * If you call `new StrongConfig()` again from another file, it would still work, but would re-instantiate a new
@@ -150,8 +154,9 @@ For the full documentation, check https://strong-config.dev. Here's a short teas
 1. **Check [the Strong Config website](https://strong-config.dev) for more documentation**
 
    Check out the full documentation on https://strong-config.dev to learn how to:
+
    - Encrypt your config
    - Validate your config against a schema
    - Generate TypeScript types for your config
-   
+
    ...and more :)
