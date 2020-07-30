@@ -5,7 +5,7 @@ https://strong-config.dev
 [![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
 ## Have you ever...
-❓ ...struggled with config drift between local, staging, prod...?
+❓ ...struggled with config drift between local, staging, prod?
 
 ❓ ...forgot to update the production config after updating the development config?
 
