@@ -19,9 +19,11 @@ https://strong-config.dev
 
 ❓ ...wished you could nest config values in your `.env` just like in a JavaScript object?
 
+❓...had a CI build fail due to environment variable issues?
+
 ## Strong Config is here to help!
 
-✅ **Manage separate configs** **for separate environments** easily, transparently, and safely
+✅ **Commit your configs to version-control** safely and easily, for all your environments
 
 ✅ **Define your config in JSON or YAML** instead of `.env` files
 
@@ -29,13 +31,13 @@ https://strong-config.dev
 
 ✅ **Validate your config against a [JSON Schema](https://json-schema.org/)** to catch config errors early
 
-✅ **Protect your secrets with strong cryptography**. Fully encrypted at rest and only decrypted in-memory at runtime.
+✅ **Encrypt your secrets with strong cryptography**. Fully encrypted at rest and only decrypted in-memory at runtime.
+
+✅ **Safeguard your config through git hooks**. Ensure config is both valid and encrypted before committing and pushing.
 
 ✅ **Easy integration with the most popular cloud key management services** [AWS KMS](https://aws.amazon.com/kms/), [Google Cloud KMS](https://cloud.google.com/kms/), and [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/). Powered by [Mozilla's SOPS](https://github.com/mozilla/sops).
 
 ✅ **Enforce environment-specific permissions** via your KMS. Decide who can encrypt and decrypt configs for which environments. For example, you could allow _all_ engineers to decrypt your staging config, but restrict the production config to fewer people.
-
-✅ **Safeguard your config through git hooks**. Ensure config is both valid and encrypted before committing and pushing.
 
 ✅ **Auto-generate TypeScript types for your config** (requires a [JSON Schema](https://json-schema.org))
 
