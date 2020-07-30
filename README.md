@@ -4,21 +4,19 @@ https://strong-config.dev
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
-**Simple & Secure Config Management for Node.js**
+### Have you ever...
+❓ ...struggled with config drift between local, staging, prod...?
 
-❓Ever struggled with config drift between local, staging, prod...?
+❓ ...forgot to update the production config after updating the development config?
 
-❓Ever forgot to update the production config after updating the development config?
+❓ ...forgot to tell your teammates to update their local `.env` files after you made a change?
 
-❓Ever forgot to tell your teammates to update their local `.env` files after you made a change?
+❓ ...worried about leaking secrets by accidentally pushing your `.env` files to GitHub?
 
-❓Ever worried about leaking secrets by accidentally pushing your `.env` files to GitHub?
+❓ ...wished you could nest config values in your `.env` just like in a JavaScript object?
 
-❓Ever wished you could nest config values in your `.env` just like in a JavaScript object?
 
-<br>
-
-### 💪 **Strong Config is here to help!**
+### Strong Config is here to help!
 ✅ **Manage separate configs** **for separate environments** easily, transparently, and safely
 
 ✅ **Define your config in JSON or YAML** instead of `.env` files
