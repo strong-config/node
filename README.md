@@ -4,7 +4,7 @@ https://strong-config.dev
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
-### Have you ever...
+## Have you ever...
 ❓ ...struggled with config drift between local, staging, prod...?
 
 ❓ ...forgot to update the production config after updating the development config?
@@ -16,7 +16,7 @@ https://strong-config.dev
 ❓ ...wished you could nest config values in your `.env` just like in a JavaScript object?
 
 
-### Strong Config is here to help!
+## Strong Config is here to help!
 ✅ **Manage separate configs** **for separate environments** easily, transparently, and safely
 
 ✅ **Define your config in JSON or YAML** instead of `.env` files
