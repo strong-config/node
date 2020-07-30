@@ -7,7 +7,7 @@ import { loadSchema } from './../utils/load-files'
 import { validateOneConfigFile } from './validate'
 
 export class Encrypt extends Command {
-  static description = 'encrypt config files'
+  static description = 'encrypt a config file'
 
   static strict = true
 
@@ -15,13 +15,13 @@ export class Encrypt extends Command {
     {
       name: 'config_file',
       description:
-        'path to an unencrypted config file, for example: `strong-config encrypt config/production.yml`',
+        'path to a decrypted config file, for example: `strong-config encrypt config/production.yml`',
       required: true,
     },
     {
       name: 'output_path',
       description:
-        'output file of the encrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
+        '[optionap] output file of the encrypted config. If not specified, CONFIG_FILE is overwritten in-place.',
       required: false,
     },
   ]
@@ -34,7 +34,7 @@ export class Encrypt extends Command {
     'config-root': Flags.string({
       char: 'c',
       description:
-        'your config folder containing your config files and optional schema.json',
+        'your config folder containing your config files and optional schema',
       default: defaultOptions.configRoot,
     }),
     'key-provider': Flags.string({
@@ -66,7 +66,7 @@ export class Encrypt extends Command {
   }
 
   static usage =
-    'encrypt CONFIG_FILE OUTPUT_PATH --key-provider=KEY_PROVIDER --key-id=KEY_ID [--[un]encrypted-key-suffix=SUFFIX] [--help]'
+    'encrypt CONFIG_FILE [OUTPUT_PATH] --key-provider=KEY_PROVIDER --key-id=KEY_ID'
 
   static examples = [
     '$ encrypt config/development.yaml --key-provider gcp --key-id ref/to/key',

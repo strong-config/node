@@ -6,7 +6,7 @@ import { loadSchema } from '../utils/load-files'
 import { defaultOptions } from '../options'
 
 export class GenerateTypes extends Command {
-  static description = 'generate typescript types based on schema.json'
+  static description = 'generate typescript types based on a JSON schema'
 
   static strict = true
 
@@ -22,7 +22,7 @@ export class GenerateTypes extends Command {
     }),
   }
 
-  static usage = 'generate-types [--help]'
+  static usage = 'generate-types'
 
   static examples = [
     '$ generate-types',

@@ -8,7 +8,8 @@ import type { EncryptedConfig, JSONObject } from '../types'
 import { loadConfigFromPath } from '../utils/load-files'
 
 export class CheckEncryption extends Command {
-  static description = 'check that secrets in config files are safely encrypted'
+  static description =
+    'check that config file(s) with secrets are safely encrypted'
 
   static strict = true
 
@@ -19,8 +20,7 @@ export class CheckEncryption extends Command {
     }),
     'config-root': Flags.string({
       char: 'c',
-      description:
-        'your config folder containing your config files and optional schema.json',
+      description: 'your config folder containing your config files',
       default: defaultOptions.configRoot,
     }),
   }
@@ -34,7 +34,7 @@ export class CheckEncryption extends Command {
     },
   ]
 
-  static usage = 'check-encryption [CONFIG_FILE] [--help]'
+  static usage = 'check-encryption [CONFIG_FILE]'
 
   static examples = [
     '$ check-encryption',

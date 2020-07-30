@@ -7,7 +7,7 @@ import { defaultOptions } from '../options'
 import { validateOneConfigFile } from './validate'
 
 export class Decrypt extends Command {
-  static description = 'decrypt config files'
+  static description = 'decrypt a config file'
 
   static strict = true
 
@@ -15,13 +15,13 @@ export class Decrypt extends Command {
     {
       name: 'config_file',
       description:
-        'path to a decrypted config file, for example: `strong-config decrypt config/production.yml`',
+        'path to an encrypted config file, for example: `strong-config decrypt config/production.yml`',
       required: true,
     },
     {
       name: 'output_path',
       description:
-        'output file of the decrypted config. If not specified, the file found at CONFIG_FILE is overwritten in-place.',
+        '[optional] output file of the decrypted config. If not specified, CONFIG_FILE is overwritten in-place.',
       required: false,
     },
   ]
@@ -34,12 +34,12 @@ export class Decrypt extends Command {
     'config-root': Flags.string({
       char: 'c',
       description:
-        'your config folder containing your config files and optional schema.json',
+        'your config folder containing your config files and optional schema',
       default: defaultOptions.configRoot,
     }),
   }
 
-  static usage = 'decrypt CONFIG_FILE OUTPUT_PATH [--help]'
+  static usage = 'decrypt CONFIG_FILE [OUTPUT_PATH]'
 
   static examples = [
     '$ decrypt config/development.yaml',

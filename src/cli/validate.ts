@@ -51,15 +51,14 @@ export const validateOneConfigFile = (
 }
 
 export class Validate extends Command {
-  static description = 'validate config files against a schema'
+  static description = 'validate config file(s) against a JSON schema'
 
   static strict = true
 
   static flags = {
     'config-root': Flags.string({
       char: 'c',
-      description:
-        'your config folder containing your config files and optional schema.json',
+      description: 'your config folder containing your config files and schema',
       default: defaultOptions.configRoot,
     }),
     help: Flags.help({
@@ -77,9 +76,10 @@ export class Validate extends Command {
     },
   ]
 
-  static usage = 'validate [CONFIG_FILE] [--help]'
+  static usage = 'validate [CONFIG_FILE]'
 
   static examples = [
+    '$ validate',
     '$ validate config/development.yaml',
     '$ validate --config-root ./nested/config-folder',
     '$ validate --help',
