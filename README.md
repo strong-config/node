@@ -1,11 +1,10 @@
-# 💪 strong-config
-
+# 💪 Strong Config
 https://strong-config.dev
 
 ![Continuous Integration](https://github.com/strong-config/node/workflows/Continuous%20Integration%20Checks/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/strong-config/node/badge.svg?branch=master)](https://coveralls.io/github/strong-config/node?branch=master)
 
-Simple & Secure Config Management for Node.js
+**Simple & Secure Config Management for Node.js**
 
 ❓Ever struggled with config drift between local, staging, prod...?
 
@@ -17,10 +16,9 @@ Simple & Secure Config Management for Node.js
 
 ❓Ever wished you could nest config values in your `.env` just like in a JavaScript object?
 
+<br>
+
 ### 💪 **Strong Config is here to help!**
-
----
-
 ✅ **Manage separate configs** **for separate environments** easily, transparently, and safely
 
 ✅ **Define your config in JSON or YAML** instead of `.env` files
@@ -39,6 +37,7 @@ Simple & Secure Config Management for Node.js
 
 ✅ **Auto-generate TypeScript types for your config** (requires a [JSON Schema](https://json-schema.org))
 
+<br>
 
 ## Example config before encryption
 
@@ -84,6 +83,8 @@ sops:
   encrypted_suffix: Secret
   version: 3.5.0
 ```
+
+<br>
 
 ## Quickstart 
 
@@ -150,7 +151,7 @@ For the full documentation, check https://strong-config.dev. Here's a short teas
 
 1. **Check [the Strong Config website](https://strong-config.dev) for more documentation**
 
-   The full documentation lives on https://strong-config.dev — check it out to learn how to:
+   Check out the full documentation on https://strong-config.dev to learn how to:
    - Encrypt your config
    - Validate your config against a schema
    - Generate TypeScript types for your config
