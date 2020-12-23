@@ -61,7 +61,8 @@
     "test:core:load": "yarn test:core:load:es6",
     "test:core:load:commonjs": "yarn build && yarn dev:importkey && cross-env NODE_ENV=development time node src/integration-tests/load-commonjs.js",
     "test:core:load:es6": "yarn dev:importkey && cross-env NODE_ENV=development time ts-node --transpile-only src/integration-tests/load-es6.ts",
-    "test:core:validate": "cross-env NODE_ENV=development time ts-node --transpile-only src/integration-tests/validate.ts"
+    "test:core:validate": "cross-env NODE_ENV=development time ts-node --transpile-only src/integration-tests/validate.ts",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@oclif/command": "^1.6.1",
