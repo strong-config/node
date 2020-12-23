@@ -6,13 +6,16 @@ describe('strong-config check-encryption', () => {
   const encryptedConfigPath = 'example/development.yaml'
   const invalidConfigPath = 'example/invalid.yml'
   const unencryptedConfigPath = 'example/unencrypted.yml'
+  const unencryptedWithNestedSecretsConfigPath =
+    'example/unencrypted-with-nested-secrets.yml'
   const noSecretsConfigPath = 'example/no-secrets.yml'
 
   const allConfigFiles = [
     encryptedConfigPath,
     invalidConfigPath,
-    unencryptedConfigPath,
     noSecretsConfigPath,
+    unencryptedConfigPath,
+    unencryptedWithNestedSecretsConfigPath,
   ]
 
   beforeAll(() => {
@@ -72,6 +75,19 @@ describe('strong-config check-encryption', () => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(process.exit).toHaveBeenCalledWith(0)
       })
+
+      it('should also fail for nested secrets', async () => {
+        await CheckEncryption.run([unencryptedWithNestedSecretsConfigPath])
+        stderr.stop()
+
+        expect(stderr.output).toMatch(
+          new RegExp(
+            `✖.*${unencryptedWithNestedSecretsConfigPath}.*NOT encrypted`
+          )
+        )
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(process.exit).toHaveBeenCalledWith(0)
+      })
     })
 
     describe('given a path to an UNENCRYPTED config file that does NOT contain secrets', () => {
@@ -126,6 +142,10 @@ describe('strong-config check-encryption', () => {
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           2,
           allConfigFiles[1]
+        )
+        expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
+          3,
+          allConfigFiles[2]
         )
       })
 

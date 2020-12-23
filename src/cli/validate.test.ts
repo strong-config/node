@@ -13,12 +13,15 @@ describe('strong-config validate', () => {
   const encryptedConfigPath = 'example/development.yaml'
   const invalidConfigPath = 'example/invalid.yml'
   const unencryptedConfigPath = 'example/unencrypted.yml'
+  const unencryptedWithNestedSecretsConfigPath =
+    'example/unencrypted-with-nested-secrets.yml'
   const noSecretsConfigPath = 'example/no-secrets.yml'
 
   const allConfigFiles = [
     encryptedConfigPath,
     invalidConfigPath,
     unencryptedConfigPath,
+    unencryptedWithNestedSecretsConfigPath,
     noSecretsConfigPath,
   ]
 
