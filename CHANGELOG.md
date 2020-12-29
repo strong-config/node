@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.52](https://github.com/strong-config/node/compare/v0.2.51...v0.2.52) (2020-12-29)
+
+
+### Bug Fixes
+
+* **check-encryption:** improve 'strong-config check' to also detect deeply nested secrets ([711c7e7](https://github.com/strong-config/node/commit/711c7e77b2b659c07e6bc73af06df7abf1f7910a))
+
 ### [0.2.51](https://github.com/strong-config/node/compare/v0.2.50...v0.2.51) (2020-12-29)
 
 ### [0.2.50](https://github.com/strong-config/node/compare/v0.2.49...v0.2.50) (2020-09-14)
