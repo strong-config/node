@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.51](https://github.com/strong-config/node/compare/v0.2.50...v0.2.51) (2020-12-29)
+
 ### [0.2.50](https://github.com/strong-config/node/compare/v0.2.49...v0.2.50) (2020-09-14)
 
 ### [0.2.49](https://github.com/strong-config/node/compare/v0.2.48...v0.2.49) (2020-09-03)
