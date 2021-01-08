@@ -11,7 +11,7 @@ export class CheckEncryption extends Command {
   static description =
     'check that config file(s) with secrets are safely encrypted'
 
-  static strict = true
+  static strict = false
 
   static flags = {
     help: Flags.help({
@@ -133,12 +133,13 @@ export class CheckEncryption extends Command {
   }
 
   async run(): Promise<void> {
-    const { args } = this.parse(CheckEncryption)
+    const { argv } = this.parse(CheckEncryption)
 
-    if (args.config_file) {
-      this.checkOneConfigFile(args.config_file)
-        ? process.exit(0)
-        : process.exit(1)
+    if (argv.length > 0) {
+      argv.forEach((configPath) => {
+        this.checkOneConfigFile(configPath) || process.exit(1)
+      })
+      process.exit(0)
     } else {
       await this.checkAllConfigFiles()
     }
