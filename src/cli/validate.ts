@@ -53,7 +53,7 @@ export const validateOneConfigFile = (
 export class Validate extends Command {
   static description = 'validate config file(s) against a JSON schema'
 
-  static strict = true
+  static strict = false
 
   static flags = {
     'config-root': Flags.string({
@@ -118,7 +118,7 @@ export class Validate extends Command {
   }
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(Validate)
+    const { argv, flags } = this.parse(Validate)
 
     const spinner = ora(`Loading schema from: ${flags['config-root']}`).start()
     const schema = loadSchema(flags['config-root'])
@@ -130,10 +130,11 @@ export class Validate extends Command {
       process.exit(1)
     }
 
-    if (args.config_file) {
-      validateOneConfigFile(args.config_file, schema)
-        ? process.exit(0)
-        : process.exit(1)
+    if (argv.length > 0) {
+      argv.forEach((configPath) => {
+        validateOneConfigFile(configPath, schema) || process.exit(1)
+      })
+      process.exit(0)
     } else {
       ;(await this.validateAllConfigFiles(flags['config-root'], schema))
         ? process.exit(0)
