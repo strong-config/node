@@ -5,7 +5,7 @@ const { inspect } = require('util')
 const StrongConfig = require('../../lib/core')
 
 const strongConfig = new StrongConfig({
-  configRoot: 'example/',
+  configRoot: 'example',
 })
 
 const config = strongConfig.getConfig()

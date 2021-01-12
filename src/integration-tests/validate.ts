@@ -2,7 +2,7 @@ import type { Schema } from '../types'
 import StrongConfig = require('../core')
 
 const strongConfig = new StrongConfig({
-  configRoot: 'example/',
+  configRoot: 'example',
 })
 
 const config = strongConfig.getConfig()
