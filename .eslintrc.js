@@ -11,6 +11,7 @@ module.exports = {
     'tsconfig.json',
     'tsconfig.eslint.json',
     'example/config.d.ts',
+    'blackbox',
   ],
   plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn', 'tsdoc'],
   extends: [

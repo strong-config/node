@@ -2,9 +2,7 @@
 import StrongConfig = require('@strong-config/node')
 import type { Schema } from '../types'
 
-const strongConfig = new StrongConfig({
-  configRoot: 'example',
-})
+const strongConfig = new StrongConfig()
 
 const config = strongConfig.getConfig()
 const schema = strongConfig.getSchema() as Schema
