@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.54](https://github.com/strong-config/node/compare/v0.2.52...v0.2.54) (2021-01-12)
+
+
+### Features
+
+* **check-encryption:** allow passing multiple config file arguments ([42c1fad](https://github.com/strong-config/node/commit/42c1fad4c1a42b88d20680ef596b21fd25cf9536))
+* **core:** improved error message when passing invalid options to strong-config ([0bed908](https://github.com/strong-config/node/commit/0bed908c7115e295c0d792202bb8963fae118404))
+* **validate:** allow passing multiple config file arguments ([81d0578](https://github.com/strong-config/node/commit/81d0578c04338464c11f8a7d66a8e8caea93e3b8))
+
 ### [0.2.53](https://github.com/strong-config/node/compare/v0.2.52...v0.2.53) (2021-01-08)
 
 
