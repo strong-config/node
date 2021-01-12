@@ -98,6 +98,19 @@ async function runIntegrationTests(): Promise<void> {
   }
 }
 
+async function runEndToEndTests(): Promise<void> {
+  const spinner = ora('Running End-to-End Tests...').start()
+
+  try {
+    await run('./scripts/end-to-end-tests.sh')
+
+    spinner.succeed(chalk.bold('End-to-End Tests'))
+  } catch (error) {
+    spinner.fail(chalk.bold('End-to-End Tests'))
+    throw new Error(error)
+  }
+}
+
 async function runReleaseScripts(): Promise<void> {
   const spinner = ora('Running Release Scripts...').start()
 
@@ -145,6 +158,7 @@ async function main(): Promise<void> {
   await runUnitTests()
   await runBuild()
   await runIntegrationTests()
+  await runEndToEndTests()
   await runReleaseScripts()
   await printTodos()
 }
