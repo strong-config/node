@@ -74,9 +74,6 @@ export = class StrongConfig {
       ? { ...defaultOptions, ...userOptions }
       : defaultOptions
 
-    this.validate(options, optionsSchema)
-    this.options = options
-
     if (
       !process.env[options.runtimeEnvName] ||
       typeof process.env[options.runtimeEnvName] !== 'string'
@@ -92,8 +89,22 @@ export = class StrongConfig {
       )
     }
 
+    try {
+      this.validate(options, optionsSchema)
+      this.options = options
+    } catch (error) {
+      console.error(
+        `Invalid options passed to 'new StrongConfig({ ${JSON.stringify(
+          options,
+          undefined,
+          2
+        )}})'`
+      )
+      throw new Error(error)
+    }
+
     // Typecasting to string is safe as we've determined it's a string in the previous if-statement
-    this.runtimeEnv = process.env[options.runtimeEnvName] as string
+    this.runtimeEnv = process.env[this.options.runtimeEnvName] as string
 
     // See explanation for why 'null' in comments for getSchema() method
     // eslint-disable-next-line unicorn/no-null
@@ -108,8 +119,8 @@ export = class StrongConfig {
       debug('Config is valid')
 
       if (
-        options.generateTypes &&
-        process.env[options.runtimeEnvName] === 'development'
+        this.options.generateTypes &&
+        process.env[this.options.runtimeEnvName] === 'development'
       ) {
         this.generateTypes()
       }
@@ -119,7 +130,7 @@ export = class StrongConfig {
        * always encourage users to define a schema for their config.
        */
       console.info(
-        `⚠️ No schema file found under '${options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
+        `⚠️ No schema file found under '${this.options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
       )
     }
   }
