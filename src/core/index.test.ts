@@ -34,7 +34,7 @@ describe('StrongConfig.constructor()', () => {
     jest.restoreAllMocks()
   })
 
-  it('can be instantiated without constructor arguments', () => {
+  it('can be instantiated without any options', () => {
     expect(new StrongConfig()).toBeDefined()
   })
 
@@ -64,6 +64,8 @@ describe('StrongConfig.constructor()', () => {
 
   it('throws if the passed options object is invalid', () => {
     const invalidOptions = { i: 'am', super: 'invalid' }
+    const originalConsoleError = console.error
+    console.error = jest.fn()
     const validate = jest.spyOn(StrongConfig.prototype, 'validate')
 
     expect(
@@ -75,6 +77,11 @@ describe('StrongConfig.constructor()', () => {
       { ...defaultOptions, ...invalidOptions },
       optionsSchema
     )
+
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringMatching("Invalid options passed to 'new StrongConfig")
+    )
+    console.error = originalConsoleError
   })
 
   it('stores the validated options object', () => {
