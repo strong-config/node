@@ -18,6 +18,8 @@ describe('strong-config check-encryption', () => {
     unencryptedWithNestedSecretsConfigPath,
   ]
 
+  const configRoot = 'example'
+
   beforeAll(() => {
     jest.spyOn(process, 'exit').mockImplementation()
   })
@@ -119,6 +121,48 @@ describe('strong-config check-encryption', () => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(process.exit).toHaveBeenCalledWith(1)
       })
+    })
+  })
+
+  describe('for MULTIPLE (but not all) files', () => {
+    it('should validate all config files passed as arguments', async () => {
+      const checkOneConfigFileSpy = jest.spyOn(
+        CheckEncryption.prototype,
+        'checkOneConfigFile'
+      )
+      await CheckEncryption.run([
+        '--config-root',
+        configRoot,
+        encryptedConfigPath,
+        unencryptedConfigPath,
+      ])
+
+      expect(checkOneConfigFileSpy).toHaveBeenCalledTimes(2)
+      expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
+        1,
+        encryptedConfigPath
+      )
+
+      expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
+        2,
+        unencryptedConfigPath
+      )
+    })
+
+    it('should exit with code 1 and error message when not all config files are valid', async () => {
+      await CheckEncryption.run([
+        '--config-root',
+        configRoot,
+        encryptedConfigPath,
+        unencryptedConfigPath,
+      ])
+      stderr.stop()
+
+      expect(stderr.output).toContain(
+        `Secrets in ${unencryptedConfigPath} are NOT encrypted`
+      )
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(process.exit).toHaveBeenCalledWith(1)
     })
   })
 

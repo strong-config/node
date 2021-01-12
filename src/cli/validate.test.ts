@@ -25,6 +25,8 @@ describe('strong-config validate', () => {
     noSecretsConfigPath,
   ]
 
+  const someConfigFiles = [encryptedConfigPath, noSecretsConfigPath]
+
   const runtimeEnv = 'development'
   const configRoot = 'example'
   const schema = readFiles.loadSchema(configRoot)
@@ -248,6 +250,53 @@ describe('strong-config validate', () => {
         expect(stdout.output).toContain('OPTIONS')
         expect(stdout.output).toContain('EXAMPLES')
       })
+    })
+  })
+
+  describe('for MULTIPLE (but not all) files', () => {
+    it('should validate all config files passed as arguments', async () => {
+      const validateOneConfigFileSpy = jest.spyOn(
+        validateCommand,
+        'validateOneConfigFile'
+      )
+      await Validate.run([
+        '--config-root',
+        configRoot,
+        encryptedConfigPath,
+        unencryptedConfigPath,
+      ])
+
+      expect(validateOneConfigFileSpy).toHaveBeenCalledTimes(
+        someConfigFiles.length
+      )
+      expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
+        1,
+        encryptedConfigPath,
+        schema
+      )
+
+      expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
+        2,
+        unencryptedConfigPath,
+        schema
+      )
+    })
+
+    it('should exit with code 1 and error message when not all config files are valid', async () => {
+      const ajvErrors = 'data should NOT have additional properties'
+      ajvValidate.mockReturnValueOnce(false)
+      jest.spyOn(Ajv.prototype, 'errorsText').mockReturnValueOnce(ajvErrors)
+
+      await Validate.run([
+        '--config-root',
+        configRoot,
+        invalidConfigPath,
+        encryptedConfigPath,
+      ])
+      stderr.stop()
+
+      expect(stderr.output).toContain(`${invalidConfigPath} is invalid`)
+      expect(process.exit).toHaveBeenCalledWith(1)
     })
   })
 
