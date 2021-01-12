@@ -188,7 +188,7 @@ describe('strong-config validate', () => {
         })
 
         it('displays original error', async () => {
-          const ajvError = new Error('schema should be object or boolean')
+          const ajvError = new Error('schema must be object or boolean')
           await Validate.run([encryptedConfigPath])
 
           expect(console.error).toHaveBeenCalledWith(ajvError, '\n')
