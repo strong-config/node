@@ -14,7 +14,7 @@ set -euxo pipefail
 yarn pack
 mv strong-config*.tgz ..
 cd ..
-mkdir blackbox
+mkdir -p blackbox
 cd blackbox
 yarn init --yes
 yarn add file:$(ls ../strong-config*.tgz) ts-node typescript
