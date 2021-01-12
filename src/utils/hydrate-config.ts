@@ -7,7 +7,7 @@ export function hydrateConfig(
   decryptedConfig: DecryptedConfig,
   runtimeEnv: string
 ): HydratedConfig {
-  const configWithSubstitutedEnvVars = substituteWithEnv(decryptedConfig)
+  const configWithSubstitutedEnvVariables = substituteWithEnv(decryptedConfig)
 
-  return { ...configWithSubstitutedEnvVars, runtimeEnv }
+  return { ...configWithSubstitutedEnvVariables, runtimeEnv }
 }

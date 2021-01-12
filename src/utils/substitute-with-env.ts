@@ -28,29 +28,23 @@ export const substituteWithEnv = (
     )
   }
 
-  let envVarsWithIllegalCharacters
-
   /* istanbul ignore next: the if-branch does not get executed in Node 10 environments and will drop test coverage < 100% if not ignored */
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore because matchAll is in fact undefined in Node versions < 12.x
-  if (String.prototype.matchAll) {
-    // For advantages of matchAll, check https://2ality.com/2018/02/string-prototype-matchall.html
-    envVarsWithIllegalCharacters = [...configAsString.matchAll(/\${(.*?)}/g)]
-      .map((matches) => matches[1])
-      .filter((envVarName) => /\W/.test(envVarName))
-  } else {
-    // This is a polyfill because String.prototype.matchAll is only support from Node 12.x upwards
-    envVarsWithIllegalCharacters = matchAll(configAsString, /\${(.*?)}/g)
-      .toArray()
-      .filter(
-        /* istanbul ignore next: no need to test the same logic used above again */
-        (envVarName) => /\W/.test(envVarName)
-      )
-  }
+  // @ts-ignore because 'matchAll' is undefined in Node versions < 12.x
+  const envVariablesWithIllegalCharacters = String.prototype.matchAll
+    ? [...configAsString.matchAll(/\${(.*?)}/g)]
+        .map((matches) => matches[1])
+        .filter((envVariableName) => /\W/.test(envVariableName))
+    : matchAll(configAsString, /\${(.*?)}/g)
+        .toArray()
+        .filter(
+          /* istanbul ignore next: no need to test the same logic used above again */
+          (envVariableName) => /\W/.test(envVariableName)
+        )
 
-  if (envVarsWithIllegalCharacters.length > 0) {
+  if (envVariablesWithIllegalCharacters.length > 0) {
     throw new TypeError(
-      `Env vars '${envVarsWithIllegalCharacters.join(
+      `Env vars '${envVariablesWithIllegalCharacters.join(
         ','
       )}' contain unsupported characters. Env var names should only contain a-z, A-Z, 0-9, and _`
     )
@@ -58,16 +52,16 @@ export const substituteWithEnv = (
 
   const substitutedConfig = configAsString.replace(
     substitutionPattern,
-    (_original: string, envVar: string) => {
-      if (!process.env[envVar]) {
-        throw new Error(`Environment variable "${envVar}" is undefined`)
+    (_original: string, envVariable: string) => {
+      if (!process.env[envVariable]) {
+        throw new Error(`Environment variable "${envVariable}" is undefined`)
       }
 
-      if (/^\d/.test(envVar)) {
+      if (/^\d/.test(envVariable)) {
         throw new TypeError('Environment variable must not start with a digit')
       }
 
-      return process.env[envVar] as string
+      return process.env[envVariable] as string
     }
   )
 

@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 import * as fs from 'fs'
-import * as path from 'path'
+import path from 'path'
 import chalk from 'chalk'
 import ora from 'ora'
 import { exec } from 'shelljs'
 
-function run(command: string, options = { silent: true }): Promise<unknown> {
+function run({
+  command,
+  options = { silent: true },
+}: {
+  command: string
+  options?: { silent: boolean }
+}): Promise<unknown> {
   return new Promise((resolve, reject): void => {
     exec(command, options, function (exitCode, stdout, stderr) {
       exitCode !== 0 ? reject(stderr) : resolve(stdout.trim())
@@ -17,13 +23,13 @@ async function runLinters(): Promise<void> {
   const spinner = ora('Running linters...').start()
 
   try {
-    await run('yarn lint')
+    await run({ command: 'yarn lint' })
     spinner.succeed(chalk.bold('Linters'))
   } catch (error) {
     spinner.fail(chalk.bold('Linters'))
 
     // Need to re-run this to show the user what the error was
-    await run('yarn lint', { silent: false })
+    await run({ command: 'yarn lint', options: { silent: false } })
     throw new Error(error)
   }
 }
@@ -32,7 +38,7 @@ async function runUnitTests(): Promise<void> {
   const spinner = ora('Running unit tests...').start()
 
   try {
-    await run('yarn test --coverage')
+    await run({ command: 'yarn test --coverage' })
     spinner.succeed(chalk.bold('Tests'))
   } catch (error) {
     spinner.fail(chalk.bold('Tests'))
@@ -45,10 +51,10 @@ async function runBuild(): Promise<void> {
 
   try {
     spinner.text = 'Cleaning previous build files...'
-    await run('yarn build:clean')
+    await run({ command: 'yarn build:clean' })
 
     spinner.text = 'Building...'
-    await run('yarn build')
+    await run({ command: 'yarn build' })
 
     spinner.text = 'Checking generated TypeScript declarations...'
 
@@ -86,10 +92,10 @@ async function runIntegrationTests(): Promise<void> {
 
   try {
     spinner.text = 'Running Integration Tests: Core Library'
-    await run('yarn test:core')
+    await run({ command: 'yarn test:core' })
 
     spinner.text = 'Running Integration Tests: CLI'
-    await run('yarn test:cli')
+    await run({ command: 'yarn test:cli' })
 
     spinner.succeed(chalk.bold('Integration Tests'))
   } catch (error) {
@@ -102,7 +108,7 @@ async function runEndToEndTests(): Promise<void> {
   const spinner = ora('Running End-to-End Tests...').start()
 
   try {
-    await run('./scripts/end-to-end-tests.sh')
+    await run({ command: './scripts/end-to-end-tests.sh' })
 
     spinner.succeed(chalk.bold('End-to-End Tests'))
   } catch (error) {
@@ -116,14 +122,14 @@ async function runReleaseScripts(): Promise<void> {
 
   try {
     spinner.text = 'Running Release Scripts: yarn release --dry-run'
-    await run('yarn release --dry-run')
+    await run({ command: 'yarn release --dry-run' })
 
     spinner.text = 'Running Release Scripts: yarn prepack'
-    await run('yarn prepack')
+    await run({ command: 'yarn prepack' })
 
     spinner.text =
       'Removing generated manifest again to not interfere with local development'
-    await run('rimraf oclif.manifest.json')
+    await run({ command: 'rimraf oclif.manifest.json' })
 
     spinner.succeed(chalk.bold('Release Scripts'))
   } catch (error) {
@@ -138,13 +144,13 @@ async function printTodos(): Promise<void> {
   let todos
 
   try {
-    todos = (await run('yarn report:todo')) as string
+    todos = (await run({ command: 'yarn report:todo' })) as string
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))
     throw new Error(error)
   }
 
-  if (todos.match(/No todos\/fixmes found/g)) {
+  if (/No todos\/fixmes found/g.test(todos)) {
     spinner.succeed(chalk.bold('No TODOs or FIXMEs'))
   } else {
     spinner.info(`${chalk.bold('Todos:')}\n\n${todos}`)
