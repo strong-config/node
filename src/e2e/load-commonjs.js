@@ -3,7 +3,7 @@ const { inspect } = require('util')
 const StrongConfig = require('@strong-config/node')
 
 const strongConfig = new StrongConfig({
-  configRoot: 'example/',
+  configRoot: 'example',
 })
 
 const config = strongConfig.getConfig()
