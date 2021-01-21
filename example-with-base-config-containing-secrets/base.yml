@@ -1,0 +1,3 @@
+name: example-config-extending-from-base-config
+someSharedField: i am the same across all environments
+someSecret: ❌ I AM NOT ALLOWED IN HERE ❌

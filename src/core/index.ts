@@ -158,7 +158,8 @@ export = class StrongConfig {
     debug('💰 Loading config from disk (expensive operation!)')
     const configFile = loadConfigForEnv(
       this.runtimeEnv,
-      this.options.configRoot
+      this.options.configRoot,
+      this.options.baseConfig
     )
     debug('Loaded config file: %O', configFile)
 

@@ -2,16 +2,20 @@ import fs from 'fs'
 import path from 'path'
 import fastGlob from 'fast-glob'
 import yaml from 'js-yaml'
+import { mergeDeepRight } from 'ramda'
 import {
   EncryptedConfigFile,
   Schema,
   ConfigFileExtensions,
   JSONObject,
 } from '../types'
+import { defaultOptions } from '../options'
+import { hasSecrets } from './has-secrets'
 
 export const loadConfigForEnv = (
   runtimeEnv: string,
-  configRootRaw: string
+  configRootRaw: string,
+  baseConfig: string = defaultOptions.baseConfig
 ): EncryptedConfigFile => {
   const configRoot = path.normalize(configRootRaw)
 
@@ -40,14 +44,24 @@ export const loadConfigForEnv = (
     )
   }
 
-  return loadConfigFromPath(configFiles[0])
+  if (configFiles[0] === `${configRoot}/${baseConfig}`) {
+    throw new Error(
+      `Base config name '${baseConfig}' must be different from the environment-name '${runtimeEnv}'. Base config and env-specific config can't be the same file.`
+    )
+  }
+
+  return loadConfigFromPath(configFiles[0], configRoot, baseConfig)
 }
 
 // Return type can NOT be undefined because config files are NOT optional (contrary to schema files)
 export const loadConfigFromPath = (
-  configPathRaw: string
+  configPathRaw: string,
+  configRootRaw: string = defaultOptions.configRoot,
+  baseConfigFileName: string = defaultOptions.baseConfig
 ): EncryptedConfigFile => {
   const configPath = path.normalize(configPathRaw)
+  const configRoot = path.normalize(configRootRaw)
+  const baseConfig = loadBaseConfig(configRoot, baseConfigFileName)
 
   if (!fs.existsSync(configPath)) {
     throw new Error(`Couldn't find config file ${configPath}`)
@@ -56,21 +70,51 @@ export const loadConfigFromPath = (
   const fileExtension = configPath.split('.').pop()
 
   let fileAsString: string
-  let parsedFile: JSONObject
+  let parsedConfigFile: JSONObject
 
   if (fileExtension === 'json') {
     fileAsString = fs.readFileSync(configPath).toString()
-    parsedFile = JSON.parse(fileAsString) as JSONObject
+    parsedConfigFile = JSON.parse(fileAsString) as JSONObject
   } else if (fileExtension === 'yml' || fileExtension === 'yaml') {
     fileAsString = fs.readFileSync(configPath).toString()
-    parsedFile = yaml.load(fileAsString) as JSONObject
+    parsedConfigFile = yaml.load(fileAsString) as JSONObject
   } else {
     throw new Error(
       `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
     )
   }
 
-  return { contents: parsedFile, filePath: configPath }
+  /*
+   * 1. Merge the environment-specific config (e.g. development.yaml) into the base config.
+   * 2. If both baseConfig and env-specific config define the same key, the env-specific config should have precedence
+   * 3. If baseConfig doesn't exist, it will be an empty object {} which is safe to overwrite anyways
+   */
+  return {
+    contents: mergeDeepRight(baseConfig, parsedConfigFile),
+    filePath: configPath,
+  }
+}
+
+export const loadBaseConfig = (
+  configRoot: string,
+  baseConfigFileName: string
+): JSONObject => {
+  const baseConfigPath = `${configRoot}/${baseConfigFileName}`
+
+  if (fs.existsSync(baseConfigPath)) {
+    const baseConfigAsString = fs.readFileSync(baseConfigPath).toString()
+    const baseConfig = yaml.load(baseConfigAsString) as JSONObject
+
+    if (hasSecrets(baseConfig)) {
+      throw new Error(
+        `Secret detected in ${configRoot}/${baseConfigFileName} config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config.`
+      )
+    }
+
+    return baseConfig
+  }
+
+  return {}
 }
 
 // Return type can be undefined because use of schemas is optional (contrary to config files)

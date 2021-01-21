@@ -45,7 +45,8 @@ describe('StrongConfig.getConfig()', () => {
 
       expect(loadConfigForEnv).toHaveBeenCalledWith(
         runtimeEnv,
-        validOptions.configRoot
+        validOptions.configRoot,
+        validOptions.baseConfig
       )
     })
 

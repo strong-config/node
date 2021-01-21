@@ -6,6 +6,7 @@ import ora from 'ora'
 import { defaultOptions } from '../options'
 import type { EncryptedConfig, JSONObject } from '../types'
 import { loadConfigFromPath } from '../utils/load-files'
+import { hasSecrets } from '../utils/has-secrets'
 
 export class CheckEncryption extends Command {
   static description =
@@ -91,7 +92,7 @@ export class CheckEncryption extends Command {
       spinner.succeed(`Secrets in ${configPath} are safely encrypted 💪`)
 
       return true
-    } else if (!this.hasSecrets(configFile.contents)) {
+    } else if (!hasSecrets(configFile.contents)) {
       spinner.succeed(
         `No secrets found in ${configPath}, no encryption required.`
       )
@@ -106,30 +107,6 @@ export class CheckEncryption extends Command {
 
   isEncrypted(configObject: JSONObject | EncryptedConfig): boolean {
     return Object.keys(configObject).includes('sops')
-  }
-
-  hasSecrets(config: JSONObject): boolean {
-    const recursiveSearchForSecrets = (
-      // eslint-disable-next-line unicorn/prevent-abbreviations
-      obj: Record<string, unknown>,
-      results: boolean[] = []
-    ): boolean[] => {
-      const r = results
-
-      Object.keys(obj).forEach((key) => {
-        const value = obj[key] as Record<string, unknown>
-
-        if (key.endsWith('Secret') && typeof value !== 'object') {
-          r.push(true)
-        } else if (typeof value === 'object') {
-          recursiveSearchForSecrets(value, r)
-        }
-      })
-
-      return r
-    }
-
-    return recursiveSearchForSecrets(config).includes(true)
   }
 
   async run(): Promise<void> {
