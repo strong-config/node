@@ -20,6 +20,8 @@ yarn add file:$(ls ../strong-config*.tgz) ts-node typescript
 
 # Copy in example configs to test against
 cp -r ../example config
+cp -r ../example-with-base-config config-with-base-config
+cp -r ../example-with-base-config config-with-base-config-containing-secrets
 
 # Copy in e2e test files
 cp -r ../src/e2e e2e

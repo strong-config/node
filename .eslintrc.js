@@ -10,7 +10,8 @@ module.exports = {
   ignorePatterns: [
     'tsconfig.json',
     'tsconfig.eslint.json',
-    'example/config.d.ts',
+    '**/config.d.ts',
+    'example*/schema.json',
     'blackbox',
   ],
   plugins: ['@typescript-eslint', 'prettier', 'yaml', 'unicorn', 'tsdoc'],

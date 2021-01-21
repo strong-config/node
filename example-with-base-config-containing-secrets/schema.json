@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Example Config",
+  "required": ["name", "someSharedField", "someDifferentField"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "someSharedField": {
+      "title": "A shared field that's defined in the base config",
+      "type": "string",
+      "examples": ["some shared value"]
+    },
+    "someDifferentField": {
+      "title": "A config-specific field that's different per environment",
+      "type": "string",
+      "examples": ["many change", "such different"]
+    }
+  }
+}

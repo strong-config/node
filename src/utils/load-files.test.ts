@@ -2,145 +2,316 @@ import fs from 'fs'
 import fastGlob from 'fast-glob'
 import yaml from 'js-yaml'
 import type { EncryptedConfigFile } from '../types'
-import * as readFiles from './load-files'
+import { defaultOptions } from '../options'
+import * as loadFiles from './load-files'
+import { loadBaseConfig } from './load-files'
 
-const { loadConfigForEnv, loadConfigFromPath, loadSchema } = readFiles
+const { loadConfigForEnv, loadConfigFromPath, loadSchema } = loadFiles
 
-describe('utils :: read-file', () => {
+describe('utils :: load-files', () => {
   const configRoot = 'config'
 
   describe('loadConfigForEnv()', () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-
-    afterAll(() => {
+    afterEach(() => {
       jest.restoreAllMocks()
     })
 
-    describe('given an invalid configRoot', () => {
-      it('should throw', () => {
-        expect(() =>
-          loadConfigForEnv('production', '/wrong/config/root')
-        ).toThrowError("Couldn't find config file")
+    describe('without a base config', () => {
+      beforeEach(() => {
+        jest.spyOn(loadFiles, 'loadBaseConfig').mockImplementation(() => ({}))
+      })
+
+      describe('given an invalid configRoot', () => {
+        it('should throw', () => {
+          expect(() =>
+            loadConfigForEnv('production', '/wrong/config/root')
+          ).toThrowError("Couldn't find config file")
+        })
+      })
+
+      describe('given a config name for which multiple files exist (e.g. development.yaml AND development.json)', () => {
+        it('should throw', () => {
+          const multipleConfigFiles = [
+            'config/development.yml',
+            'config/development.json',
+          ]
+          jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(multipleConfigFiles)
+
+          expect(() =>
+            loadConfigForEnv('development', './config')
+          ).toThrowError(
+            `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
+          )
+        })
+      })
+
+      describe('given a valid config name', () => {
+        it('loads the config file', () => {
+          const oneConfigFile = [`${configRoot}/development.yml`]
+          const configFile: EncryptedConfigFile = {
+            contents: { parsed: 'values' },
+            filePath: oneConfigFile[0],
+          }
+          jest.spyOn(fastGlob, 'sync').mockReturnValue(oneConfigFile)
+          jest.spyOn(fs, 'existsSync').mockReturnValue(true)
+          jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked config file')
+          jest.spyOn(yaml, 'load').mockReturnValue(configFile.contents)
+
+          expect(loadConfigForEnv('development', configRoot)).toStrictEqual(
+            configFile
+          )
+        })
+      })
+
+      describe('given a runtimeEnv name that is identical to the base config name', () => {
+        it('should throw because base config and env-specific config need to be different files', () => {
+          const oneConfigFile = [`${configRoot}/development.yml`]
+          const configFile: EncryptedConfigFile = {
+            contents: { parsed: 'values' },
+            filePath: oneConfigFile[0],
+          }
+          jest.spyOn(fastGlob, 'sync').mockReturnValue(oneConfigFile)
+          jest.spyOn(fs, 'existsSync').mockReturnValue(true)
+          jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked config file')
+          jest.spyOn(yaml, 'load').mockReturnValue(configFile.contents)
+
+          expect(() => {
+            loadConfigForEnv('development', configRoot, 'development.yml')
+          }).toThrowError(
+            "Base config name 'development.yml' must be different from the environment-name 'development'. Base config and env-specific config can't be the same file."
+          )
+        })
       })
     })
 
-    describe('given a config name for which multiple files exist (e.g. development.yaml AND development.json)', () => {
-      it('should throw', () => {
-        const multipleConfigFiles = [
-          'config/development.yml',
-          'config/development.json',
-        ]
-        jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(multipleConfigFiles)
+    describe('with a base config', () => {
+      describe('given a valid config name', () => {
+        it('loads the config file, extended from the base config', () => {
+          const baseConfig = { base: 'config' }
+          const oneConfigFile = [`${configRoot}/development.yml`]
+          const configFile: EncryptedConfigFile = {
+            contents: { parsed: 'values' },
+            filePath: oneConfigFile[0],
+          }
+          const mergedConfig = {
+            contents: { ...baseConfig, ...configFile.contents },
+            filePath: oneConfigFile[0],
+          }
 
-        expect(() => loadConfigForEnv('development', './config')).toThrowError(
-          `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
-        )
-      })
-    })
+          jest.spyOn(loadFiles, 'loadBaseConfig').mockImplementation(() => ({
+            base: 'config',
+          }))
+          jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(oneConfigFile)
+          jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+          jest
+            .spyOn(fs, 'readFileSync')
+            .mockReturnValueOnce('mocked config file')
+          jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
 
-    describe('given a valid config name', () => {
-      it('loads the config file', () => {
-        const oneConfigFile = [`${configRoot}/development.yml`]
-        const configFile: EncryptedConfigFile = {
-          contents: { parsed: 'values' },
-          filePath: oneConfigFile[0],
-        }
-        jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(oneConfigFile)
-        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
-        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('mocked config file')
-        jest.spyOn(yaml, 'load').mockReturnValueOnce(configFile.contents)
-
-        expect(loadConfigForEnv('development', configRoot)).toStrictEqual(
-          configFile
-        )
+          expect(loadConfigForEnv('development', configRoot)).toStrictEqual(
+            mergedConfig
+          )
+        })
       })
     })
   })
 
   describe('loadConfigFromPath()', () => {
-    describe('given an invalid path', () => {
-      it('should return undefined', () => {
-        expect(loadSchema('./an/invalid/path/prod.yml')).toBeUndefined()
-      })
+    afterEach(() => {
+      jest.restoreAllMocks()
     })
 
-    describe('given a valid path to a YAML config file', () => {
-      const configFileContents = 'parsed: yaml'
-
+    describe('without a base config', () => {
       beforeEach(() => {
-        jest.clearAllMocks()
-        jest.spyOn(yaml, 'load')
-        jest.spyOn(JSON, 'parse')
-        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
-        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest.spyOn(loadFiles, 'loadBaseConfig').mockImplementation(() => ({}))
       })
 
-      afterAll(() => {
-        jest.restoreAllMocks()
+      describe('given an invalid path', () => {
+        it('should return undefined', () => {
+          expect(loadSchema('./an/invalid/path/prod.yml')).toBeUndefined()
+        })
       })
 
-      it('returns the expected config file', () => {
-        const result = loadConfigFromPath('some/path/config.yaml')
+      describe('given a valid path to a YAML config file', () => {
+        const configFileContents = 'parsed: yaml'
 
-        expect(yaml.load).toHaveBeenCalledWith(configFileContents)
-        expect(JSON.parse).not.toHaveBeenCalled()
+        beforeEach(() => {
+          jest.spyOn(yaml, 'load')
+          jest.spyOn(JSON, 'parse')
+          jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
+          jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        })
 
-        expect(result).toStrictEqual({
-          filePath: 'some/path/config.yaml',
-          contents: { parsed: 'yaml' },
+        it('returns the expected config file', () => {
+          const result = loadConfigFromPath('some/path/config.yaml')
+
+          expect(yaml.load).toHaveBeenCalledWith(configFileContents)
+          expect(JSON.parse).not.toHaveBeenCalled()
+
+          expect(result).toStrictEqual({
+            filePath: 'some/path/config.yaml',
+            contents: { parsed: 'yaml' },
+          })
+        })
+      })
+
+      describe('given a valid path to a JSON config file', () => {
+        const configFileContents = `{ "parsed": "json" }`
+
+        beforeEach(() => {
+          jest.spyOn(yaml, 'load')
+          jest.spyOn(JSON, 'parse')
+          jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+          jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
+        })
+
+        it('returns the expected config file', () => {
+          const result = loadConfigFromPath('some/path/config.json')
+
+          expect(JSON.parse).toHaveBeenCalledWith(configFileContents)
+          expect(yaml.load).not.toHaveBeenCalled()
+
+          expect(result).toStrictEqual({
+            filePath: 'some/path/config.json',
+            contents: { parsed: 'json' },
+          })
+        })
+      })
+
+      describe('given a valid path to a file that is neither JSON nor YAML', () => {
+        it('should throw, because we only support JSON and YAML config files', () => {
+          jest.spyOn(fs, 'existsSync').mockReturnValue(true)
+          const configPath = 'some/path/config.xml'
+
+          expect(() => loadConfigFromPath(configPath)).toThrowError(
+            `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
+          )
         })
       })
     })
 
-    describe('given a valid path to a JSON config file', () => {
-      const configFileContents = `{ "parsed": "json" }`
+    describe('with a base config', () => {
+      describe('given a valid path to a YAML config file', () => {
+        it('returns the expected config file merged with the base config', () => {
+          const baseConfig = { base: 'config' }
+          const configFileContents = 'parsed: yaml'
+          const mergedConfig = { base: 'config', parsed: 'yaml' }
+          jest
+            .spyOn(loadFiles, 'loadBaseConfig')
+            .mockImplementation(() => baseConfig)
+          jest.spyOn(yaml, 'load')
+          jest.spyOn(fs, 'readFileSync').mockReturnValue(configFileContents)
+          jest.spyOn(fs, 'existsSync').mockReturnValue(true)
 
-      beforeEach(() => {
-        jest.clearAllMocks()
-        jest.spyOn(yaml, 'load')
-        jest.spyOn(JSON, 'parse')
-        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
-        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
-      })
+          const result = loadConfigFromPath('some/path/config.yaml')
 
-      afterAll(() => {
-        jest.restoreAllMocks()
-      })
+          expect(yaml.load).toHaveBeenCalledWith(configFileContents)
 
-      it('returns the expected config file', () => {
-        const result = loadConfigFromPath('some/path/config.json')
+          expect(result).toStrictEqual({
+            filePath: 'some/path/config.yaml',
+            contents: mergedConfig,
+          })
+        })
 
-        expect(JSON.parse).toHaveBeenCalledWith(configFileContents)
-        expect(yaml.load).not.toHaveBeenCalled()
+        it('gives precedence to the env-specific config over the base config', () => {
+          const baseConfig = {
+            base: 'config',
+            override: 'base value',
+            deeply: {
+              nested: { override: 'base value', noOverride: 'same-same' },
+            },
+          }
+          const configFileContents = `
+parsed: yaml
+override: env-specific value
+deeply:
+  nested:
+    override: env-specific value
+`
+          const mergedConfig = {
+            base: 'config',
+            parsed: 'yaml',
+            override: 'env-specific value',
+            deeply: {
+              nested: {
+                override: 'env-specific value',
+                noOverride: 'same-same',
+              },
+            },
+          }
+          jest
+            .spyOn(loadFiles, 'loadBaseConfig')
+            .mockImplementation(() => baseConfig)
+          jest.spyOn(fs, 'readFileSync').mockReturnValue(configFileContents)
+          jest.spyOn(fs, 'existsSync').mockReturnValue(true)
 
-        expect(result).toStrictEqual({
-          filePath: 'some/path/config.json',
-          contents: { parsed: 'json' },
+          const result = loadConfigFromPath('some/path/config.yaml')
+
+          expect(result).toStrictEqual({
+            filePath: 'some/path/config.yaml',
+            contents: mergedConfig,
+          })
         })
       })
     })
+  })
 
-    describe('given a valid path to a file that is neither JSON nor YAML', () => {
-      afterAll(() => {
-        jest.restoreAllMocks()
+  describe('loadBaseConfig()', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    describe('given an existing base config file', () => {
+      it('should load the base config', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('base: config')
+
+        const baseConfig = { base: 'config' }
+        const result = loadBaseConfig(configRoot, defaultOptions.baseConfig)
+
+        expect(result).toStrictEqual(baseConfig)
       })
 
-      it('should throw, because we only support JSON and YAML config files', () => {
+      it('should allow customising the base config filename', () => {
         jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
-        const configPath = 'some/path/config.xml'
+        jest.spyOn(fs, 'readFileSync').mockReturnValueOnce('base: config')
 
-        expect(() => loadConfigFromPath(configPath)).toThrowError(
-          `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
+        const baseConfig = { base: 'config' }
+        const result = loadBaseConfig(configRoot, 'my-custom-base.yaml')
+
+        expect(result).toStrictEqual(baseConfig)
+      })
+    })
+
+    describe('given a non-existing base config file', () => {
+      it('should return an empty object', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
+
+        const result = loadBaseConfig(configRoot, defaultOptions.baseConfig)
+
+        expect(result).toStrictEqual({})
+      })
+    })
+
+    describe('given a base config file with secrets', () => {
+      it('should throw because base configs can not contain secrets because it is not clear which encryption key should be used to encrypt them', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        jest
+          .spyOn(fs, 'readFileSync')
+          .mockReturnValueOnce('baseSecret: you-can-not-encrypt-me')
+
+        expect(() => {
+          loadBaseConfig(configRoot, defaultOptions.baseConfig)
+        }).toThrowError(
+          `Secret detected in ${configRoot}/${defaultOptions.baseConfig} config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config.`
         )
       })
     })
   })
 
   describe('loadSchema()', () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
+    afterEach(() => {
+      jest.restoreAllMocks()
     })
 
     describe('given a config root WITHOUT an existing schema.json', () => {
