@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/strong-config/node/compare/v1.0.0...v1.1.0) (2021-01-26)
+
+
+### Features
+
+* **base-config:** allow defining an optional base-config ([6a709b7](https://github.com/strong-config/node/commit/6a709b7ca91cd9445abcbd42b17f633d1844579f))
+
 ## [1.0.0](https://github.com/strong-config/node/compare/v0.2.56...v1.0.0) (2021-01-12)
 
 ### [0.2.56](https://github.com/strong-config/node/compare/v0.2.55...v0.2.56) (2021-01-12)
