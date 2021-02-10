@@ -47,6 +47,7 @@ export const generateTypesFromSchema = async (
 export interface Config extends ${pascalCase(title)} {
   runtimeEnv: string
 }`
+  // eslint-disable-next-line unicorn/prefer-spread
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
   writeFileSync(`${configRoot}/config.d.ts`, exportedTypes)

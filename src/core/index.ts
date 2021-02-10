@@ -56,8 +56,11 @@ const debug = Debug('strong-config:main')
  */
 export = class StrongConfig {
   public readonly options: Options
+
   private readonly runtimeEnv: string
+
   private config: MemoizedConfig
+
   private schema: Schema | null | undefined
 
   /**
@@ -93,6 +96,7 @@ export = class StrongConfig {
       this.validate(options, optionsSchema)
       this.options = options
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(
         `Invalid options passed to 'new StrongConfig({ ${JSON.stringify(
           options,
@@ -129,6 +133,7 @@ export = class StrongConfig {
        * Deliberately NOT using debug() here because we want to
        * always encourage users to define a schema for their config.
        */
+      // eslint-disable-next-line no-console
       console.info(
         `⚠️ No schema file found under '${this.options.configRoot}/schema.json'. We recommend creating a schema so Strong Config can ensure your config is valid.`
       )
@@ -267,6 +272,7 @@ export = class StrongConfig {
       (error) => {
         if (error) {
           debug('Type generation failed')
+          // eslint-disable-next-line no-console
           console.error('Failed to generate types from schema:', error)
         } else {
           debug('Type generation succeeded')

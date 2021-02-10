@@ -6,6 +6,9 @@ import {
   schema,
   decryptedConfig,
 } from '../fixtures'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('.')
 
 describe('StrongConfig.getSchema()', () => {

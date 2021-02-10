@@ -1,5 +1,8 @@
 import chalk from 'chalk'
 import type { Schema } from '../types'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('../core')
 
 console.log(chalk.bold('\nIntegration Test: Validation without base config'))

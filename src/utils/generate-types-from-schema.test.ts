@@ -49,7 +49,7 @@ export interface Config extends TheTopLevelInterface {
 
     await expect(async () =>
       generateTypesFromSchema(defaultOptions.configRoot)
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       "Expected top-level attribute 'title' in schema definition."
     )
   })
@@ -61,7 +61,7 @@ export interface Config extends TheTopLevelInterface {
 
     await expect(async () =>
       generateTypesFromSchema(defaultOptions.configRoot)
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       `'Title' attribute in schema definition must be a string, but is of type '${typeof title}'`
     )
   })
@@ -71,7 +71,7 @@ export interface Config extends TheTopLevelInterface {
 
     await expect(async () =>
       generateTypesFromSchema(defaultOptions.configRoot)
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       'Title attribute of top-level schema definition must not be named Config or config'
     )
   })

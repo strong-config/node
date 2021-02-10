@@ -8,3 +8,5 @@ export const pascalCase = (input: string): string =>
     .split(/[^\dA-Za-z]+/g)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('')
+
+export default pascalCase

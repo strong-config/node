@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+// This is safe to disable as we're in a test file
+/* eslint-disable @typescript-eslint/unbound-method, security/detect-non-literal-regexp */
 import { stderr, stdout } from 'stdout-stderr'
 import Ajv from 'ajv'
 import { formatAjvErrors } from '../utils/format-ajv-errors'

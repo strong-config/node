@@ -111,7 +111,7 @@ export class Encrypt extends Command {
     spinner.succeed(`Successfully encrypted ${args.config_file as string}!`)
   }
 
-  run(): Promise<void> {
+  async run(): Promise<void> {
     const { args, flags } = this.parse(Encrypt)
     const schema = loadSchema(flags['config-root'])
 
@@ -128,3 +128,5 @@ export class Encrypt extends Command {
     process.exit(0)
   }
 }
+
+export default Encrypt

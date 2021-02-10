@@ -84,7 +84,7 @@ export class Decrypt extends Command {
     spinner.succeed(`Successfully decrypted ${args.config_file as string}!`)
   }
 
-  run(): Promise<void> {
+  async run(): Promise<void> {
     this.decrypt()
 
     const { args, flags } = this.parse(Decrypt)
@@ -101,3 +101,5 @@ export class Decrypt extends Command {
     process.exit(0)
   }
 }
+
+export default Decrypt

@@ -1,3 +1,5 @@
+// This is safe to disable as we're in a test file
+/* eslint-disable security/detect-non-literal-regexp */
 import { stderr, stdout } from 'stdout-stderr'
 import * as readFiles from '../utils/load-files'
 import { CheckEncryption } from './check-encryption'

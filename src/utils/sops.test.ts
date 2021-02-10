@@ -39,7 +39,7 @@ describe('utils :: sops', () => {
       jest.spyOn(which, 'sync').mockReturnValueOnce('')
       jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
 
-      expect(getSopsBinary).toThrowError(sopsErrors['SOPS_NOT_FOUND'])
+      expect(getSopsBinary).toThrow(sopsErrors['SOPS_NOT_FOUND'])
     })
   })
 
@@ -68,7 +68,7 @@ describe('utils :: sops', () => {
 
       expect(() =>
         getSopsOptions({}, { 'key-provider': 'your-mama', 'key-id': '123abc' })
-      ).toThrowError(sopsErrors['UNSUPPORTED_KEY_PROVIDER'])
+      ).toThrow(sopsErrors['UNSUPPORTED_KEY_PROVIDER'])
     })
 
     describe('given an output_path', () => {
@@ -124,7 +124,7 @@ describe('utils :: sops', () => {
               'unencrypted-key-suffix': 'NotSoSecret',
             }
           )
-        ).toThrowError(sopsErrors['KEY_SUFFIX_CONFLICT'])
+        ).toThrow(sopsErrors['KEY_SUFFIX_CONFLICT'])
       })
     })
 
@@ -212,9 +212,9 @@ describe('utils :: sops', () => {
       )
 
       it('returns the parsed config as-is when it does not contain SOPS metadata (nothing to decrypt)', () => {
-        expect(decryptToObject(configFilePath, encryptedConfigNoSops)).toEqual(
-          encryptedConfigNoSops
-        )
+        expect(
+          decryptToObject(configFilePath, encryptedConfigNoSops)
+        ).toStrictEqual(encryptedConfigNoSops)
       })
 
       it('calls the sops binary to decrypt when SOPS metadata is present', () => {

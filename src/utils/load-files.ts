@@ -122,7 +122,9 @@ export const loadSchema = (configRootRaw: string): Schema | undefined => {
   const configRoot = path.normalize(configRootRaw)
   const schemaPath = `${configRoot}/schema.json`
 
-  if (!fs.existsSync(schemaPath)) return
+  if (!fs.existsSync(schemaPath)) {
+    return
+  }
 
   const schemaAsString = fs.readFileSync(schemaPath).toString()
   const schema = JSON.parse(schemaAsString) as Schema

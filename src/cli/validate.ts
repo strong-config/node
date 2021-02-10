@@ -131,9 +131,10 @@ export class Validate extends Command {
     }
 
     if (argv.length > 0) {
-      argv.forEach((configPath) => {
+      for (const configPath of argv) {
         validateOneConfigFile(configPath, schema) || process.exit(1)
-      })
+      }
+
       process.exit(0)
     } else {
       ;(await this.validateAllConfigFiles(flags['config-root'], schema))

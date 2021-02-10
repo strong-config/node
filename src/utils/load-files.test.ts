@@ -25,7 +25,7 @@ describe('utils :: load-files', () => {
         it('should throw', () => {
           expect(() =>
             loadConfigForEnv('production', '/wrong/config/root')
-          ).toThrowError("Couldn't find config file")
+          ).toThrow("Couldn't find config file")
         })
       })
 
@@ -37,9 +37,7 @@ describe('utils :: load-files', () => {
           ]
           jest.spyOn(fastGlob, 'sync').mockReturnValueOnce(multipleConfigFiles)
 
-          expect(() =>
-            loadConfigForEnv('development', './config')
-          ).toThrowError(
+          expect(() => loadConfigForEnv('development', './config')).toThrow(
             `Duplicate config files detected: ${multipleConfigFiles.join(',')}`
           )
         })
@@ -77,7 +75,7 @@ describe('utils :: load-files', () => {
 
           expect(() => {
             loadConfigForEnv('development', configRoot, 'development.yml')
-          }).toThrowError(
+          }).toThrow(
             "Base config name 'development.yml' must be different from the environment-name 'development'. Base config and env-specific config can't be the same file."
           )
         })
@@ -183,7 +181,7 @@ describe('utils :: load-files', () => {
           jest.spyOn(fs, 'existsSync').mockReturnValue(true)
           const configPath = 'some/path/config.xml'
 
-          expect(() => loadConfigFromPath(configPath)).toThrowError(
+          expect(() => loadConfigFromPath(configPath)).toThrow(
             `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
           )
         })
@@ -302,7 +300,7 @@ deeply:
 
         expect(() => {
           loadBaseConfig(configRoot, defaultOptions.baseConfig)
-        }).toThrowError(
+        }).toThrow(
           `Secret detected in ${configRoot}/${defaultOptions.baseConfig} config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config.`
         )
       })
@@ -329,7 +327,7 @@ deeply:
           .spyOn(fs, 'readFileSync')
           .mockReturnValueOnce(JSON.stringify({ mocked: 'schema' }))
 
-        expect(loadSchema('config')).toEqual({
+        expect(loadSchema('config')).toStrictEqual({
           mocked: 'schema',
           properties: { runtimeEnv: { type: 'string' } },
         })

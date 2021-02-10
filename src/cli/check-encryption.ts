@@ -113,9 +113,10 @@ export class CheckEncryption extends Command {
     const { argv } = this.parse(CheckEncryption)
 
     if (argv.length > 0) {
-      argv.forEach((configPath) => {
+      for (const configPath of argv) {
         this.checkOneConfigFile(configPath) || process.exit(1)
-      })
+      }
+
       process.exit(0)
     } else {
       await this.checkAllConfigFiles()
@@ -124,3 +125,5 @@ export class CheckEncryption extends Command {
     process.exit(0)
   }
 }
+
+export default CheckEncryption

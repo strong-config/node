@@ -17,13 +17,15 @@ describe('hydrateConfig()', () => {
   })
 
   it('adds runtimeEnv as top-level field', () =>
-    expect(hydrateConfig(configMock, runtimeEnv)).toEqual(
+    expect(hydrateConfig(configMock, runtimeEnv)).toStrictEqual(
       expect.objectContaining({
         runtimeEnv,
       })
     ))
 
   it('returns the expected result', () => {
-    expect(hydrateConfig(configMock, runtimeEnv)).toEqual(configMockHydrated)
+    expect(hydrateConfig(configMock, runtimeEnv)).toStrictEqual(
+      configMockHydrated
+    )
   })
 })

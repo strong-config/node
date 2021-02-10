@@ -55,3 +55,5 @@ export class GenerateTypes extends Command {
     }
   }
 }
+
+export default GenerateTypes

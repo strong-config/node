@@ -67,3 +67,5 @@ export const substituteWithEnv = (
 
   return JSON.parse(substitutedConfig) as DecryptedConfig
 }
+
+export default substituteWithEnv

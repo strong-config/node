@@ -8,7 +8,7 @@ export function hasSecrets(config: JSONObject): boolean {
   ): boolean[] => {
     const r = results
 
-    Object.keys(obj).forEach((key) => {
+    for (const key of Object.keys(obj)) {
       const value = obj[key] as Record<string, unknown>
 
       if (key.endsWith('Secret') && typeof value !== 'object') {
@@ -16,10 +16,12 @@ export function hasSecrets(config: JSONObject): boolean {
       } else if (typeof value === 'object') {
         recursiveSearchForSecrets(value, r)
       }
-    })
+    }
 
     return r
   }
 
   return recursiveSearchForSecrets(config).includes(true)
 }
+
+export default hasSecrets

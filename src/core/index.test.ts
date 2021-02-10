@@ -10,6 +10,9 @@ import {
   hydratedConfig,
   decryptedConfig,
 } from '../fixtures'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
@@ -55,23 +58,24 @@ describe('StrongConfig.constructor()', () => {
     const originalEnv = process.env[defaultOptions.runtimeEnvName]
     delete process.env[defaultOptions.runtimeEnvName]
 
-    expect(() => new StrongConfig()).toThrowError(
+    expect(() => new StrongConfig()).toThrow(
       `process.env.${defaultOptions.runtimeEnvName} needs to be set but was 'undefined'`
     )
 
     process.env[defaultOptions.runtimeEnvName] = originalEnv
   })
 
+  /* eslint-disable no-console */
   it('throws if the passed options object is invalid', () => {
     const invalidOptions = { i: 'am', super: 'invalid' }
     const originalConsoleError = console.error
-    console.error = jest.fn()
+    jest.spyOn(console, 'error').mockImplementation()
     const validate = jest.spyOn(StrongConfig.prototype, 'validate')
 
     expect(
       // @ts-ignore explicitly testing invalid options here
       () => new StrongConfig(invalidOptions)
-    ).toThrowError('config should NOT have additional properties')
+    ).toThrow('config should NOT have additional properties')
 
     expect(validate).toHaveBeenCalledWith(
       { ...defaultOptions, ...invalidOptions },
@@ -83,6 +87,7 @@ describe('StrongConfig.constructor()', () => {
     )
     console.error = originalConsoleError
   })
+  /* eslint-enable no-console */
 
   it('stores the validated options object', () => {
     const sc = new StrongConfig(validOptions)

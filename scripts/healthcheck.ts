@@ -5,7 +5,7 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { exec } from 'shelljs'
 
-function run({
+async function run({
   command,
   options = { silent: true },
 }: {
@@ -173,7 +173,7 @@ main()
   .then(() => {
     console.log(`\n${chalk.bold('💪 Project looks healthy 💪')}\n`)
 
-    return
+    return true
   })
   .catch((error) => {
     console.error(

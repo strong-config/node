@@ -1,8 +1,0 @@
-# Folders
-.vscode
-coverage
-lib
-node_modules
-
-# Include Patterns
-!.github

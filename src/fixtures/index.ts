@@ -40,10 +40,16 @@ export const validOptions = { ...defaultOptions, ...userOptions }
 
 export const invalidOptions = { ...defaultOptions, invalid: 'option' }
 
+// No idea how to make ramda types happy here 🤷‍♂️
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
 export const decryptedConfig: DecryptedConfig = compose(
+  // @ts-ignore
   set(lensProp('someSecret'), 'decrypted secret'),
   dissoc('sops')
+  // @ts-ignore
 )(encryptedConfigFile.contents)
+// eslint-enable @typescript-eslint/ban-ts-comment
 
 export const hydratedConfig: HydratedConfig = { ...decryptedConfig, runtimeEnv }
 

@@ -11,6 +11,9 @@ import {
 } from '../fixtures'
 import * as readFiles from '../utils/load-files'
 import * as sops from '../utils/sops'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
@@ -42,7 +45,7 @@ describe('StrongConfig.validate(data, schema)', () => {
 
     const invalidConfig = { i: 'am', not: 'valid' }
     // @ts-ignore explicitly testing invalid input here
-    expect(() => sc.validate(invalidConfig, schema)).toThrowError(
+    expect(() => sc.validate(invalidConfig, schema)).toThrow(
       'config should NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(schema, invalidConfig)
@@ -57,7 +60,7 @@ describe('StrongConfig.validate(data, schema)', () => {
     ajvValidate.mockClear()
 
     // @ts-ignore explicitly testing invalid input here
-    expect(() => sc.validate(invalidOptions, optionsSchema)).toThrowError(
+    expect(() => sc.validate(invalidOptions, optionsSchema)).toThrow(
       'config should NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, invalidOptions)

@@ -1,5 +1,8 @@
 import { inspect } from 'util'
 import chalk from 'chalk'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('../core')
 
 /*

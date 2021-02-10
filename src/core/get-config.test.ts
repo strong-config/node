@@ -11,6 +11,9 @@ import {
   schema,
 } from '../fixtures'
 import * as hydrateConfigModule from './../utils/hydrate-config'
+
+// Needed for commonjs-compatibility
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('.')
 
 jest.mock('../utils/generate-types-from-schema')
