@@ -1,0 +1,1 @@
+$(pwd)/scripts/post-merge-or-rebase-githook.sh
