@@ -103,7 +103,7 @@ jobs:
 
       - run: yarn release
 
-      - run: git push
+      - run: git push --no-verify
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
