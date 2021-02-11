@@ -1,6 +1,6 @@
 {
   "name": "@strong-config/node",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple & Secure Config Management for Node.js",
   "repository": "git@github.com:strong-config/node.git",
   "homepage": "https://strong-config.dev",
