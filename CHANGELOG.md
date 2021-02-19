@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/strong-config/node/compare/v1.1.1...v1.1.2) (2021-02-19)
+
+
+### Bug Fixes
+
+* **package.json:** check for existence of .husky folder instead of husky command ([5e4bb09](https://github.com/strong-config/node/commit/5e4bb09274c8f8206a415237076bba0c67fe8d9e))
+* **package.json:** fixed json lint error ([533d294](https://github.com/strong-config/node/commit/533d2946bb37daf90f3b6271d9edf5af4c21850d))
+* **postinstall:** allow git hooks installation to fail when installing the package as a dependency ([2f6a973](https://github.com/strong-config/node/commit/2f6a97389348e81a2ab43cea1eba6056fcfa65cc))
+* **postinstall:** try different bash syntax for one-liner if/else when installing husky hooks ([b9d2093](https://github.com/strong-config/node/commit/b9d2093a99adcf38b8e17eb237483d3dc93b3e91))
+* moved ramda from devDependencies to dependencies ([ef9a3ba](https://github.com/strong-config/node/commit/ef9a3baedb7c53c5fefa9ec86071526a70475d39))
+
 ### [1.1.1](https://github.com/strong-config/node/compare/v1.1.0...v1.1.1) (2021-02-11)
 
 ## [1.1.0](https://github.com/strong-config/node/compare/v1.0.0...v1.1.0) (2021-01-26)
