@@ -80,6 +80,7 @@
     "match-all": "^1.2.6",
     "node-fetch": "^2.6.0",
     "ora": "^5.3.0",
+    "ramda": "^0.27.1",
     "tslib": "^2.1.0",
     "which": "^2.0.2"
   },
@@ -122,7 +123,6 @@
     "markdownlint-cli": "^0.26.0",
     "nodemon": "^2.0.4",
     "prettier": ">=1.18.2",
-    "ramda": "^0.27.0",
     "rimraf": "^3.0.2",
     "shelljs": "^0.8.4",
     "stdout-stderr": "^0.1.13",
