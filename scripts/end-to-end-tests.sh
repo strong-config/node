@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 # Create tarball with strong-config package
-yarn pack
+yarn pack --prod
 
 # Clean up leftovers from previous e2e test runs
 rm -rf blackbox
