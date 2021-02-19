@@ -43,7 +43,7 @@
     "lint:scripts": "npx scriptlint --fix",
     "lint:ts": "eslint . --fix --ext .ts",
     "lint:yaml": "eslint . --ext .yml,.yaml",
-    "postinstall": "node scripts/postinstall.js; husky install",
+    "postinstall": "node scripts/postinstall.js; if command -v husky; then husky install; fi",
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "yarn build:clean && yarn build && oclif-dev manifest",
     "release": "npx standard-version",
