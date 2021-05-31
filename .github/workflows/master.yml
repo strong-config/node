@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
       - run: yarn lint
 
   test:
@@ -45,7 +45,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
 
       - run: yarn test --coverage
 
@@ -67,7 +67,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
       - run: yarn build
 
   release:
@@ -92,7 +92,7 @@ jobs:
           scope: '@strong-config'
 
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
 
       - name: Configure git for pushing back auto-generated CHANGELOG
         run: |

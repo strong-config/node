@@ -21,7 +21,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
+
       - run: yarn lint
 
   test:
@@ -37,7 +38,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
 
       - run: yarn test --coverage
 
@@ -59,6 +60,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.6.0
+        uses: bahmutov/npm-install@v1
 
       - run: ./scripts/end-to-end-tests.sh
