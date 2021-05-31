@@ -21,15 +21,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.1.0
+        uses: bahmutov/npm-install@v1.6.0
       - run: yarn lint
 
   test:
@@ -37,15 +37,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.1.0
+        uses: bahmutov/npm-install@v1.6.0
 
       - run: yarn test --coverage
 
@@ -59,15 +59,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.1.0
+        uses: bahmutov/npm-install@v1.6.0
       - run: yarn build
 
   release:
@@ -84,15 +84,15 @@ jobs:
           # See: https://github.com/conventional-changelog/conventional-changelog/issues/622
           fetch-depth: 0
 
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
         with:
-          node-version: 12.x
+          node-version: 16.x
           registry-url: https://registry.npmjs.org
           scope: '@strong-config'
 
       - name: Yarn install with caching
-        uses: bahmutov/npm-install@v1.1.0
+        uses: bahmutov/npm-install@v1.6.0
 
       - name: Configure git for pushing back auto-generated CHANGELOG
         run: |
