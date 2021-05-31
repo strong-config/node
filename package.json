@@ -18,6 +18,9 @@
   "bin": {
     "strong-config": "./bin/run"
   },
+  "engines": {
+    "node": ">= 12"
+  },
   "oclif": {
     "commands": "./lib/cli",
     "bin": "strong-config",
