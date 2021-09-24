@@ -5,6 +5,7 @@ export interface Options {
   configRoot: string
   runtimeEnvName: string
   generateTypes: boolean
+  typesPath?: string
 }
 
 export const defaultOptions: Options = {
@@ -39,6 +40,13 @@ export const optionsSchema: Schema = {
       description:
         'Boolean that governs whether to generate TypeScript types for the config or not',
       type: 'boolean',
+    },
+    typesPath: {
+      title: 'Types Directory',
+      description:
+        'Path to output directory of the auto-generated config.d.ts type definition file',
+      examples: ['config', '@types', 'src/types'],
+      type: 'string',
     },
     baseConfig: {
       title: 'Base config file name',

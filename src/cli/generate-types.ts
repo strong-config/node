@@ -20,6 +20,11 @@ export class GenerateTypes extends Command {
       description: 'your config folder containing your schema.json',
       default: defaultOptions.configRoot,
     }),
+    'types-path': Flags.string({
+      char: 'p',
+      description:
+        'the path to the folder into which the config.d.ts type declaration will be generated',
+    }),
   }
 
   static usage = 'generate-types'
@@ -42,7 +47,10 @@ export class GenerateTypes extends Command {
       process.exit(1)
     } else {
       try {
-        await generateTypesFromSchema(flags['config-root'])
+        await generateTypesFromSchema(
+          flags['config-root'],
+          flags['types-path'] || flags['config-root']
+        )
       } catch (error) {
         spinner.fail("Couldn't generate types from schema")
         console.error(error)

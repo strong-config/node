@@ -22,12 +22,13 @@ export interface TheTopLevelInterface {
   })
 
   describe('given a configRoot with a valid schema.json file', () => {
-    it('generates a TypeScript file with corresponding type definitionas', async () => {
+    it('generates a TypeScript file with corresponding type definitions', async () => {
+      const typesPath = '@types'
       readFileSyncSpy.mockReturnValueOnce(
         `{ "title": "the top-level-interface" }`
       )
 
-      await generateTypesFromSchema(defaultOptions.configRoot)
+      await generateTypesFromSchema(defaultOptions.configRoot, typesPath)
 
       const expectedRootType = `
 export interface Config extends TheTopLevelInterface {
@@ -36,7 +37,7 @@ export interface Config extends TheTopLevelInterface {
       const expectedTypes = compiledTypes.concat(expectedRootType)
 
       expect(fs.writeFileSync).toHaveBeenCalledWith(
-        `${defaultOptions.configRoot}/config.d.ts`,
+        `${typesPath}/config.d.ts`,
         expectedTypes
       )
     })
@@ -48,7 +49,7 @@ export interface Config extends TheTopLevelInterface {
     )
 
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot)
+      generateTypesFromSchema(defaultOptions.configRoot, '@types')
     ).rejects.toThrow(
       "Expected top-level attribute 'title' in schema definition."
     )
@@ -59,8 +60,10 @@ export interface Config extends TheTopLevelInterface {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     readFileSyncSpy.mockReturnValueOnce(`{ "title": ${title} }`)
 
+    // This function is not identical because we're using a different mock value for readFileSync()
+    // eslint-disable-next-line sonarjs/no-identical-functions
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot)
+      generateTypesFromSchema(defaultOptions.configRoot, '@types')
     ).rejects.toThrow(
       `'Title' attribute in schema definition must be a string, but is of type '${typeof title}'`
     )
@@ -69,8 +72,10 @@ export interface Config extends TheTopLevelInterface {
   it('throws when schema title is named "config" or "Config"', async () => {
     readFileSyncSpy.mockReturnValueOnce(`{ "title": "config" }`)
 
+    // This function is not identical because we're using a different mock value for readFileSync()
+    // eslint-disable-next-line sonarjs/no-identical-functions
     await expect(async () =>
-      generateTypesFromSchema(defaultOptions.configRoot)
+      generateTypesFromSchema(defaultOptions.configRoot, '@types')
     ).rejects.toThrow(
       'Title attribute of top-level schema definition must not be named Config or config'
     )

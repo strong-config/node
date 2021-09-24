@@ -104,7 +104,8 @@ export = class StrongConfig {
           2
         )}})'`
       )
-      throw new Error(error)
+
+      throw error
     }
 
     // Typecasting to string is safe as we've determined it's a string in the previous if-statement
@@ -268,6 +269,7 @@ export = class StrongConfig {
     debug('Starting type generation...')
     generateTypesFromSchemaCallback(
       this.options.configRoot,
+      this.options.typesPath || this.options.configRoot,
       /* istanbul ignore next: too difficult to test and too little value in testing it */
       (error) => {
         if (error) {

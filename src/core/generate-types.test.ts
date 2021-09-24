@@ -37,9 +37,24 @@ describe('Type Generation', () => {
 
     describe('when options.generateTypes is TRUE', () => {
       it('generates types', () => {
+        new StrongConfig({
+          ...validOptions,
+          generateTypes: true,
+          typesPath: '@types',
+        })
+
+        expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
+          validOptions.configRoot,
+          '@types',
+          expect.any(Function)
+        )
+      })
+
+      it('if options.typesPath is undefined, then use configRoot as the default output path for generated types', () => {
         new StrongConfig({ ...validOptions, generateTypes: true })
 
         expect(generateTypesFromSchemaCallback).toHaveBeenCalledWith(
+          validOptions.configRoot,
           validOptions.configRoot,
           expect.any(Function)
         )

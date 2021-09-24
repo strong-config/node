@@ -41,13 +41,30 @@ describe('strong-config generate-types', () => {
 
   it('generates types', async () => {
     const configRoot = 'example'
+    const typesPath = '@types'
+    jest.spyOn(generateTypesFromSchemaModule, 'generateTypesFromSchema')
+
+    await GenerateTypes.run([
+      '--config-root',
+      configRoot,
+      '--types-path',
+      typesPath,
+    ])
+
+    expect(
+      generateTypesFromSchemaModule.generateTypesFromSchema
+    ).toHaveBeenCalledWith(configRoot, typesPath)
+  })
+
+  it('if --types-path is omitted, will default to --config-root', async () => {
+    const configRoot = 'example'
     jest.spyOn(generateTypesFromSchemaModule, 'generateTypesFromSchema')
 
     await GenerateTypes.run(['--config-root', configRoot])
 
     expect(
       generateTypesFromSchemaModule.generateTypesFromSchema
-    ).toHaveBeenCalledWith(configRoot)
+    ).toHaveBeenCalledWith(configRoot, configRoot)
   })
 
   it('exits with code 0 when type generation was successful', async () => {

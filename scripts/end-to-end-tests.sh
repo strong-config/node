@@ -54,6 +54,10 @@ yarn strong-config validate config/development.yaml
 # Generate TypeScript Definitions
 yarn strong-config generate-types && cat config/config.d.ts
 
+# Generate TypeScript Definitions into a different folder
+mkdir @types
+yarn strong-config generate-types --types-path @types && cat @types/config.d.ts
+
 # Test core strong-config package 
 echo "Core Tests"
 NODE_ENV=development yarn ts-node --transpile-only e2e/load-es6.ts

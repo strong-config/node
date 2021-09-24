@@ -8,7 +8,8 @@ import { pascalCase } from './pascal-case'
 const debug = Debug('strong-config:generate-types')
 
 export const generateTypesFromSchema = async (
-  configRoot: string
+  configRoot: string,
+  typesPath: string
 ): Promise<void> => {
   const schemaPath = `${configRoot}/schema.json`
 
@@ -50,9 +51,9 @@ export interface Config extends ${pascalCase(title)} {
   // eslint-disable-next-line unicorn/prefer-spread
   const exportedTypes = baseTypes.concat(configInterfaceAsString)
 
-  writeFileSync(`${configRoot}/config.d.ts`, exportedTypes)
+  writeFileSync(`${typesPath}/config.d.ts`, exportedTypes)
   debug(
-    `Wrote generated types to file '${configRoot}/config.d.ts': %s`,
+    `Wrote generated types to file '${typesPath}/config.d.ts': %s`,
     '\n'.concat(exportedTypes)
   )
 }
