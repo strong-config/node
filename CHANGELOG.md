@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/strong-config/node/compare/v1.1.7...v1.2.0) (2021-09-24)
+
+
+### Features
+
+* **options:** added options.typesPath to allow customizing the output path for the auto-generated typescript declaration file ([80c5695](https://github.com/strong-config/node/commit/80c5695c257a3af5164d7bfb168fc26231313d15))
+
 ### [1.1.7](https://github.com/strong-config/node/compare/v1.1.6...v1.1.7) (2021-08-11)
 
 ### [1.1.6](https://github.com/strong-config/node/compare/v1.1.5...v1.1.6) (2021-06-09)
