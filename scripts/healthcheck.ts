@@ -30,7 +30,7 @@ async function runLinters(): Promise<void> {
 
     // Need to re-run this to show the user what the error was
     await run({ command: 'yarn lint', options: { silent: false } })
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -42,7 +42,7 @@ async function runUnitTests(): Promise<void> {
     spinner.succeed(chalk.bold('Tests'))
   } catch (error) {
     spinner.fail(chalk.bold('Tests'))
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -83,7 +83,7 @@ async function runBuild(): Promise<void> {
     spinner.succeed(chalk.bold('Build'))
   } catch (error) {
     spinner.fail(chalk.bold('Build'))
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -100,7 +100,7 @@ async function runIntegrationTests(): Promise<void> {
     spinner.succeed(chalk.bold('Integration Tests'))
   } catch (error) {
     spinner.fail(chalk.bold('Integration Tests'))
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -113,7 +113,7 @@ async function runEndToEndTests(): Promise<void> {
     spinner.succeed(chalk.bold('End-to-End Tests'))
   } catch (error) {
     spinner.fail(chalk.bold('End-to-End Tests'))
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -134,7 +134,7 @@ async function runReleaseScripts(): Promise<void> {
     spinner.succeed(chalk.bold('Release Scripts'))
   } catch (error) {
     spinner.fail(chalk.bold('Release Scripts'))
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -147,7 +147,7 @@ async function printTodos(): Promise<void> {
     todos = (await run({ command: 'yarn report:todo' })) as string
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))
-    throw new Error(error)
+    throw error
   }
 
   if (/No todos\/fixmes found/g.test(todos)) {
