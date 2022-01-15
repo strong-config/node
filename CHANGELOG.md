@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/strong-config/node/compare/v1.2.0...v1.2.1) (2022-01-15)
+
 ## [1.2.0](https://github.com/strong-config/node/compare/v1.1.7...v1.2.0) (2021-09-24)
 
 
