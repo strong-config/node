@@ -29,14 +29,17 @@ describe('StrongConfig.getSchema()', () => {
 
     it('loads the schema file from disk upon first invocation', () => {
       sc = new StrongConfig(validOptions)
+
       expect(loadSchema).toHaveBeenCalledWith(validOptions.configRoot)
     })
 
     it('memoizes the schema on subsequent calls and does NOT hit the disk', () => {
       sc = new StrongConfig(validOptions)
+
       expect(loadSchema).toHaveBeenCalledWith(validOptions.configRoot)
 
       const memoizedSchema = sc.getSchema()
+
       expect(loadSchema).not.toHaveBeenCalledWith()
       expect(memoizedSchema).toStrictEqual(schema)
     })
@@ -58,11 +61,13 @@ describe('StrongConfig.getSchema()', () => {
     it('should still memoize `null` as schema to avoid retrying to read a schema from disk on subsequent calls', () => {
       jest.spyOn(StrongConfig.prototype, 'getSchema')
       sc = new StrongConfig(validOptions)
+
       expect(loadSchema).toHaveBeenCalled()
 
       jest.clearAllMocks()
 
       sc.getSchema()
+
       expect(loadSchema).not.toHaveBeenCalled()
     })
   })

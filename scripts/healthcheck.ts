@@ -175,6 +175,7 @@ main()
 
     return true
   })
+  // eslint-disable-next-line unicorn/prefer-top-level-await
   .catch((error) => {
     console.error(
       `\n${chalk.bold('❌ Project not healthy ❌')}\n\n${chalk.red(error)}`

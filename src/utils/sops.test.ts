@@ -1,3 +1,8 @@
+/*
+ * We can't use the newest version of 'execa' yet as it's ESM-only which requires a
+ * lot of setup work that we haven't had time to do yet.
+ */
+/* eslint-disable @typescript-eslint/unbound-method */
 import fs from 'fs'
 import which from 'which'
 import execa from 'execa'
@@ -15,6 +20,7 @@ import {
 
 describe('utils :: sops', () => {
   const configFilePath = './config/development.yaml'
+  const args = { config_file: './config/development.yaml' }
 
   const decryptedConfig: DecryptedConfig = {
     field: 'asdf',
@@ -45,22 +51,23 @@ describe('utils :: sops', () => {
 
   describe('getSopsOptions()', () => {
     it('should pass the correct key-provider options', () => {
-      const pgp = getSopsOptions(
-        {},
-        { 'key-provider': 'pgp', 'key-id': '123abc' }
-      )
-      const gcp = getSopsOptions(
-        {},
-        { 'key-provider': 'gcp', 'key-id': '123abc' }
-      )
-      const aws = getSopsOptions(
-        {},
-        { 'key-provider': 'aws', 'key-id': '123abc' }
-      )
-      const azr = getSopsOptions(
-        {},
-        { 'key-provider': 'azr', 'key-id': '123abc' }
-      )
+      const pgp = getSopsOptions(args, {
+        'key-provider': 'pgp',
+        'key-id': '123abc',
+      })
+      const gcp = getSopsOptions(args, {
+        'key-provider': 'gcp',
+        'key-id': '123abc',
+      })
+      const aws = getSopsOptions(args, {
+        'key-provider': 'aws',
+        'key-id': '123abc',
+      })
+      const azr = getSopsOptions(args, {
+        'key-provider': 'azr',
+        'key-id': '123abc',
+      })
+
       expect(pgp).toContain('--pgp')
       expect(gcp).toContain('--gcp-kms')
       expect(aws).toContain('--kms')
@@ -74,7 +81,8 @@ describe('utils :: sops', () => {
     describe('given an output_path', () => {
       it('should pass an --output param to sops', () => {
         const output_path = './config/development.yml'
-        const options = getSopsOptions({ output_path }, {})
+        const options = getSopsOptions({ ...args, output_path }, {})
+
         expect(options).toContain('--output')
         expect(options).toContain(output_path)
       })
@@ -82,7 +90,8 @@ describe('utils :: sops', () => {
 
     describe('given NO output_path', () => {
       it('should pass an --in-place param to sops', () => {
-        const options = getSopsOptions({}, {})
+        const options = getSopsOptions(args, {})
+
         expect(options).toContain('--in-place')
       })
     })
@@ -90,10 +99,11 @@ describe('utils :: sops', () => {
     describe('given an unencrypted-key-suffix and NO encrypted-key-suffix', () => {
       it('should pass the unencrypted-key-suffix to sops', () => {
         const unencryptedSuffix = 'NotASecret'
-        const options = getSopsOptions(
-          {},
-          { 'key-provider': 'pgp', 'unencrypted-key-suffix': unencryptedSuffix }
-        )
+        const options = getSopsOptions(args, {
+          'key-provider': 'pgp',
+          'unencrypted-key-suffix': unencryptedSuffix,
+        })
+
         expect(options).toContain('--unencrypted-suffix')
         expect(options).toContain(unencryptedSuffix)
         expect(options).not.toContain('--encrypted-suffix')
@@ -103,10 +113,11 @@ describe('utils :: sops', () => {
     describe('given an encrypted-key-suffix and NO unencrypted-key-suffix', () => {
       it('should pass the encrypted-key-suffix to sops', () => {
         const encryptedSuffix = 'TopSecret'
-        const options = getSopsOptions(
-          {},
-          { 'key-provider': 'pgp', 'encrypted-key-suffix': encryptedSuffix }
-        )
+        const options = getSopsOptions(args, {
+          'key-provider': 'pgp',
+          'encrypted-key-suffix': encryptedSuffix,
+        })
+
         expect(options).toContain('--encrypted-suffix')
         expect(options).toContain(encryptedSuffix)
         expect(options).not.toContain('--unencrypted-suffix')
@@ -116,24 +127,21 @@ describe('utils :: sops', () => {
     describe('given an encrypted-key-suffix AND an unencrypted-key-suffix', () => {
       it('should throw an error because these options are mutually exclusive', () => {
         expect(() =>
-          getSopsOptions(
-            {},
-            {
-              'key-provider': 'aws',
-              'encrypted-key-suffix': 'Secret',
-              'unencrypted-key-suffix': 'NotSoSecret',
-            }
-          )
+          getSopsOptions(args, {
+            'key-provider': 'aws',
+            'encrypted-key-suffix': 'Secret',
+            'unencrypted-key-suffix': 'NotSoSecret',
+          })
         ).toThrow(sopsErrors['KEY_SUFFIX_CONFLICT'])
       })
     })
 
     describe('given a verbose flag', () => {
       it('runs sops in verbose mode', () => {
-        const options = getSopsOptions(
-          {},
-          { 'key-provider': 'aws', verbose: true }
-        )
+        const options = getSopsOptions(args, {
+          'key-provider': 'aws',
+          verbose: true,
+        })
 
         expect(options).toContain('--verbose')
       })
@@ -147,7 +155,6 @@ describe('utils :: sops', () => {
 
       runSopsWithOptions(['--help'])
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(execa.sync).toHaveBeenCalledWith('sops', ['--help'])
     })
 
@@ -157,6 +164,7 @@ describe('utils :: sops', () => {
         stdout: Buffer.from(''),
         stderr: Buffer.from(JSON.stringify(decryptedConfig)),
         command: 'sops',
+        escapedCommand: 'sops',
         failed: true,
         timedOut: false,
         killed: false,
@@ -176,6 +184,7 @@ describe('utils :: sops', () => {
       stdout: Buffer.from(JSON.stringify(decryptedConfig)),
       stderr: Buffer.from(''),
       command: 'sops',
+      escapedCommand: 'sops',
       failed: false,
       timedOut: false,
       killed: false,
@@ -186,6 +195,7 @@ describe('utils :: sops', () => {
       stdout: Buffer.from(''),
       stderr: Buffer.from(JSON.stringify(decryptedConfig)),
       command: 'sops',
+      escapedCommand: 'sops',
       failed: true,
       timedOut: false,
       killed: false,
@@ -221,7 +231,6 @@ describe('utils :: sops', () => {
         jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncSuccess)
         decryptToObject(configFilePath, encryptedConfig)
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(execa.sync).toHaveBeenCalledWith('sops', [
           '--decrypt',
           configFilePath,
@@ -236,7 +245,7 @@ describe('utils :: sops', () => {
         )
       })
 
-      /* eslint-disable @typescript-eslint/ban-ts-comment, unicorn/no-null, unicorn/no-useless-undefined -- explicitly testing an error case here */
+      /* eslint-disable @typescript-eslint/ban-ts-comment, unicorn/no-useless-undefined -- explicitly testing an error case here */
       it('throws when `parsedConfig` parameter is nil', () => {
         // @ts-ignore
         expect(() => decryptToObject(configFilePath, undefined)).toThrow(
@@ -261,10 +270,10 @@ describe('utils :: sops', () => {
 
     describe('decryptInPlace()', () => {
       it('calls sops with the "--in-place" flag', () => {
+        // eslint-disable @typescript-eslint/unbound-method
         jest.spyOn(execa, 'sync').mockReturnValueOnce(execaSyncSuccess)
         decryptInPlace(configFilePath)
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(execa.sync).toHaveBeenCalledWith(
           'sops',
           expect.arrayContaining(['--in-place'])

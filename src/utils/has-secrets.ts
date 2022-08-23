@@ -2,7 +2,6 @@ import { JSONObject } from '../types'
 
 export function hasSecrets(config: JSONObject): boolean {
   const recursiveSearchForSecrets = (
-    // eslint-disable-next-line unicorn/prevent-abbreviations
     obj: Record<string, unknown>,
     results: boolean[] = []
   ): boolean[] => {

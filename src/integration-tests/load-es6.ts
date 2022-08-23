@@ -57,7 +57,6 @@ try {
   })
 } catch (error) {
   if (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     error.message !==
     "Secret detected in example-with-base-config-containing-secrets/base.yml config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config."
   ) {
@@ -82,7 +81,6 @@ try {
   })
 } catch (error) {
   if (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     error.message !==
     `Base config name 'development.yml' must be different from the environment-name 'development'. Base config and env-specific config can't be the same file.`
   ) {

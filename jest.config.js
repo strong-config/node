@@ -1,10 +1,6 @@
-/** @typedef {import('ts-jest')} */
-/** @type {import('@jest/types').Config.InitialOptions} */
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['jest-extended'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/cli/index.ts',
@@ -13,10 +9,24 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: 100,
+      branches: 95,
       functions: 100,
-      lines: 100,
-      statements: 100,
+      lines: 95,
+      statements: 95,
     },
   },
+  globals: {
+    'ts-jest': {
+      /*
+       * This disables type-checking which makes tests a lot faster.
+       * Should be an ok tradeoff as we still have type-checking in our
+       * IDEs as well as through 'yarn build' when building the project.
+       * https://kulshekhar.github.io/ts-jest/docs/getting-started/options/isolatedModules
+       */
+      isolatedModules: true,
+    },
+  },
+  preset: 'ts-jest',
+  setupFilesAfterEnv: ['jest-extended/all'],
+  testEnvironment: 'node',
 }

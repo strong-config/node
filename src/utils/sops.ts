@@ -61,26 +61,23 @@ export const decryptToObject = (
 }
 
 export const decryptInPlace = (filePath: string): void =>
-  (runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown) as void
+  runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown as void
 
 export const getSopsOptions = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  args: Record<string, any>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  flags: Record<string, any>
+  args: Record<string, unknown>,
+  flags: Record<string, unknown>
 ): string[] => {
   const options: string[] = []
 
-  if (args['output_path']) {
+  if (typeof args['output_path'] === 'string') {
     options.push('--output', args['output_path'])
   } else {
     options.push('--in-place')
   }
 
   if (
-    flags['key-provider'] &&
     typeof flags['key-provider'] === 'string' &&
-    flags['key-id']
+    typeof flags['key-id'] === 'string'
   ) {
     switch (flags['key-provider']) {
       case 'pgp':
@@ -107,10 +104,13 @@ export const getSopsOptions = (
     options.push(flags['key-id'])
   }
 
-  if (flags['unencrypted-key-suffix'] && !flags['encrypted-key-suffix']) {
+  if (
+    typeof flags['unencrypted-key-suffix'] === 'string' &&
+    !flags['encrypted-key-suffix']
+  ) {
     options.push('--unencrypted-suffix', flags['unencrypted-key-suffix'])
   } else if (
-    flags['encrypted-key-suffix'] &&
+    typeof flags['encrypted-key-suffix'] === 'string' &&
     !flags['unencrypted-key-suffix']
   ) {
     options.push('--encrypted-suffix', flags['encrypted-key-suffix'])
@@ -122,7 +122,11 @@ export const getSopsOptions = (
     options.push('--verbose')
   }
 
-  options.push(args['config_file'])
+  if (typeof args['config_file'] === 'string') {
+    options.push(args['config_file'])
+  } else {
+    throw new TypeError("args['config_file'] is nil and can't be encrypted")
+  }
 
   return options
 }

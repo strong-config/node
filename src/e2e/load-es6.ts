@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import { inspect } from 'util'
 import chalk from 'chalk'
 
 // Needed for commonjs-compatibility
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/ban-ts-comment */
 // @ts-ignore
 import StrongConfig = require('@strong-config/node')
@@ -53,8 +53,9 @@ try {
   })
 } catch (error) {
   if (
+    error instanceof Error &&
     error.message !==
-    "Secret detected in example-with-base-config-containing-secrets/base.yml config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config."
+      "Secret detected in example-with-base-config-containing-secrets/base.yml config. Base config files can not contain secrets because when using different encryption keys per environment, it's unclear which key should be used to encrypt the base config."
   ) {
     throw new Error(
       'Instantiating strong-config with a base config that contains secrets should fail, but is has not 🤔'
@@ -77,7 +78,6 @@ try {
   })
 } catch (error) {
   if (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     error.message !==
     `Base config name 'development.yml' must be different from the environment-name 'development'. Base config and env-specific config can't be the same file.`
   ) {

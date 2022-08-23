@@ -8,7 +8,7 @@ describe('hasSecrets()', () => {
       someSecret: 'i am not allowed in a base config 😞',
     }
 
-    expect(hasSecrets(config)).toStrictEqual(true)
+    expect(hasSecrets(config)).toBe(true)
   })
 
   it('should return true if a given config object contains deeply nested secrets', () => {
@@ -17,7 +17,7 @@ describe('hasSecrets()', () => {
       and: { a: { deeply: { nestedSecret: 'value' } } },
     }
 
-    expect(hasSecrets(config)).toStrictEqual(true)
+    expect(hasSecrets(config)).toBe(true)
   })
 
   it('should return false if a given config object does not contain secrets', () => {
@@ -26,6 +26,6 @@ describe('hasSecrets()', () => {
       and: { a: { deeply: { nested: 'value' } } },
     }
 
-    expect(hasSecrets(config)).toStrictEqual(false)
+    expect(hasSecrets(config)).toBe(false)
   })
 })

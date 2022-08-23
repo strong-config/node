@@ -88,6 +88,7 @@ describe('strong-config validate', () => {
       for (const path of relativePaths) {
         ajvValidate.mockClear()
         processExit.mockClear()
+
         await Validate.run([path, '--config-root', configRoot])
 
         expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
@@ -103,7 +104,6 @@ describe('strong-config validate', () => {
 
       expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
       expect(ajvValidate).toHaveReturnedWith(true)
-
       expect(process.exit).toHaveBeenCalledWith(0)
     })
 
@@ -112,7 +112,6 @@ describe('strong-config validate', () => {
 
       expect(ajvValidate).toHaveBeenCalledWith(schema, decryptedConfig)
       expect(ajvValidate).toHaveReturnedWith(true)
-
       expect(process.exit).toHaveBeenCalledWith(0)
     })
 

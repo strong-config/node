@@ -59,14 +59,16 @@ export class Decrypt extends Command {
     } catch (error) {
       spinner.fail('Failed to decrypt config file')
 
-      /* eslint-disable @typescript-eslint/restrict-template-expressions -- oclif's types are too weak, config_file arg is always required */
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access -- i don't know how to properly type the error object :/ */
+      /* eslint-disable @typescript-eslint/ban-ts-comment */
+      // @ts-ignore - don't know how to make typescript happy here
       if (error.exitCode) {
         /* istanbul ignore else: no need to test the else path */
+        // @ts-ignore - don't know how to make typescript happy here
         if (error.exitCode === 1) {
           console.error(
             `🤔 It looks like ${args.config_file} is already decrypted`
           )
+          // @ts-ignore - don't know how to make typescript happy here
         } else if (error.exitCode === 100) {
           console.error(
             `🤔 Didn't find ./${args.config_file}. A typo, perhaps?`
@@ -75,16 +77,17 @@ export class Decrypt extends Command {
       } else {
         console.error(error)
       }
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
-      /* eslint-enable @typescript-eslint/restrict-template-expressions */
+      /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
       process.exit(1)
     }
 
-    spinner.succeed(`Successfully decrypted ${args.config_file as string}!`)
+    spinner.succeed(`Successfully decrypted ${args.config_file}!`)
   }
 
-  async run(): Promise<void> {
+  // All run() methods must return a Promise in oclif CLIs, regardless of whether they do something async or not.
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async run() {
     this.decrypt()
 
     const { args, flags } = this.parse(Decrypt)
@@ -92,7 +95,6 @@ export class Decrypt extends Command {
 
     if (schema && !validateOneConfigFile(args.config_file, schema)) {
       ora(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Encryption failed because ./${args.config_file} failed validation against ./${flags['config-root']}/schema.json`
       ).fail()
       process.exit(1)

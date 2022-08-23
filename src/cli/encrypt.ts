@@ -86,38 +86,53 @@ export class Encrypt extends Command {
     } catch (error) {
       spinner.fail('Failed to encrypt config file')
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- i don't know how to make this any safer for typescript
-      if (error.exitCode && error.exitCode === 203) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+        // @ts-ignore - don't know how to make typescript happy here
+        error.exitCode &&
+        // @ts-ignore - don't know how to make typescript happy here
+        error.exitCode === 203
+      ) {
         console.error(
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- can safely ignore this because the config_file arg is required
           `🤔 It looks like ${args.config_file} is already encrypted!\n`
         )
       }
 
       if (
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- i don't know how to make this any safer for typescript */
+        // @ts-ignore - don't know how to make typescript happy here
         error.stderr &&
+        // @ts-ignore - don't know how to make typescript happy here
         typeof error.stderr === 'string' &&
+        // @ts-ignore - don't know how to make typescript happy here
         error.stderr.includes('GCP')
       ) {
+        // @ts-ignore - don't know how to make typescript happy here
         console.error(`🌩 Google Cloud KMS Error:\n${error.stderr as string}`)
-        /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
       }
+      /* eslint-enable @typescript-eslint/ban-ts-comment */
 
       console.error(error)
       process.exit(1)
     }
 
-    spinner.succeed(`Successfully encrypted ${args.config_file as string}!`)
+    spinner.succeed(`Successfully encrypted ${args.config_file}!`)
   }
 
-  async run(): Promise<void> {
+  // All run() methods must return a Promise in oclif CLIs, regardless of whether they do something async or not.
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async run() {
     const { args, flags } = this.parse(Encrypt)
     const schema = loadSchema(flags['config-root'])
 
+    if (typeof args.config_file !== 'string') {
+      throw new TypeError('args.config_file is required')
+    }
+
+
     if (schema && !validateOneConfigFile(args.config_file, schema)) {
       ora(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Encryption failed because ./${args.config_file} failed validation against ./${flags['config-root']}/schema.json`
       ).fail()
       process.exit(1)

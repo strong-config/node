@@ -99,6 +99,7 @@ describe('StrongConfig.getConfig()', () => {
     it('should NOT load config file from disk and return memoized config directly', () => {
       const sc = new StrongConfig(validOptions)
       const firstLoadResult = sc.getConfig()
+
       expect(loadConfigForEnv).toHaveBeenCalled()
       expect(sops.decryptToObject).toHaveBeenCalled()
       expect(hydrateConfig).toHaveBeenCalled()
@@ -106,6 +107,7 @@ describe('StrongConfig.getConfig()', () => {
       jest.clearAllMocks()
 
       const secondLoadResult = sc.getConfig()
+
       expect(loadConfigForEnv).not.toHaveBeenCalled()
       expect(sops.decryptToObject).not.toHaveBeenCalled()
       expect(hydrateConfig).not.toHaveBeenCalled()

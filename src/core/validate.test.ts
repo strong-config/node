@@ -38,15 +38,17 @@ describe('StrongConfig.validate(data, schema)', () => {
 
   it('can validate config objects', () => {
     sc.validate(hydratedConfig, schema)
+
     expect(ajvValidate).toHaveBeenCalledWith(schema, hydratedConfig)
     expect(ajvValidate).toHaveReturnedWith(true)
 
     ajvValidate.mockClear()
 
     const invalidConfig = { i: 'am', not: 'valid' }
+
     // @ts-ignore explicitly testing invalid input here
     expect(() => sc.validate(invalidConfig, schema)).toThrow(
-      'config should NOT have additional properties'
+      'config must NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(schema, invalidConfig)
     expect(ajvValidate).toHaveReturnedWith(false)
@@ -54,6 +56,7 @@ describe('StrongConfig.validate(data, schema)', () => {
 
   it('can validate strong-config options', () => {
     sc.validate(validOptions, optionsSchema)
+
     expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, validOptions)
     expect(ajvValidate).toHaveReturnedWith(true)
 
@@ -61,7 +64,7 @@ describe('StrongConfig.validate(data, schema)', () => {
 
     // @ts-ignore explicitly testing invalid input here
     expect(() => sc.validate(invalidOptions, optionsSchema)).toThrow(
-      'config should NOT have additional properties'
+      'config must NOT have additional properties'
     )
     expect(ajvValidate).toHaveBeenCalledWith(optionsSchema, invalidOptions)
     expect(ajvValidate).toHaveReturnedWith(false)

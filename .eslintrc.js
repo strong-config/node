@@ -1,9 +1,9 @@
 module.exports = {
-  extends: ['@brickblock/eslint-config-base-ts'],
+  extends: ['@scalingfunds/eslint-config-base-ts'],
   parserOptions: {
     project: ['./tsconfig.eslint.json'],
     ecmaVersion: 2018,
-    extraFileExtensions: ['.json'],
+    extraFileExtensions: ['.json', '.mjs'],
     sourceType: 'module',
   },
   ignorePatterns: ['**/config.d.ts', 'blackbox', 'example*/schema.json', 'lib'],

@@ -1,3 +1,6 @@
+/* eslint-disable unicorn/prefer-module */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 // We want to use the actual compiled JS here to make sure the final npm package works
 const { inspect } = require('util')
 const chalk = require('chalk')

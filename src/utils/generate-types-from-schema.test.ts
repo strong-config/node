@@ -57,11 +57,10 @@ export interface Config extends TheTopLevelInterface {
 
   it('throws when schema title is not a string', async () => {
     const title = true
+    // We're explicitly testing an invalid value here
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     readFileSyncSpy.mockReturnValueOnce(`{ "title": ${title} }`)
 
-    // This function is not identical because we're using a different mock value for readFileSync()
-    // eslint-disable-next-line sonarjs/no-identical-functions
     await expect(async () =>
       generateTypesFromSchema(defaultOptions.configRoot, '@types')
     ).rejects.toThrow(
@@ -72,8 +71,6 @@ export interface Config extends TheTopLevelInterface {
   it('throws when schema title is named "config" or "Config"', async () => {
     readFileSyncSpy.mockReturnValueOnce(`{ "title": "config" }`)
 
-    // This function is not identical because we're using a different mock value for readFileSync()
-    // eslint-disable-next-line sonarjs/no-identical-functions
     await expect(async () =>
       generateTypesFromSchema(defaultOptions.configRoot, '@types')
     ).rejects.toThrow(

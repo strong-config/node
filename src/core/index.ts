@@ -57,11 +57,14 @@ const debug = Debug('strong-config:main')
 export = class StrongConfig {
   public readonly options: Options
 
-  private readonly runtimeEnv: string
+  // FIXME: Change this to 'private' after dropping CommonJS support
+  public readonly runtimeEnv: string
 
-  private config: MemoizedConfig
+  // FIXME: Change this to 'private' after dropping CommonJS support
+  public config: MemoizedConfig
 
-  private schema: Schema | null | undefined
+  // FIXME: Change this to 'private' after dropping CommonJS support
+  public schema: Schema | null | undefined
 
   /**
    * Initializes StrongConfig and loads & memoizes config (plus schema, if existent)
@@ -111,8 +114,6 @@ export = class StrongConfig {
     // Typecasting to string is safe as we've determined it's a string in the previous if-statement
     this.runtimeEnv = process.env[this.options.runtimeEnvName] as string
 
-    // See explanation for why 'null' in comments for getSchema() method
-    // eslint-disable-next-line unicorn/no-null
     this.schema = this.getSchema() || null
     this.config = this.getConfig()
 
@@ -212,7 +213,6 @@ export = class StrongConfig {
 
     debug('💰 Loading schema from file (expensive operation!)')
 
-    // eslint-disable-next-line unicorn/no-null
     return loadSchema(this.options.configRoot) || null
   }
 

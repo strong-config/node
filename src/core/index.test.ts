@@ -85,6 +85,7 @@ describe('StrongConfig.constructor()', () => {
     expect(console.error).toHaveBeenCalledWith(
       expect.stringMatching("Invalid options passed to 'new StrongConfig")
     )
+
     console.error = originalConsoleError
   })
   /* eslint-enable no-console */
@@ -129,10 +130,7 @@ describe('StrongConfig.constructor()', () => {
     })
 
     it('should skip type generation', () => {
-      jest
-        .spyOn(StrongConfig.prototype, 'getSchema')
-        // eslint-disable-next-line unicorn/no-null
-        .mockReturnValue(null)
+      jest.spyOn(StrongConfig.prototype, 'getSchema').mockReturnValue(null)
       jest.spyOn(StrongConfig.prototype, 'generateTypes')
       const sc = new StrongConfig(validOptions)
 

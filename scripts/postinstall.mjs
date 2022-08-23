@@ -1,24 +1,30 @@
+/* eslint-disable unicorn/no-process-exit */
 /*
  * EXPLAINER
- * This script contains logic to NOT run in the context of this repo, otherwise it would run everytime we 'yarn add' something in development.
- * In the context of other applications, installing the package via 'yarn add @strong-config/node' will run this script to install the sops binary.
- * Unless sops is already installed, then it will opt out and exit early with code 0.
+ * This script contains logic to NOT run in the context of this repo, otherwise
+ * it would run everytime we 'yarn add' something in development. In the context
+ * of other applications, installing the package via 'yarn add @strong-config/node'
+ * will run this script to install the sops binary. Unless sops is already installed,
+ * then it will opt out and exit early with code 0.
  */
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-const fetch = require('node-fetch')
-const ora = require('ora')
-const os = require('os')
-const path = require('path')
-const util = require('util')
-const which = require('which')
-const { pipeline } = require('stream')
+// eslint-disable-next-line no-restricted-imports
+import fetch from 'node-fetch'
+import ora from 'ora'
+import os from 'os'
+import path from 'path'
+import { promisify } from 'util'
+import which from 'which'
+import { pipeline } from 'stream'
 
-// We're using the async implementations from 'fs-extra' for the spinner to work properly.
-// When using the standard sync implementations (e.g. chmodSync) then the spinner freezes.
-const { chmod, copyFile, createWriteStream, pathExists } = require('fs-extra')
+/*
+ * We're using the async implementations from 'fs-extra' for the spinner to work properly.
+ * When using the standard sync implementations (e.g. chmodSync) then the spinner freezes.
+ */
+import fsExtra from 'fs-extra'
+const { chmod, copyFile, createWriteStream, pathExists } = fsExtra
 
-const streamPipeline = util.promisify(pipeline)
+const streamPipeline = promisify(pipeline)
 
 const REPO = 'mozilla/sops'
 const VERSION = '3.5.0'
@@ -52,19 +58,22 @@ const getFileExtension = () => {
 }
 
 const downloadBinary = async (repo, binary, version) => {
-  const ext = getFileExtension()
-  const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}.${ext}`
+  const extension = getFileExtension()
+  const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}.${extension}`
   const spinner = ora(`Downloading '${binary}' binary from ${url}...`).start()
 
   try {
     const response = await fetch(url)
-    if (!response.ok)
+
+    if (!response.ok) {
       throw new Error(
         `Binary download failed with unexpected response: ${response.statusText}`
       )
+    }
 
     const downloadPath = `./node_modules/.bin/${
-      ext === 'exe' ? binary + '.exe' : binary
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      extension === 'exe' ? binary + '.exe' : binary
     }`
     await streamPipeline(response.body, createWriteStream(downloadPath))
 
@@ -78,11 +87,11 @@ const downloadBinary = async (repo, binary, version) => {
   }
 }
 
-const makeBinaryExecutable = async (path) => {
+const makeBinaryExecutable = async (_path) => {
   const spinner = ora(`Making ${BINARY} binary executable...`).start()
 
   try {
-    await chmod(path, 0o755)
+    await chmod(_path, 0o755)
     spinner.succeed(`✅ ${BINARY} binary is executable`)
   } catch (error) {
     spinner.fail('Failed to make binary executable')
@@ -90,17 +99,18 @@ const makeBinaryExecutable = async (path) => {
   }
 }
 
-const copyFileToConsumingPackagesBinaryPath = async (srcPath) => {
-  const destPath = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
+const copyFileToConsumingPackagesBinaryPath = async (sourcePath) => {
+  const destinationPath = `${process.env.INIT_CWD}/node_modules/.bin/${BINARY}`
 
   // This is the case when running 'postinstall' from the strong-config project itself
-  if (path.resolve(srcPath) === path.resolve(destPath)) {
+  if (path.resolve(sourcePath) === path.resolve(destinationPath)) {
     return
   }
 
   const spinner = ora(
     `Copying ${BINARY} binary to consuming package's ./node_modules/.bin folder...`
   ).start()
+
   try {
     if (!process.env.INIT_CWD) {
       spinner.fail(
@@ -108,8 +118,9 @@ const copyFileToConsumingPackagesBinaryPath = async (srcPath) => {
       )
       process.exit(1)
     } else {
-      await copyFile(srcPath, destPath)
-      spinner.succeed(`✅ ${BINARY} binary to ${destPath}`)
+      await copyFile(sourcePath, destinationPath)
+      spinner.succeed(`✅ ${BINARY} binary to ${destinationPath}`)
+
       return
     }
   } catch (error) {

@@ -2,8 +2,7 @@ import matchAll from 'match-all'
 import { substituteWithEnv } from './substitute-with-env'
 
 jest.mock('match-all', () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const matchAllOriginal = jest.requireActual('match-all')
+  const matchAllOriginal = jest.requireActual<typeof matchAll>('match-all')
 
   return jest.fn().mockImplementation(matchAllOriginal)
 })
@@ -88,6 +87,7 @@ describe('substituteWithEnv()', () => {
     const config = { field: 'value', otherField: 'other-value' }
 
     substituteWithEnv(config)
+
     expect(matchAll).toHaveBeenCalled()
 
     String.prototype.matchAll = originalImplementation
