@@ -102,7 +102,6 @@ jobs:
           git config push.default current
 
       - run: yarn release
-
       - run: git push --no-verify
       - run: npm publish --access public
         env:
