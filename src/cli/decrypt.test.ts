@@ -78,6 +78,7 @@ describe('strong-config decrypt', () => {
 
       expect(validateCommand.validateOneConfigFile).toHaveBeenCalledWith(
         configFile,
+        configRoot,
         schema
       )
 

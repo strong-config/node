@@ -79,7 +79,7 @@ export class CheckEncryption extends Command {
     let configFile
 
     try {
-      configFile = loadConfigFromPath(configPath)
+      configFile = loadConfigFromPath(configPath, flags['config-root'])
     } catch {
       spinner.fail(
         `${configPath} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`

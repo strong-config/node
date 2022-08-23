@@ -45,10 +45,15 @@ describe('strong-config check-encryption', () => {
   describe('for ONE file', () => {
     it('should read the config file', async () => {
       jest.spyOn(readFiles, 'loadConfigFromPath')
-      await CheckEncryption.run([encryptedConfigPath])
+      await CheckEncryption.run([
+        encryptedConfigPath,
+        '--config-root',
+        configRoot,
+      ])
 
       expect(readFiles.loadConfigFromPath).toHaveBeenCalledWith(
-        encryptedConfigPath
+        encryptedConfigPath,
+        configRoot
       )
     })
 

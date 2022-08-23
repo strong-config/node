@@ -67,7 +67,10 @@ describe('strong-config validate', () => {
     it('validates a given config against its schema', async () => {
       await Validate.run([encryptedConfigPath, '--config-root', configRoot])
 
-      expect(loadConfigFromPath).toHaveBeenCalledWith(encryptedConfigPath)
+      expect(loadConfigFromPath).toHaveBeenCalledWith(
+        encryptedConfigPath,
+        configRoot
+      )
       expect(sops.decryptToObject).toHaveBeenCalledWith(
         encryptedConfigFile.filePath,
         encryptedConfigFile.contents
@@ -176,12 +179,14 @@ describe('strong-config validate', () => {
 
         it('fails', async () => {
           await Validate.run([encryptedConfigPath])
+
           expect(process.exit).toHaveBeenCalledWith(1)
         })
 
         it('displays human-readable error message', async () => {
           await Validate.run([encryptedConfigPath])
           stderr.stop()
+
           expect(stderr.output).toMatch(
             `No schema found in your config root ./${defaultOptions.configRoot}/schema.json`
           )
@@ -272,12 +277,14 @@ describe('strong-config validate', () => {
       expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
         1,
         encryptedConfigPath,
+        configRoot,
         schema
       )
 
       expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
         2,
         unencryptedConfigPath,
+        configRoot,
         schema
       )
     })
@@ -312,14 +319,18 @@ describe('strong-config validate', () => {
         expect(validateOneConfigFileSpy).toHaveBeenCalledTimes(
           allConfigFiles.length
         )
+
         expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
           1,
           allConfigFiles[0],
+          configRoot,
           schema
         )
+
         expect(validateOneConfigFileSpy).toHaveBeenNthCalledWith(
           2,
           allConfigFiles[1],
+          configRoot,
           schema
         )
       })

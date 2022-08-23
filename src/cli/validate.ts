@@ -11,6 +11,7 @@ import { DecryptedConfig, Schema } from '../types'
 
 export const validateOneConfigFile = (
   configPath: string,
+  configRoot: string,
   schema: Schema
 ): boolean => {
   const spinner = ora(`Validating ${configPath}...`).start()
@@ -19,7 +20,7 @@ export const validateOneConfigFile = (
   try {
     spinner.text = `Loading config: ${configPath}`
     spinner.render()
-    const configFile = loadConfigFromPath(configPath)
+    const configFile = loadConfigFromPath(configPath, configRoot)
 
     spinner.text = `Decrypting config with sops...`
     spinner.render()
@@ -102,7 +103,7 @@ export class Validate extends Command {
     }
 
     const validationResults = configFiles.map((configPath) =>
-      validateOneConfigFile(configPath, schema)
+      validateOneConfigFile(configPath, configRoot, schema)
     )
 
     if (validationResults.includes(false)) {
@@ -111,7 +112,7 @@ export class Validate extends Command {
 
       return false
     } else {
-      spinner.succeed('Secrets in all config files are safely encrypted 💪')
+      spinner.stop()
 
       return true
     }
@@ -119,25 +120,25 @@ export class Validate extends Command {
 
   async run(): Promise<void> {
     const { argv, flags } = this.parse(Validate)
-
-    const spinner = ora(`Loading schema from: ${flags['config-root']}`).start()
-    const schema = loadSchema(flags['config-root'])
+    const configRoot = flags['config-root']
+    const spinner = ora(`Loading schema from: ${configRoot}`).start()
+    const schema = loadSchema(configRoot)
 
     if (!schema) {
       spinner.fail(
-        `No schema found in your config root ./${flags['config-root']}/schema.json\nCan't validate config without a schema because there's nothing to validate against :)\nPlease create a 'schema.json' in your config folder\n`
+        `No schema found in your config root ./${configRoot}/schema.json\nCan't validate config without a schema because there's nothing to validate against :)\nPlease create a 'schema.json' in your config folder\n`
       )
       process.exit(1)
     }
 
     if (argv.length > 0) {
       for (const configPath of argv) {
-        validateOneConfigFile(configPath, schema) || process.exit(1)
+        validateOneConfigFile(configPath, configRoot, schema) || process.exit(1)
       }
 
       process.exit(0)
     } else {
-      ;(await this.validateAllConfigFiles(flags['config-root'], schema))
+      ;(await this.validateAllConfigFiles(configRoot, schema))
         ? process.exit(0)
         : process.exit(1)
     }

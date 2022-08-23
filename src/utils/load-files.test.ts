@@ -141,7 +141,31 @@ describe('utils :: load-files', () => {
         })
 
         it('returns the expected config file', () => {
-          const result = loadConfigFromPath('some/path/config.yaml')
+          const result = loadConfigFromPath('some/path/config.yaml', configRoot)
+
+          expect(yaml.load).toHaveBeenCalledWith(configFileContents)
+          expect(JSON.parse).not.toHaveBeenCalled()
+
+          expect(result).toStrictEqual({
+            filePath: 'some/path/config.yaml',
+            contents: { parsed: 'yaml' },
+          })
+        })
+      })
+
+      describe('given just a filename as configPath', () => {
+        const configFileContents = 'parsed: yaml'
+
+        beforeEach(() => {
+          jest.spyOn(yaml, 'load')
+          jest.spyOn(JSON, 'parse')
+          jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(configFileContents)
+          jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false)
+          jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true)
+        })
+
+        it('uses configRoot to compose the full config path and returns the expected config file', () => {
+          const result = loadConfigFromPath('config.yaml', 'some/path')
 
           expect(yaml.load).toHaveBeenCalledWith(configFileContents)
           expect(JSON.parse).not.toHaveBeenCalled()
@@ -164,7 +188,7 @@ describe('utils :: load-files', () => {
         })
 
         it('returns the expected config file', () => {
-          const result = loadConfigFromPath('some/path/config.json')
+          const result = loadConfigFromPath('some/path/config.json', configRoot)
 
           expect(JSON.parse).toHaveBeenCalledWith(configFileContents)
           expect(yaml.load).not.toHaveBeenCalled()
@@ -181,7 +205,7 @@ describe('utils :: load-files', () => {
           jest.spyOn(fs, 'existsSync').mockReturnValue(true)
           const configPath = 'some/path/config.xml'
 
-          expect(() => loadConfigFromPath(configPath)).toThrow(
+          expect(() => loadConfigFromPath(configPath, configRoot)).toThrow(
             `Unsupported file: ${configPath}. Only JSON and YAML config files are supported.`
           )
         })
@@ -201,7 +225,7 @@ describe('utils :: load-files', () => {
           jest.spyOn(fs, 'readFileSync').mockReturnValue(configFileContents)
           jest.spyOn(fs, 'existsSync').mockReturnValue(true)
 
-          const result = loadConfigFromPath('some/path/config.yaml')
+          const result = loadConfigFromPath('some/path/config.yaml', configRoot)
 
           expect(yaml.load).toHaveBeenCalledWith(configFileContents)
 
@@ -243,7 +267,7 @@ deeply:
           jest.spyOn(fs, 'readFileSync').mockReturnValue(configFileContents)
           jest.spyOn(fs, 'existsSync').mockReturnValue(true)
 
-          const result = loadConfigFromPath('some/path/config.yaml')
+          const result = loadConfigFromPath('some/path/config.yaml', configRoot)
 
           expect(result).toStrictEqual({
             filePath: 'some/path/config.yaml',

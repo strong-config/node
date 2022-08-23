@@ -50,6 +50,10 @@ export class Decrypt extends Command {
   decrypt = (): void => {
     const { args, flags } = this.parse(Decrypt)
 
+    if (typeof args.config_file !== 'string') {
+      throw new TypeError('args.config_file is required')
+    }
+
     const spinner = ora('Decrypting...').start()
 
     const sopsOptions = ['--decrypt', ...getSopsOptions(args, flags)]
@@ -88,14 +92,22 @@ export class Decrypt extends Command {
   // All run() methods must return a Promise in oclif CLIs, regardless of whether they do something async or not.
   // eslint-disable-next-line @typescript-eslint/require-await
   async run() {
+    const { args, flags } = this.parse(Decrypt)
+    const configRoot = flags['config-root']
     this.decrypt()
 
-    const { args, flags } = this.parse(Decrypt)
-    const schema = loadSchema(flags['config-root'])
+    if (typeof args.config_file !== 'string') {
+      throw new TypeError('args.config_file is required')
+    }
 
-    if (schema && !validateOneConfigFile(args.config_file, schema)) {
+    const schema = loadSchema(configRoot)
+
+    if (
+      schema &&
+      !validateOneConfigFile(args.config_file, configRoot, schema)
+    ) {
       ora(
-        `Encryption failed because ./${args.config_file} failed validation against ./${flags['config-root']}/schema.json`
+        `Encryption failed because ./${args.config_file} failed validation against ./${configRoot}/schema.json`
       ).fail()
       process.exit(1)
     }

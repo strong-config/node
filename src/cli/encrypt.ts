@@ -77,6 +77,10 @@ export class Encrypt extends Command {
   encrypt = (): void => {
     const { args, flags } = this.parse(Encrypt)
 
+    if (typeof args.config_file !== 'string') {
+      throw new TypeError('args.config_file is required')
+    }
+
     const spinner = ora('Encrypting...').start()
 
     const sopsOptions = ['--encrypt', ...getSopsOptions(args, flags)]
@@ -124,16 +128,20 @@ export class Encrypt extends Command {
   // eslint-disable-next-line @typescript-eslint/require-await
   async run() {
     const { args, flags } = this.parse(Encrypt)
-    const schema = loadSchema(flags['config-root'])
+    const configRoot = flags['config-root']
 
     if (typeof args.config_file !== 'string') {
       throw new TypeError('args.config_file is required')
     }
 
+    const schema = loadSchema(configRoot)
 
-    if (schema && !validateOneConfigFile(args.config_file, schema)) {
+    if (
+      schema &&
+      !validateOneConfigFile(args.config_file, configRoot, schema)
+    ) {
       ora(
-        `Encryption failed because ./${args.config_file} failed validation against ./${flags['config-root']}/schema.json`
+        `Encryption failed because ./${args.config_file} failed validation against ./${configRoot}/schema.json`
       ).fail()
       process.exit(1)
     }

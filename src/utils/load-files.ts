@@ -18,7 +18,6 @@ export const loadConfigForEnv = (
   baseConfig: string = defaultOptions.baseConfig
 ): EncryptedConfigFile => {
   const configRoot = path.normalize(configRootRaw)
-
   const globPattern = `${configRoot}/${runtimeEnv}.{${ConfigFileExtensions.join(
     ','
   )}}`
@@ -53,20 +52,33 @@ export const loadConfigForEnv = (
   return loadConfigFromPath(configFiles[0], configRoot, baseConfig)
 }
 
-// Return type can NOT be undefined because config files are NOT optional (contrary to schema files)
+/*
+ * Cases to handle
+ * 1. configPathRaw = config/development.yml
+ * 2. configPathRaw = development.yml;        configRootRaw = config
+ * 3. configPathRaw = config/development.yml; configRootRaw = config
+ */
 export const loadConfigFromPath = (
   configPathRaw: string,
-  configRootRaw: string = defaultOptions.configRoot,
+  configRootRaw: string,
   baseConfigFileName: string = defaultOptions.baseConfig
 ): EncryptedConfigFile => {
-  const configPath = path.normalize(configPathRaw)
   const configRoot = path.normalize(configRootRaw)
-  const baseConfig = loadBaseConfig(configRoot, baseConfigFileName)
 
+  // First, check if configPathRaw is a full path to the config file (if YES, we can ignore configRootRaw)
+  let configPath = path.normalize(configPathRaw)
+
+  // If configPathRaw was NOT a full path, retry loading the file from `${configRoot}/${configPathRaw}`
   if (!fs.existsSync(configPath)) {
-    throw new Error(`Couldn't find config file ${configPath}`)
+    configPath = path.join(configRoot, configPathRaw)
+
+    // If both prior approaches failed, throw error ❌
+    if (!fs.existsSync(configPath)) {
+      throw new Error(`Couldn't find config file ${configPath}`)
+    }
   }
 
+  const baseConfig = loadBaseConfig(configRoot, baseConfigFileName)
   const fileExtension = configPath.split('.').pop()
 
   let fileAsString: string
