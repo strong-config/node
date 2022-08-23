@@ -103,9 +103,6 @@ jobs:
 
       - run: yarn release
       - run: git push --no-verify
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Post changelog to Slack
         run: npx @brickblock/slack-changelog-notifier --projectName $GITHUB_REPOSITORY
         env:
