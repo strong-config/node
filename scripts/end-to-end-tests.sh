@@ -2,11 +2,12 @@
 # flags inspired by https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
 set -euxo pipefail
 
-# Create tarball with strong-config package
-yarn pack --prod
-
 # Clean up leftovers from previous e2e test runs
 rm -rf blackbox
+rm -f strong-config-node-*.tgz
+
+# Create tarball with strong-config package
+yarn pack --prod
 
 # Create empty dir to bootstrap test project
 mkdir -p blackbox
@@ -14,6 +15,9 @@ cd blackbox
 
 # Create package.json for test project
 yarn init --yes
+
+# Clear yarn cache because it seems to sometimes cache a previous tarball even when we specify a specific file to install from
+yarn cache clean
 
 # Install strong-config from tarball, ts-node & typescript for transpiling test files
 yarn add file:$(ls ../strong-config*.tgz) ts-node typescript
@@ -48,8 +52,14 @@ yarn strong-config check config/development.yaml config/no-secrets.yml
 # Validate single config
 yarn strong-config validate config/development.yaml config/unencrypted.yml
 
+# Validate single config with base config
+yarn strong-config validate config-with-base-config/development.yml --config-root config-with-base-config
+
 # Validate multiple configs
 yarn strong-config validate config/development.yaml
+
+# Validate multiple configs with base config
+yarn strong-config validate config-with-base-config/development.yml config-with-base-config/staging.yml --config-root config-with-base-config
 
 # Generate TypeScript Definitions
 yarn strong-config generate-types && cat config/config.d.ts
