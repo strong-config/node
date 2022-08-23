@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/strong-config/node/compare/v1.2.1...v1.3.0) (2022-08-23)
+
+
+### Features
+
+* **loadConfigFromPath:** make configRoot a required argument to avoid edge cases ([3330b4b](https://github.com/strong-config/node/commit/3330b4bdcb895f1d9b64f831ff851af173a5f175))
+
 ### [1.2.1](https://github.com/strong-config/node/compare/v1.2.0...v1.2.1) (2022-01-15)
 
 ## [1.2.0](https://github.com/strong-config/node/compare/v1.1.7...v1.2.0) (2021-09-24)
