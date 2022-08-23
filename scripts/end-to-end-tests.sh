@@ -37,7 +37,7 @@ echo "CLI Tests"
 yarn strong-config decrypt config/development.yaml tmp.yml && cat tmp.yml && rm tmp.yml
 
 # Encrypt with local GPG key
-yarn strong-config encrypt -p pgp -k 2E9644A658379349EFB77E895351CE7FC0AC6E94 config/unencrypted.yml tmp.yml && cat tmp.yml && rm tmp.yml
+yarn strong-config encrypt -p pgp -k E263F7743276FB9C209078DF59971A99C34BF6C1 config/unencrypted.yml tmp.yml && cat tmp.yml && rm tmp.yml
 
 # Check single config
 yarn strong-config check config/development.yaml
