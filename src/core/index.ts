@@ -1,5 +1,6 @@
 import Debug from 'debug'
 import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import type { Options } from '../options'
 import { optionsSchema, defaultOptions } from '../options'
 import type { HydratedConfig, MemoizedConfig, Schema } from '../types'
@@ -231,6 +232,7 @@ export = class StrongConfig {
    */
   public validate(data: MemoizedConfig | Options, schema: Schema): true {
     const ajv = new Ajv({ allErrors: true, useDefaults: true })
+    addFormats(ajv)
 
     if (!ajv.validate(schema, data)) {
       throw new Error(

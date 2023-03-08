@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command, flags as Flags } from '@oclif/command'
 import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { formatAjvErrors } from '../utils/format-ajv-errors'
@@ -16,6 +17,7 @@ export const validateOneConfigFile = (
 ): boolean => {
   const spinner = ora(`Validating ${configPath}...`).start()
   const ajv = new Ajv({ allErrors: true, useDefaults: true })
+  addFormats(ajv)
 
   try {
     spinner.text = `Loading config: ${configPath}`
