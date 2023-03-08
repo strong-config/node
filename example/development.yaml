@@ -1,32 +1,37 @@
 name: example-project
 someField:
-  optionalField: 123
-  requiredField: crucial string
+    optionalField: 123
+    requiredField: crucial string
 someArray:
-  - joe
-  - freeman
-someSecret: ENC[AES256_GCM,data:CxljzBH8Xh06,iv:L5VSXtgaD7RXTt7HW0Pra6vDSBTbP8/dkyruXmMKtgU=,tag:tVwtqvz1QLXskFKXT4na7A==,type:str]
+    - joe
+    - freeman
+someSecret: ENC[AES256_GCM,data:/fR6fWvAd0TV,iv:tlA+FhUomVM/eIrZ4kZhvxw1PR0fE0VQxMCO/BLLSkE=,tag:CLgd3r2reAmeaRT3e9B82A==,type:str]
 sops:
-  kms: []
-  gcp_kms: []
-  azure_kv: []
-  lastmodified: '2019-11-15T15:12:21Z'
-  mac: ENC[AES256_GCM,data:XF5VwIKse+f8FsjDRiTkyKUdRpx0xdPtx1Rzb/kU8sp5D9NXDHHs5pUJs61E6SlANCI2L0CW+3riO3dC3nfOzRIf8w/9l0Jm6qVERhS97CPfDz0frlKXLITKxRtl1yBD9yjCRpv6NZT+zFQn9l+afQ/+pCpwyLwLjxWUqrvFhpc=,iv:5QHpdF/LAMlOVbhDGUXvUtB9Z6n1GbaSlUgrvk8ktvU=,tag:BxKcFUAvfcQWQ+TXn6uwWQ==,type:str]
-  pgp:
-    - created_at: '2019-11-15T15:12:21Z'
-      enc: |
-        -----BEGIN PGP MESSAGE-----
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-03-08T14:12:37Z"
+    mac: ENC[AES256_GCM,data:8danKja6MgW6hQ2IDeIldeX/tif7VAw3sBMRYOKb0iTDlD2tcyfEOtDXNMLuZlgtzUtsASp4K2UoJNR4faMa6gRhNgms0ROAocHiYg6yyEOeeIIjLrkmL1WsjwSiJjuKubKkH5ohgCG911U7M1bimugf0YTBTaFVqLtCfuJuPzg=,iv:E2djhAzx0TIz6l7h6vRYD7cJ8d/XrkAOiLAFXxraB+A=,tag:0RU7fQmWtSq2IewXxHglQQ==,type:str]
+    pgp:
+        - created_at: "2023-03-08T14:12:37Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
 
-        hQEMA4yR0WhX562aAQf+KMbfjs0Uv5MCeyu8JVhvqooNJ9qLWprLu12qbjp2T0an
-        lq0PxVonhWr4okVE+vlWUqHF2GoeIv7qiv8B2PfsANLBHli5E1pBlUQC9X1gSZpL
-        3JQlS+khetIdzZXXh+QaEgKwsMPlGnB9u39Bo5k5+FydKtuf37ojvKcpLfKWSnPm
-        b+g0E7U2kKTAzIQSQnNdHqZcblMc9gzfbmhniAvJkBKMAebQq+IodDKJyY+L/7Nx
-        Jzsa3PXkMnpu95BpWWYuwnK/WSG+Of/mQg263M5B0rpy/raZGAKULQekTKrS+P43
-        0ONA+zPD0lHlGBFUIpDmv8sUn2apiqMYy4H3+xvTsdJeAQs5c0LmLujN/QVqjFsd
-        Lf8jlBPs+ggGzb1h7dURDun2qFsTWAhlVczUBlQdu2wAGutuvv+TOJTnfytBzSJD
-        0J+TjFPSdCcn1lMSQ6FT2BEwgpKemLKhyyOVHnKiWQ==
-        =V/vV
-        -----END PGP MESSAGE-----
-      fp: 2E9644A658379349EFB77E895351CE7FC0AC6E94
-  encrypted_suffix: Secret
-  version: 3.4.0
+            wcDMAzgg3kqBgc8gAQv+KOYGongV7QgcJk9XRi6tSSdrPmKvB9dKHas6go8rhaZc
+            n2icrNqW9ag4fcjaAmC3iPQUXMbrQ83q1VQ0FDWEVz3aiMHJgkX6m/JcePvjaQ3p
+            DTT4FXWPdpqoy10Fpwb9cvLvVRs3VTmyn24hKF4wJLVEbjJzR+PVVpXU0ADv5eDA
+            rtSZBB4d36/dHIvtIiX9WemHoJFPDNd4KuG+xP8qgQbHPmYOr8TuHwDu2wObQj6+
+            W5+w+xzFTtbD6tTSjSlcbShDHe6eaOuQoQJVo01IPP1EmHAt8/pdK4/q+CejbvOz
+            76Zhc/5gRcASv4Y9UJ148DYIapcmMpuFu4b0loPCs9Uv9EqSwfLnWw8yWkJfzr7J
+            BDQRYx3hG7FlvzmgsCym8tKFNP84YVfuJjs3B4Ek6Tvad/bCJGIXm8U4cLA07FYE
+            mb0Wt60IJhXCAItWUJG0k94py/KhUBqhP3sWdpQeTIZLsADe3Le/uP66ZqAd2Mvi
+            fUmzYInazkoRZfre1P010lEBVDSOaRXw8STAZiN2gp0EDXDDrlDBGRXguGtM4bo/
+            bEIfeYS7MRqu6GU5h/KICFPAh/o8kcxZePxEVvcVl39dEYfVks6OmaTbP62keu9d
+            cTQ=
+            =ol4B
+            -----END PGP MESSAGE-----
+          fp: E263F7743276FB9C209078DF59971A99C34BF6C1
+    encrypted_suffix: Secret
+    version: 3.7.3
