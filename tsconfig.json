@@ -38,7 +38,7 @@
 
     // Specify library files to be included in the compilation: */
     // https://www.typescriptlang.org/v2/en/tsconfig#lib
-    "lib": ["es6", "es2020.string"]
+    "lib": ["es2021"]
   },
   // Specifies an array of filenames or patterns to include in the program. These filenames are resolved relative to the directory containing the tsconfig.json file.
   // https://www.typescriptlang.org/v2/en/tsconfig#include

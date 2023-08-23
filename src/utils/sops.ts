@@ -9,6 +9,7 @@ export const sopsErrors = {
   DECRYPTION_ERROR: `Sops failed to retrieve the decryption key. This is often a permission error with your KMS provider.`,
   UNSUPPORTED_KEY_PROVIDER: 'Unsupported key provider:',
   KEY_SUFFIX_CONFLICT: `'--unencrypted-key-suffix' and '--encrypted-key-suffix' are mutually exclusive, pick one or the other`,
+  NO_CONFIG_FILE: "Didn't receive a config file",
 }
 
 export function getSopsBinary(): string {
@@ -29,12 +30,15 @@ export const runSopsWithOptions = (options: string[]): string => {
   const sopsResult = execa.sync(sopsBinary, options)
 
   switch (sopsResult.exitCode) {
-    case 0:
+    case 0: {
       return sopsResult.stdout.toString()
-    case 128:
+    }
+    case 128: {
       throw new Error(`${sopsErrors['DECRYPTION_ERROR']}\n${sopsResult.stdout}`)
-    default:
+    }
+    default: {
       throw new Error(`Unexpected sops error:\n${sopsResult.stdout}`)
+    }
   }
 }
 
@@ -64,7 +68,7 @@ export const decryptInPlace = (filePath: string): void =>
   runSopsWithOptions(['--decrypt', '--in-place', filePath]) as unknown as void
 
 export const getSopsOptions = (
-  args: Record<string, unknown>,
+  args: Record<string, string | undefined>,
   flags: Record<string, unknown>
 ): string[] => {
   const options: string[] = []
@@ -80,25 +84,30 @@ export const getSopsOptions = (
     typeof flags['key-id'] === 'string'
   ) {
     switch (flags['key-provider']) {
-      case 'pgp':
+      case 'pgp': {
         options.push('--pgp')
         break
-      case 'gcp':
+      }
+      case 'gcp': {
         options.push('--gcp-kms')
         break
-      case 'aws':
+      }
+      case 'aws': {
         options.push('--kms')
         break
-      case 'azr':
+      }
+      case 'azr': {
         options.push('--azure-kv')
         break
-      default:
+      }
+      default: {
         // Should not be reached as we define possible options in Encrypt.flags (../cli/encrypt.ts)
         throw new Error(
           sopsErrors['UNSUPPORTED_KEY_PROVIDER'].concat(
             `\n${flags['key-provider']}`
           )
         )
+      }
     }
 
     options.push(flags['key-id'])
@@ -125,7 +134,7 @@ export const getSopsOptions = (
   if (typeof args['config_file'] === 'string') {
     options.push(args['config_file'])
   } else {
-    throw new TypeError("args['config_file'] is nil and can't be encrypted")
+    throw new TypeError(sopsErrors['NO_CONFIG_FILE'])
   }
 
   return options

@@ -8,7 +8,7 @@ import {
 } from '../fixtures'
 import { generateTypesFromSchemaCallback } from '../utils/generate-types-from-schema'
 
-// Needed for commonjs-compatibility
+// Needed for commonjs compatibility
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import StrongConfig = require('.')
 

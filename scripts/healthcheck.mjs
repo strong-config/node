@@ -1,25 +1,20 @@
 #!/usr/bin/env node
-import * as fs from 'fs'
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+import fs from 'node:fs'
 import path from 'path'
 import chalk from 'chalk'
 import ora from 'ora'
-import { exec } from 'shelljs'
+import shelljs from 'shelljs'
 
-async function run({
-  command,
-  options = { silent: true },
-}: {
-  command: string
-  options?: { silent: boolean }
-}): Promise<unknown> {
-  return new Promise((resolve, reject): void => {
-    exec(command, options, function (exitCode, stdout, stderr) {
-      exitCode !== 0 ? reject(stderr) : resolve(stdout.trim())
+async function run({ command, options = { silent: true } }) {
+  return new Promise((resolve, reject) => {
+    shelljs.exec(command, options, function (exitCode, stdout, stderr) {
+      exitCode === 0 ? resolve(stdout.trim()) : reject(stderr)
     })
   })
 }
 
-async function runLinters(): Promise<void> {
+async function runLinters() {
   const spinner = ora('Running linters...').start()
 
   try {
@@ -34,7 +29,7 @@ async function runLinters(): Promise<void> {
   }
 }
 
-async function runUnitTests(): Promise<void> {
+async function runUnitTests() {
   const spinner = ora('Running unit tests...').start()
 
   try {
@@ -46,7 +41,7 @@ async function runUnitTests(): Promise<void> {
   }
 }
 
-async function runBuild(): Promise<void> {
+async function runBuild() {
   const spinner = ora().start()
 
   try {
@@ -87,7 +82,7 @@ async function runBuild(): Promise<void> {
   }
 }
 
-async function runIntegrationTests(): Promise<void> {
+async function runIntegrationTests() {
   const spinner = ora('Running Integration Tests...').start()
 
   try {
@@ -104,7 +99,7 @@ async function runIntegrationTests(): Promise<void> {
   }
 }
 
-async function runEndToEndTests(): Promise<void> {
+async function runEndToEndTests() {
   const spinner = ora('Running End-to-End Tests...').start()
 
   try {
@@ -117,7 +112,7 @@ async function runEndToEndTests(): Promise<void> {
   }
 }
 
-async function runReleaseScripts(): Promise<void> {
+async function runReleaseScripts() {
   const spinner = ora('Running Release Scripts...').start()
 
   try {
@@ -138,13 +133,13 @@ async function runReleaseScripts(): Promise<void> {
   }
 }
 
-async function printTodos(): Promise<void> {
+async function printTodos() {
   const spinner = ora('️Searching for open TODOs and FIXMEs...').start()
 
   let todos
 
   try {
-    todos = (await run({ command: 'yarn report:todo' })) as string
+    todos = await run({ command: 'yarn report:todo' })
   } catch (error) {
     spinner.fail(chalk.bold('Todos'))
     throw error
@@ -157,7 +152,7 @@ async function printTodos(): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+async function main() {
   ora('Checking overall project health...\n').info()
 
   await runLinters()
@@ -171,14 +166,17 @@ async function main(): Promise<void> {
 
 main()
   .then(() => {
+    // eslint-disable-next-line no-undef
     console.log(`\n${chalk.bold('💪 Project looks healthy 💪')}\n`)
 
     return true
   })
   // eslint-disable-next-line unicorn/prefer-top-level-await
   .catch((error) => {
+    // eslint-disable-next-line no-undef
     console.error(
       `\n${chalk.bold('❌ Project not healthy ❌')}\n\n${chalk.red(error)}`
     )
+    // eslint-disable-next-line no-undef
     process.exit(1)
   })

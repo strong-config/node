@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Command, flags as Flags } from '@oclif/command'
+import { Args, Command, Flags } from '@oclif/core'
 import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { defaultOptions } from '../options'
@@ -11,20 +11,18 @@ export class Encrypt extends Command {
 
   static strict = true
 
-  static args = [
-    {
-      name: 'config_file',
+  static args = {
+    config_file: Args.string({
       description:
         'path to a decrypted config file, for example: `strong-config encrypt config/production.yml`',
       required: true,
-    },
-    {
-      name: 'output_path',
+    }),
+    output_path: Args.string({
       description:
         '[optionap] output file of the encrypted config. If not specified, CONFIG_FILE is overwritten in-place.',
       required: false,
-    },
-  ]
+    }),
+  }
 
   static flags = {
     help: Flags.help({
@@ -69,17 +67,13 @@ export class Encrypt extends Command {
     'encrypt CONFIG_FILE [OUTPUT_PATH] --key-provider=KEY_PROVIDER --key-id=KEY_ID'
 
   static examples = [
-    '$ encrypt config/development.yaml --key-provider gcp --key-id ref/to/key',
-    '$ encrypt config/production.yaml -p aws -k ref/to/key --unencrypted-key-suffix "Plain"',
-    '$ encrypt --help',
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> config/development.yaml --key-provider gcp --key-id ref/to/key',
+    '<%= config.bin %> <%= command.id %> config/production.yaml -p aws -k ref/to/key --unencrypted-key-suffix "Plain"',
   ]
 
-  encrypt = (): void => {
-    const { args, flags } = this.parse(Encrypt)
-
-    if (typeof args.config_file !== 'string') {
-      throw new TypeError('args.config_file is required')
-    }
+  async encrypt(): Promise<void> {
+    const { args, flags } = await this.parse(Encrypt)
 
     const spinner = ora('Encrypting...').start()
 
@@ -125,14 +119,10 @@ export class Encrypt extends Command {
   }
 
   // All run() methods must return a Promise in oclif CLIs, regardless of whether they do something async or not.
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async run() {
-    const { args, flags } = this.parse(Encrypt)
-    const configRoot = flags['config-root']
 
-    if (typeof args.config_file !== 'string') {
-      throw new TypeError('args.config_file is required')
-    }
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Encrypt)
+    const configRoot = flags['config-root']
 
     const schema = loadSchema(configRoot)
 
@@ -146,7 +136,7 @@ export class Encrypt extends Command {
       process.exit(1)
     }
 
-    this.encrypt()
+    await this.encrypt()
 
     process.exit(0)
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import path from 'path'
-import { Command, flags as Flags } from '@oclif/command'
+import { Args, Command, Flags } from '@oclif/core'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
 import { defaultOptions } from '../options'
@@ -12,6 +12,7 @@ export class CheckEncryption extends Command {
   static description =
     'check that config file(s) with secrets are safely encrypted'
 
+  // Allows passing multiple args to this command
   static strict = false
 
   static flags = {
@@ -26,30 +27,28 @@ export class CheckEncryption extends Command {
     }),
   }
 
-  static args = [
-    {
-      name: 'config_file',
+  static args = {
+    config_file: Args.string({
       description:
         '[optional] path to a specific config file to check. if omitted, all config files will be checked',
       required: false,
-    },
-  ]
+    }),
+  }
 
   static usage = 'check-encryption [CONFIG_FILE]'
 
   static examples = [
-    '$ check-encryption',
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --config-root ./deeply/nested/config/folder',
+    '<%= config.bin %> <%= command.id %> config/production.yml',
     '$ check',
-    '$ check --config-root ./deeply/nested/config/folder',
-    '$ check config/production.yaml',
-    '$ check --help',
   ]
 
   static aliases = ['check']
 
   async checkAllConfigFiles(): Promise<void> {
     const spinner = ora('Checking all config files for encryption...').start()
-    const { flags } = this.parse(CheckEncryption)
+    const { flags } = await this.parse(CheckEncryption)
 
     const globPattern = `${flags['config-root']}/**/*.{yml,yaml}`
     const configFiles = await fastGlob(globPattern)
@@ -60,7 +59,7 @@ export class CheckEncryption extends Command {
     }
 
     const checkResultsPerFile = configFiles.map((configPath) =>
-      this.checkOneConfigFile(configPath)
+      this.checkOneConfigFile(configPath, flags['config-root'])
     )
 
     if (checkResultsPerFile.includes(false)) {
@@ -71,18 +70,17 @@ export class CheckEncryption extends Command {
     spinner.succeed('Secrets in all config files are safely encrypted 💪')
   }
 
-  checkOneConfigFile(rawPath: string): boolean {
+  checkOneConfigFile(rawPath: string, configRoot: string): boolean {
     const configPath = path.normalize(rawPath)
     const spinner = ora(`Checking ${configPath} for encryption...`).start()
-    const { flags } = this.parse(CheckEncryption)
 
     let configFile
 
     try {
-      configFile = loadConfigFromPath(configPath, flags['config-root'])
+      configFile = loadConfigFromPath(configPath, configRoot)
     } catch {
       spinner.fail(
-        `${configPath} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '${flags['config-root']}'`
+        `${configPath} doesn't exist.\nPlease either provide a valid path to a config file or don't pass any arguments to check all config files in '$ configRoot}'`
       )
 
       return false
@@ -92,16 +90,16 @@ export class CheckEncryption extends Command {
       spinner.succeed(`Secrets in ${configPath} are safely encrypted 💪`)
 
       return true
-    } else if (!hasSecrets(configFile.contents)) {
+    } else if (hasSecrets(configFile.contents)) {
+      spinner.fail(`Secrets in ${configPath} are NOT encrypted 🚨`)
+
+      return false
+    } else {
       spinner.succeed(
         `No secrets found in ${configPath}, no encryption required.`
       )
 
       return true
-    } else {
-      spinner.fail(`Secrets in ${configPath} are NOT encrypted 🚨`)
-
-      return false
     }
   }
 
@@ -110,11 +108,20 @@ export class CheckEncryption extends Command {
   }
 
   async run(): Promise<void> {
-    const { argv } = this.parse(CheckEncryption)
+    const { argv, flags } = await this.parse(CheckEncryption)
 
     if (argv.length > 0) {
       for (const configPath of argv) {
-        this.checkOneConfigFile(configPath) || process.exit(1)
+        // We can ignore this because in practice oclif would fail if passed a non-string arg
+        /* istanbul ignore next */
+        if (typeof configPath !== 'string') {
+          throw new TypeError(
+            `Received argument was not a string but: ${typeof configPath}`
+          )
+        }
+
+        this.checkOneConfigFile(configPath, flags['config-root']) ||
+          process.exit(1)
       }
 
       process.exit(0)

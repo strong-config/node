@@ -50,7 +50,7 @@ export const substituteWithEnv = (
     )
   }
 
-  const substitutedConfig = configAsString.replace(
+  const substitutedConfig = configAsString.replaceAll(
     substitutionPattern,
     (_original: string, envVariable: string) => {
       if (!process.env[envVariable]) {

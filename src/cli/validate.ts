@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Command, flags as Flags } from '@oclif/command'
+import { Args, Command, Flags } from '@oclif/core'
 import Ajv from 'ajv'
 import fastGlob from 'fast-glob'
 import ora from 'ora'
@@ -32,16 +32,16 @@ export const validateOneConfigFile = (
     spinner.text = 'Validating config against schema...'
     spinner.render()
 
-    if (!ajv.validate(schema, decryptedConfig)) {
+    if (ajv.validate(schema, decryptedConfig)) {
+      spinner.succeed(`${configPath} is valid!`)
+
+      return true
+    } else {
       spinner.fail(
         `${configPath} is invalid:\n${formatAjvErrors(ajv.errorsText())}\n`
       )
 
       return false
-    } else {
-      spinner.succeed(`${configPath} is valid!`)
-
-      return true
     }
   } catch (error) {
     spinner.fail(`${configPath} => Error during validation:`)
@@ -54,6 +54,7 @@ export const validateOneConfigFile = (
 export class Validate extends Command {
   static description = 'validate config file(s) against a JSON schema'
 
+  // Allows passing multiple args to this command
   static strict = false
 
   static flags = {
@@ -68,22 +69,20 @@ export class Validate extends Command {
     }),
   }
 
-  static args = [
-    {
-      name: 'config_file',
+  static args = {
+    config_file: Args.string({
       description:
         '[optional] path to a specific config file to validate. if omitted, all config files will be validated',
       required: false,
-    },
-  ]
+    }),
+  }
 
   static usage = 'validate [CONFIG_FILE]'
 
   static examples = [
-    '$ validate',
-    '$ validate config/development.yaml',
-    '$ validate --config-root ./nested/config-folder',
-    '$ validate --help',
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> config/development.yaml',
+    '<%= config.bin %> <%= command.id %> --config-root ./nested/config-folder',
   ]
 
   async validateAllConfigFiles(
@@ -119,7 +118,7 @@ export class Validate extends Command {
   }
 
   async run(): Promise<void> {
-    const { argv, flags } = this.parse(Validate)
+    const { argv, flags } = await this.parse(Validate)
     const configRoot = flags['config-root']
     const spinner = ora(`Loading schema from: ${configRoot}`).start()
     const schema = loadSchema(configRoot)
@@ -133,6 +132,14 @@ export class Validate extends Command {
 
     if (argv.length > 0) {
       for (const configPath of argv) {
+        // We can ignore this because in practice oclif would fail if passed a non-string arg
+        /* istanbul ignore next */
+        if (typeof configPath !== 'string') {
+          throw new TypeError(
+            `Received argument was not a string but: ${typeof configPath}`
+          )
+        }
+
         validateOneConfigFile(configPath, configRoot, schema) || process.exit(1)
       }
 

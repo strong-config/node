@@ -1,9 +1,8 @@
 import { inspect } from 'util'
 import chalk from 'chalk'
 
-// Needed for commonjs-compatibility
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/ban-ts-comment */
+// Needed for commonjs compatibility
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,  @typescript-eslint/ban-ts-comment */
 // @ts-ignore
 import StrongConfig = require('@strong-config/node')
 /* eslint-enable @typescript-eslint/no-require-imports, @typescript-eslint/ban-ts-comment */

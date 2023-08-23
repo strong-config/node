@@ -58,7 +58,7 @@ export interface Config extends TheTopLevelInterface {
   it('throws when schema title is not a string', async () => {
     const title = true
     // We're explicitly testing an invalid value here
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     readFileSyncSpy.mockReturnValueOnce(`{ "title": ${title} }`)
 
     await expect(async () =>

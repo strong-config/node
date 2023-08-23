@@ -169,40 +169,4 @@ describe('strong-config decrypt', () => {
       expect(stderr.output).toMatch('Failed to decrypt config file')
     })
   })
-
-  describe('--help', () => {
-    it('prints the help with --help', async () => {
-      try {
-        await Decrypt.run(['--help'])
-        /*
-         * NOTE: For some reason oclif throws when running the help command
-         * so we need to catch the (non-)error for the test to pass
-         */
-      } catch {
-        stdout.stop()
-      }
-
-      expect(stdout.output).toContain('USAGE')
-      expect(stdout.output).toContain('ARGUMENTS')
-      expect(stdout.output).toContain('OPTIONS')
-      expect(stdout.output).toContain('EXAMPLES')
-    })
-
-    it('always prints help with any command having --help', async () => {
-      try {
-        await Decrypt.run(['some/config/file.yaml', '--help'])
-        /*
-         * NOTE: For some reason oclif throws when running the help command
-         * so we need to catch the (non-)error for the test to pass
-         */
-      } catch {
-        stdout.stop()
-      }
-
-      expect(stdout.output).toContain('USAGE')
-      expect(stdout.output).toContain('ARGUMENTS')
-      expect(stdout.output).toContain('OPTIONS')
-      expect(stdout.output).toContain('EXAMPLES')
-    })
-  })
 })

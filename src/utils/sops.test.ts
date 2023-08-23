@@ -146,6 +146,20 @@ describe('utils :: sops', () => {
         expect(options).toContain('--verbose')
       })
     })
+
+    describe('given an invalid config file', () => {
+      it('should throw an error', () => {
+        expect(() =>
+          getSopsOptions(
+            { config_file: undefined },
+            {
+              'key-provider': 'aws',
+              'encrypted-key-suffix': 'Secret',
+            }
+          )
+        ).toThrow(sopsErrors['NO_CONFIG_FILE'])
+      })
+    })
   })
 
   describe('runSopsWithOptions()', () => {

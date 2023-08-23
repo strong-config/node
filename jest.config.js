@@ -1,5 +1,4 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -15,18 +14,17 @@ module.exports = {
       statements: 95,
     },
   },
-  globals: {
-    'ts-jest': {
-      /*
-       * This disables type-checking which makes tests a lot faster.
-       * Should be an ok tradeoff as we still have type-checking in our
-       * IDEs as well as through 'yarn build' when building the project.
-       * https://kulshekhar.github.io/ts-jest/docs/getting-started/options/isolatedModules
-       */
-      isolatedModules: true,
-    },
-  },
   preset: 'ts-jest',
   setupFilesAfterEnv: ['jest-extended/all'],
   testEnvironment: 'node',
+  transform: {
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        // Vastly improves jest performance as it skips type-checking
+        // https://kulshekhar.github.io/ts-jest/docs/getting-started/options/isolatedModules/
+        isolatedModules: true,
+      },
+    ],
+  },
 }

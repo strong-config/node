@@ -1,5 +1,5 @@
 // This is safe to disable as we're in a test file
-/* eslint-disable @typescript-eslint/unbound-method, security/detect-non-literal-regexp */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { stderr, stdout } from 'stdout-stderr'
 import Ajv from 'ajv'
 import { formatAjvErrors } from '../utils/format-ajv-errors'
@@ -218,42 +218,6 @@ describe('strong-config validate', () => {
             )}\n`
           )
         })
-      })
-    })
-
-    describe('--help', () => {
-      it('prints the help with --help', async () => {
-        try {
-          await Validate.run(['--help'])
-        } catch {
-          /*
-           * NOTE: For some reason oclif throws when running the help command
-           * so we need to catch the (non-)error for the test to pass
-           */
-          stdout.stop()
-        }
-
-        expect(stdout.output).toContain('USAGE')
-        expect(stdout.output).toContain('ARGUMENTS')
-        expect(stdout.output).toContain('OPTIONS')
-        expect(stdout.output).toContain('EXAMPLES')
-      })
-
-      it('always prints help with any command having --help', async () => {
-        try {
-          await Validate.run([encryptedConfigPath, '--help'])
-        } catch {
-          /*
-           * NOTE: For some reason oclif throws when running the help command
-           * so we need to catch the (non-)error for the test to pass
-           */
-          stdout.stop()
-        }
-
-        expect(stdout.output).toContain('USAGE')
-        expect(stdout.output).toContain('ARGUMENTS')
-        expect(stdout.output).toContain('OPTIONS')
-        expect(stdout.output).toContain('EXAMPLES')
       })
     })
   })

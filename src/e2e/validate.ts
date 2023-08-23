@@ -1,9 +1,8 @@
 import chalk from 'chalk'
 import type { Schema } from '../types'
 
-// Needed for commonjs-compatibility
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/ban-ts-comment */
+// Needed for commonjs compatibility
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 // @ts-ignore
 import StrongConfig = require('@strong-config/node')
 /* eslint-enable @typescript-eslint/no-require-imports, @typescript-eslint/ban-ts-comment */

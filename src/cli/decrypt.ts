@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Command, flags as Flags } from '@oclif/command'
+import { Args, Command, Flags } from '@oclif/core'
 import ora from 'ora'
 import { getSopsOptions, runSopsWithOptions } from '../utils/sops'
 import { loadSchema } from '../utils/load-files'
@@ -11,20 +11,18 @@ export class Decrypt extends Command {
 
   static strict = true
 
-  static args = [
-    {
-      name: 'config_file',
+  static args = {
+    config_file: Args.string({
       description:
         'path to an encrypted config file, for example: `strong-config decrypt config/production.yml`',
       required: true,
-    },
-    {
-      name: 'output_path',
+    }),
+    output_path: Args.string({
       description:
         '[optional] output file of the decrypted config. If not specified, CONFIG_FILE is overwritten in-place.',
       required: false,
-    },
-  ]
+    }),
+  }
 
   static flags = {
     help: Flags.help({
@@ -42,17 +40,13 @@ export class Decrypt extends Command {
   static usage = 'decrypt CONFIG_FILE [OUTPUT_PATH]'
 
   static examples = [
-    '$ decrypt config/development.yaml',
-    '$ decrypt config/production.yaml config/production.decrypted.yaml',
-    '$ decrypt --help',
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> config/development.yaml',
+    '<%= config.bin %> <%= command.id %> config/production.yaml config/production.decrypted.yaml',
   ]
 
-  decrypt = (): void => {
-    const { args, flags } = this.parse(Decrypt)
-
-    if (typeof args.config_file !== 'string') {
-      throw new TypeError('args.config_file is required')
-    }
+  async decrypt() {
+    const { args, flags } = await this.parse(Decrypt)
 
     const spinner = ora('Decrypting...').start()
 
@@ -90,15 +84,10 @@ export class Decrypt extends Command {
   }
 
   // All run() methods must return a Promise in oclif CLIs, regardless of whether they do something async or not.
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async run() {
-    const { args, flags } = this.parse(Decrypt)
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Decrypt)
     const configRoot = flags['config-root']
-    this.decrypt()
-
-    if (typeof args.config_file !== 'string') {
-      throw new TypeError('args.config_file is required')
-    }
+    await this.decrypt()
 
     const schema = loadSchema(configRoot)
 

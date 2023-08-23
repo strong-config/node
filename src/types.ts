@@ -7,10 +7,10 @@ export type JSONObject = { [key: string]: JSON }
 export type Schema = JSONSchema4
 
 type SopsMetadata = {
-  kms: unknown | null
-  gcp_kms: unknown | null
-  azure_kv: unknown | null
-  pgp: unknown | null
+  kms: unknown
+  gcp_kms: unknown
+  azure_kv: unknown
+  pgp: unknown
   lastmodified: string
   mac: string
   version: string

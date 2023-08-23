@@ -1,5 +1,5 @@
 // This is safe to disable as we're in a test file
-/* eslint-disable security/detect-non-literal-regexp */
+
 import { stderr, stdout } from 'stdout-stderr'
 import * as readFiles from '../utils/load-files'
 import { CheckEncryption } from './check-encryption'
@@ -147,12 +147,14 @@ describe('strong-config check-encryption', () => {
       expect(checkOneConfigFileSpy).toHaveBeenCalledTimes(2)
       expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
         1,
-        encryptedConfigPath
+        encryptedConfigPath,
+        configRoot
       )
 
       expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
         2,
-        unencryptedConfigPath
+        unencryptedConfigPath,
+        configRoot
       )
     })
 
@@ -180,23 +182,25 @@ describe('strong-config check-encryption', () => {
           CheckEncryption.prototype,
           'checkOneConfigFile'
         )
-        const flags = { 'config-root': 'example' }
-        await CheckEncryption.run(['--config-root', flags['config-root']])
+        await CheckEncryption.run(['--config-root', configRoot])
 
         expect(checkOneConfigFileSpy).toHaveBeenCalledTimes(
           allConfigFiles.length
         )
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           1,
-          allConfigFiles[0]
+          allConfigFiles[0],
+          configRoot
         )
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           2,
-          allConfigFiles[1]
+          allConfigFiles[1],
+          configRoot
         )
         expect(checkOneConfigFileSpy).toHaveBeenNthCalledWith(
           3,
-          allConfigFiles[2]
+          allConfigFiles[2],
+          configRoot
         )
       })
 
