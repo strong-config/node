@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/strong-config/node/compare/v1.3.4...v2.0.0) (2023-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* Dropped support for Node 12.x and 14.x
+
+### Features
+
+* updated all dependencies, migrated to latest major oclif version ([f530ae3](https://github.com/strong-config/node/commit/f530ae37a346a9ba574af6da5e643b900355ff79))
+
 ### [1.3.4](https://github.com/strong-config/node/compare/v1.3.2...v1.3.4) (2023-07-11)
 
 ### [1.3.3](https://github.com/strong-config/node/compare/v1.3.2...v1.3.3) (2023-06-27)
