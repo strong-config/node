@@ -1,5 +1,8 @@
 <!-- markdownlint-disable MD013 MD026 MD033 MD034 -->
 
+# ⚠️ DEPRECATED - This package is no longer maintained
+This package has been deprecated and is no longer actively maintained.
+
 # 💪 Strong Config
 
 https://strong-config.dev
